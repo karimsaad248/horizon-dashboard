@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon Dashboard</title>
+<style>
+:root{
+  --bg-0:#0b0f14; --bg-1:#101720; --bg-2:#151d28;
+  --glass: rgba(255,255,255,0.045); --glass-border: rgba(255,255,255,0.08);
+  --emerald:#10b981; --gold:#e0a53c; --text-hi:#eef2f0; --text-mid:#9aa7ac; --text-low:#61707a;
+  --danger:#e05353; --radius:20px;
+}
+body.light{
+  --bg-0:#f3f5f4; --bg-1:#ffffff; --bg-2:#eef1f0;
+  --glass: rgba(255,255,255,0.6); --glass-border: rgba(0,0,0,0.06);
+  --text-hi:#12181a; --text-mid:#5a6a6d; --text-low:#8a9599;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;}
+body{
+  background: radial-gradient(circle at 15% 10%, var(--bg-2), var(--bg-0) 60%);
+  color:var(--text-hi); min-height:100vh; padding:26px; transition:background .4s;
+}
+.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+.brand h1{font-family:Georgia,'Times New Roman',serif;font-size:2.1rem;font-weight:600;letter-spacing:.3px;
+  background:linear-gradient(120deg,var(--emerald),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.brand .sub{color:var(--text-mid);font-size:.85rem;margin-top:2px;}
+.top-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.pill{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(14px);
+  padding:8px 16px;border-radius:30px;font-size:.85rem;color:var(--text-mid);display:flex;align-items:center;gap:8px;}
+.toggle-btn{background:var(--glass);border:1px solid var(--glass-border);color:var(--text-hi);
+  width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.toggle-btn:hover{border-color:var(--emerald);}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;}
+.card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(16px);
+  border-radius:var(--radius);padding:20px;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);
+  transition:transform .25s, border-color .25s; position:relative;}
+.card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.15);}
+.c-cal{grid-column:span 7;grid-row:span 2;} .c-side{grid-column:span 5;display:flex;flex-direction:column;gap:18px;}
+.c-clocks{grid-column:span 12;} .c-prayer{grid-column:span 4;} .c-fx{grid-column:span 8;} .c-holiday{grid-column:span 4;}
+.c-radio{grid-column:span 12;}
+
+h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--text-mid);margin-bottom:14px;font-weight:700;}
+.stamp{position:absolute;top:18px;right:20px;font-size:.65rem;color:var(--text-low);}
+
+/* Clocks */
+.clocks-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
+.clock-item{padding:12px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);}
+.clock-name{font-size:.8rem;color:var(--text-mid);font-weight:600;}
+.clock-time{font-size:1.6rem;font-weight:700;margin:2px 0;font-variant-numeric:tabular-nums;}
+.clock-wx{font-size:.78rem;color:var(--text-low);display:flex;align-items:center;gap:5px;}
+
+/* Agenda */
+.agenda-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;}
+.agenda-item{display:flex;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);align-items:center;}
+.agenda-time{font-weight:700;font-size:.85rem;color:var(--gold);min-width:64px;}
+.agenda-title{font-size:.9rem;color:var(--text-hi);}
+.agenda-tag{font-size:.65rem;padding:2px 8px;border-radius:8px;font-weight:700;text-transform:uppercase;margin-left:auto;}
+.agenda-tag.event{background:rgba(14,165,233,.18);color:#7fd4f5;}
+.agenda-tag.task{background:rgba(16,185,129,.18);color:#7fe0bb;}
+.agenda-empty{color:var(--text-low);font-size:.85rem;padding:10px;}
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
+.week-day{padding:10px 6px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);text-align:center;}
+.week-day .wd-name{font-size:.7rem;color:var(--text-mid);font-weight:700;}
+.week-day .wd-count{font-size:1.1rem;font-weight:800;margin:4px 0;}
+.week-day .wd-first{font-size:.65rem;color:var(--text-low);}
+
+/* Prayer */
+.prayer-count{font-size:1.3rem;font-weight:800;color:var(--gold);margin-bottom:12px;}
+.p-list{display:flex;flex-direction:column;gap:8px;}
+.p-row{display:flex;justify-content:space-between;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,0.03);font-size:.88rem;}
+.p-row.active{background:linear-gradient(120deg,rgba(16,185,129,.25),rgba(224,165,60,.2));border:1px solid var(--emerald);}
+.p-name{color:var(--text-mid);} .p-row.active .p-name{color:var(--text-hi);}
+
+/* FX */
+.fx-input-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.fx-input-row select, .fx-input-row input{background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);
+  color:var(--text-hi);border-radius:10px;padding:9px 12px;font-size:.9rem;}
+.fx-input-row input{width:110px;font-weight:700;}
+.fx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;}
+.fx-box{padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);}
+.fx-box.gold{border-color:var(--gold);}
+.fx-label{font-size:.72rem;color:var(--text-mid);font-weight:700;text-transform:uppercase;}
+.fx-val{font-size:1.15rem;font-weight:700;margin-top:3px;}
+.fx-note{font-size:.68rem;color:var(--text-low);margin-top:12px;}
+
+/* Holidays */
+.h-country{margin-bottom:14px;} .h-country:last-child{margin-bottom:0;}
+.h-head{display:flex;justify-content:space-between;font-size:.85rem;font-weight:700;margin-bottom:5px;}
+.h-tag{font-size:.68rem;padding:2px 9px;border-radius:9px;font-weight:700;}
+.h-tag.weekend{background:rgba(224,83,83,.18);color:#f39a9a;}
+.h-tag.workday{background:rgba(16,185,129,.15);color:#7fe0bb;}
+.h-alert{font-size:.8rem;color:var(--text-mid);}
+.h-alert.today{color:var(--gold);font-weight:700;}
+
+/* Radio */
+.radio-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.play-btn{background:var(--emerald);border:none;width:42px;height:42px;border-radius:50%;color:#04150e;
+  font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.play-btn:hover{filter:brightness(1.1);}
+.radio-meta{font-size:.85rem;color:var(--text-mid);}
+.radio-status{font-size:.72rem;color:var(--text-low);}
+
+.err{color:var(--danger);font-size:.72rem;}
+
+@media(max-width:1100px){.c-cal,.c-side{grid-column:span 12;} .c-prayer,.c-fx,.c-holiday{grid-column:span 12;}}
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <h1 id="greeting">Good Evening</h1>
+    <div class="sub" id="live-date">Loading date…</div>
+  </div>
+  <div class="top-controls">
+    <div class="pill" id="clock-cairo-pill">🕐 --:--</div>
+    <button class="toggle-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- Calendar / Tasks Agenda -->
+  <div class="card c-cal">
+    <h2>📅 Today — Events &amp; Tasks</h2>
+    <div id="signin-block">
+      <button id="gsi-btn" class="pill" style="cursor:pointer;border:1px solid var(--emerald);">Sign in with Google</button>
+      <div class="fx-note" style="margin-top:10px;">Sign-in only works on the published web page (sites.google.com) — not inside a desktop wallpaper wrapper.</div>
+    </div>
+    <div id="agenda-block" style="display:none;">
+      <div id="today-list" class="agenda-list"></div>
+      <h2 style="margin-top:22px;">Next 7 Days</h2>
+      <div id="week-strip" class="week-strip"></div>
+    </div>
+    <div class="stamp" id="stamp-cal"></div>
+  </div>
+
+  <div class="c-side">
+    <div class="card c-prayer" style="grid-column:span 12;">
+      <h2>🕌 Prayers · Cairo</h2>
+      <div class="prayer-count" id="prayer-countdown">-- h -- m</div>
+      <div class="p-list" id="prayer-list">
+        <div class="p-row" id="p-fajr"><span class="p-name">Fajr</span><span>--:--</span></div>
+        <div class="p-row" id="p-dhuhr"><span class="p-name">Dhuhr</span><span>--:--</span></div>
+        <div class="p-row" id="p-asr"><span class="p-name">Asr</span><span>--:--</span></div>
+        <div class="p-row" id="p-maghrib"><span class="p-name">Maghrib</span><span>--:--</span></div>
+        <div class="p-row" id="p-isha"><span class="p-name">Isha</span><span>--:--</span></div>
+      </div>
+      <div class="stamp" id="stamp-prayer"></div>
+    </div>
+
+    <div class="card c-holiday" style="grid-column:span 12;">
+      <h2>🎉 30-Day Holidays &amp; Weekends</h2>
+      <div id="holiday-list">
+        <div class="h-country" id="hc-eg"><div class="h-head"><span>🇪🇬 Egypt</span><span class="h-tag" id="we-eg">–</span></div><div class="h-alert" id="al-eg">Loading…</div></div>
+        <div class="h-country" id="hc-tr"><div class="h-head"><span>🇹🇷 Turkey</span><span class="h-tag" id="we-tr">–</span></div><div class="h-alert" id="al-tr">Loading…</div></div>
+        <div class="h-country" id="hc-uk"><div class="h-head"><span>🇬🇧 United Kingdom</span><span class="h-tag" id="we-uk">–</span></div><div class="h-alert" id="al-uk">Loading…</div></div>
+      </div>
+      <div class="stamp" id="stamp-holiday"></div>
+    </div>
+  </div>
+
+  <!-- Clocks -->
+  <div class="card c-clocks">
+    <h2>🌍 World Clocks &amp; Weather</h2>
+    <div class="clocks-row">
+      <div class="clock-item" id="tz-cairo"><div class="clock-name">Cairo</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
+      <div class="clock-item" id="tz-istanbul"><div class="clock-name">Istanbul</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
+      <div class="clock-item" id="tz-london"><div class="clock-name">London</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
+      <div class="clock-item" id="tz-newyork"><div class="clock-name">New York</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
+    </div>
+    <div class="stamp" id="stamp-weather"></div>
+  </div>
+
+  <!-- FX -->
+  <div class="card c-fx">
+    <h2>📈 Currency &amp; Gold</h2>
+    <div class="fx-input-row">
+      <select id="base-currency">
+        <option value="USD" selected>USD</option>
+        <option value="GBP">GBP</option>
+        <option value="EUR">EUR</option>
+        <option value="EGP">EGP</option>
+        <option value="TRY">TRY</option>
+      </select>
+      <input type="number" id="base-amount" value="1" step="any">
+      <span style="align-self:center;color:var(--text-mid);font-size:.85rem;" id="fx-live-status">syncing…</span>
+    </div>
+    <div class="fx-grid" id="fx-grid"></div>
+    <div class="fx-note">Mid-market indicative rates — not buy/sell (exchange office) pricing.</div>
+    <div class="stamp" id="stamp-fx"></div>
+  </div>
+
+  <!-- Radio -->
+  <div class="card c-radio">
+    <h2>📻 Live Radio</h2>
+    <div class="radio-bar">
+      <button class="play-btn" id="stream-trigger">▶</button>
+      <div>
+        <div class="radio-meta">Quran Radio — Cairo</div>
+        <div class="radio-status" id="radio-status">Ready</div>
+      </div>
+      <audio id="live-stream-core" preload="none" crossorigin="anonymous"
+        src="https://n0a.radiojar.com/8s9u5tzzwczuv?rj-ttl=5&rj-tok=AAABmC0aQhYAaVkDU7v6nR0qXA"></audio>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------- THEME ---------- */
+const themeToggle = document.getElementById('theme-toggle');
+themeToggle.onclick = () => {
+  document.body.classList.toggle('light');
+  themeToggle.innerText = document.body.classList.contains('light') ? '☀️' : '🌙';
+};
+
+/* ---------- CLOCKS / DATE ---------- */
+const locations = {
+  cairo:{tz:'Africa/Cairo',lat:30.0444,lon:31.2357},
+  istanbul:{tz:'Europe/Istanbul',lat:41.0082,lon:28.9784},
+  london:{tz:'Europe/London',lat:51.5074,lon:-0.1278},
+  newyork:{tz:'America/New_York',lat:40.7128,lon:-74.0060}
+};
+function updateClocks(){
+  const now = new Date();
+  document.getElementById('live-date').innerText = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const h = now.getHours();
+  document.getElementById('greeting').innerText = h<12?'Good Morning':h<18?'Good Afternoon':'Good Evening';
+  for(const [name,cfg] of Object.entries(locations)){
+    const str = now.toLocaleTimeString('en-US',{timeZone:cfg.tz,hour12:false,hour:'2-digit',minute:'2-digit'});
+    const el = document.querySelector(`#tz-${name} .clock-time`);
+    if(el) el.innerText = str;
+    if(name==='cairo') document.getElementById('clock-cairo-pill').innerText = `🕐 ${str} Cairo`;
+  }
+  evaluateHolidays(now);
+}
+
+/* ---------- HOLIDAYS (kept fixed calendar list; Hijri-dependent ones flagged) ---------- */
+const holidays2026 = {
+  eg:[{date:"2026-01-07",label:"Coptic Christmas"},{date:"2026-01-25",label:"Revolution Day"},
+      {date:"2026-03-20",label:"Eid Al-Fitr*"},{date:"2026-04-13",label:"Sham El-Nessim"},
+      {date:"2026-04-25",label:"Sinai Liberation"},{date:"2026-05-01",label:"Labor Day"},
+      {date:"2026-05-27",label:"Eid Al-Adha*"},{date:"2026-06-16",label:"Islamic New Year*"},
+      {date:"2026-06-30",label:"June 30 Revolution"},{date:"2026-07-23",label:"Revolution Day"},
+      {date:"2026-08-25",label:"Mawlid al-Nabi*"},{date:"2026-10-06",label:"Armed Forces Day"}],
+  tr:[{date:"2026-01-01",label:"New Year's Day"},{date:"2026-03-20",label:"Ramadan Feast*"},
+      {date:"2026-04-23",label:"Children's Day"},{date:"2026-05-01",label:"Labor Day"},
+      {date:"2026-05-19",label:"Youth & Sports Day"},{date:"2026-05-27",label:"Sacrifice Feast*"},
+      {date:"2026-07-15",label:"Democracy Day"},{date:"2026-08-30",label:"Victory Day"},
+      {date:"2026-10-29",label:"Republic Day"}],
+  uk:[{date:"2026-01-01",label:"New Year's Day"},{date:"2026-04-03",label:"Good Friday"},
+      {date:"2026-04-06",label:"Easter Monday"},{date:"2026-05-04",label:"Early May Bank Holiday"},
+      {date:"2026-05-25",label:"Spring Bank Holiday"},{date:"2026-08-31",label:"Summer Bank Holiday"},
+      {date:"2026-12-25",label:"Christmas Day"},{date:"2026-12-28",label:"Boxing Day (Obs)"}]
+};
+// *marked entries depend on moon sighting — verify closer to date.
+function evaluateHolidays(now){
+  const dow = now.getDay();
+  const isEgWknd = (dow===5||dow===6);
+  const isTrUkWknd = (dow===6||dow===0);
+  setTag('eg', isEgWknd); setTag('tr', isTrUkWknd); setTag('uk', isTrUkWknd);
+  ['eg','tr','uk'].forEach(c=>{
+    let found=null;
+    for(let i=0;i<=30;i++){
+      const d=new Date(now); d.setDate(now.getDate()+i);
+      const ds=d.toISOString().split('T')[0];
+      const m = holidays2026[c].find(h=>h.date===ds);
+      if(m){found={label:m.label,days:i};break;}
+    }
+    const el = document.getElementById(`al-${c}`);
+    if(found){
+      el.className = found.days===0?'h-alert today':'h-alert';
+      el.innerText = found.days===0?`Today — ${found.label}`:`${found.label} in ${found.days}d`;
+    } else { el.className='h-alert'; el.innerText='No holidays in 30 days'; }
+  });
+  document.getElementById('stamp-holiday').innerText = 'Updated '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+function setTag(id,isWknd){
+  const el = document.getElementById(`we-${id}`);
+  el.innerText = isWknd?'Weekend':'Work Day';
+  el.className = 'h-tag '+(isWknd?'weekend':'workday');
+}
+
+/* ---------- WEATHER ---------- */
+async function fetchWeather(){
+  for(const [name,cfg] of Object.entries(locations)){
+    const el = document.querySelector(`#tz-${name} .clock-wx`);
+    try{
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${cfg.lat}&longitude=${cfg.lon}&current_weather=true`);
+      if(!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      const t = Math.round(data.current_weather.temperature);
+      const code = data.current_weather.weathercode;
+      el.innerText = `${wxIcon(code)} ${t}°C`;
+    }catch(e){ el.innerHTML = `<span class="err">offline</span>`; }
+  }
+  document.getElementById('stamp-weather').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+function wxIcon(code){
+  if(code===0) return '☀️';
+  if([1,2].includes(code)) return '🌤️';
+  if(code===3) return '☁️';
+  if([45,48].includes(code)) return '🌫️';
+  if(code>=51&&code<=67) return '🌧️';
+  if(code>=71&&code<=77) return '❄️';
+  if(code>=80&&code<=82) return '🌦️';
+  if(code>=95) return '⛈️';
+  return '🌡️';
+}
+
+/* ---------- FX + GOLD ---------- */
+let ratesUSD = null; // rates relative to USD base
+const currencies = ['USD','GBP','EUR','EGP','TRY'];
+async function fetchFX(){
+  const statusEl = document.getElementById('fx-live-status');
+  try{
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    if(data.result !== 'success') throw new Error('api error');
+    ratesUSD = data.rates;
+    statusEl.innerText = 'live';
+    statusEl.style.color = 'var(--emerald)';
+    renderFX();
+  }catch(e){
+    statusEl.innerText = 'offline — showing last known';
+    statusEl.style.color = 'var(--danger)';
+  }
+  document.getElementById('stamp-fx').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+async function fetchGoldOunceUSD(){
+  // Metals-API-style public endpoint fallback chain
+  try{
+    const res = await fetch('https://api.gold-api.com/price/XAU');
+    if(!res.ok) throw new Error('bad');
+    const d = await res.json();
+    if(d && d.price) return d.price;
+    throw new Error('no price');
+  }catch(e){ return null; }
+}
+let goldOunceUSD = null;
+async function refreshGold(){ goldOunceUSD = await fetchGoldOunceUSD(); renderFX(); }
+
+function renderFX(){
+  if(!ratesUSD) return;
+  const base = document.getElementById('base-currency').value;
+  const amt = parseFloat(document.getElementById('base-amount').value) || 0;
+  // convert amt(base) -> USD -> each currency
+  const baseToUSD = amt / ratesUSD[base];
+  const grid = document.getElementById('fx-grid');
+  grid.innerHTML = '';
+  currencies.forEach(cur=>{
+    if(cur===base) return;
+    const val = baseToUSD * ratesUSD[cur];
+    const box = document.createElement('div');
+    box.className='fx-box';
+    box.innerHTML = `<div class="fx-label">${cur}</div><div class="fx-val">${val.toLocaleString(undefined,{maximumFractionDigits:2})}</div>`;
+    grid.appendChild(box);
+  });
+  // gold: gram price in base currency
+  const goldBox = document.createElement('div');
+  goldBox.className='fx-box gold';
+  if(goldOunceUSD){
+    const gramUSD = goldOunceUSD/31.1034768;
+    const gramInBase = gramUSD * ratesUSD[base] ; // ratesUSD[base] converts 1 USD to base currency
+    goldBox.innerHTML = `<div class="fx-label">Gold 24k /g</div><div class="fx-val">${gramInBase.toLocaleString(undefined,{maximumFractionDigits:2})} ${base}</div>`;
+  } else {
+    goldBox.innerHTML = `<div class="fx-label">Gold 24k /g</div><div class="fx-val err">unavailable</div>`;
+  }
+  grid.appendChild(goldBox);
+}
+document.getElementById('base-currency').addEventListener('change', renderFX);
+document.getElementById('base-amount').addEventListener('input', renderFX);
+
+/* ---------- PRAYER TIMES ---------- */
+async function updatePrayerTimes(){
+  try{
+    const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5');
+    if(!res.ok) throw new Error('bad');
+    const data = await res.json();
+    const t = data.data.timings;
+    const prayers = {Fajr:t.Fajr,Dhuhr:t.Dhuhr,Asr:t.Asr,Maghrib:t.Maghrib,Isha:t.Isha};
+    for(const [name,time] of Object.entries(prayers)){
+      document.querySelector(`#p-${name.toLowerCase()} span:last-child`).innerText = time;
+    }
+    calcCountdown(prayers);
+    document.getElementById('stamp-prayer').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){
+    document.getElementById('prayer-countdown').innerHTML = '<span class="err">offline</span>';
+  }
+}
+function calcCountdown(prayers){
+  const now = new Date();
+  const [ch,cm] = now.toLocaleTimeString('en-US',{hour12:false}).split(':').map(Number);
+  const cur = ch*60+cm;
+  let next='Fajr', diffMin=Infinity;
+  for(const [name,time] of Object.entries(prayers)){
+    const [ph,pm] = time.split(':').map(Number);
+    const total = ph*60+pm;
+    const diff = total-cur;
+    if(diff>0 && diff<diffMin){diffMin=diff; next=name;}
+  }
+  if(diffMin===Infinity){
+    const [ph,pm] = prayers.Fajr.split(':').map(Number);
+    diffMin = (1440-cur)+(ph*60+pm); next='Fajr';
+  }
+  document.querySelectorAll('.p-row').forEach(r=>r.classList.remove('active'));
+  document.getElementById(`p-${next.toLowerCase()}`).classList.add('active');
+  document.getElementById('prayer-countdown').innerText = `${Math.floor(diffMin/60)}h ${diffMin%60}m to ${next}`;
+}
+
+/* ---------- RADIO ---------- */
+const audioEl = document.getElementById('live-stream-core');
+const streamBtn = document.getElementById('stream-trigger');
+const radioStatus = document.getElementById('radio-status');
+streamBtn.onclick = () => {
+  if(audioEl.paused){
+    radioStatus.innerText='Connecting…';
+    audioEl.play().then(()=>{ radioStatus.innerText='Live'; streamBtn.innerText='⏸'; })
+      .catch(()=>{ radioStatus.innerText='Stream unavailable — check network/URL'; });
+  } else {
+    audioEl.pause(); streamBtn.innerText='▶'; radioStatus.innerText='Paused';
+  }
+};
+audioEl.addEventListener('error', ()=>{ radioStatus.innerHTML='<span class="err">Stream error — URL may be dead</span>'; });
+
+/* ---------- CALENDAR + TASKS AGENDA (OAuth) ---------- */
+const GOOGLE_CLIENT_ID = '280014070383-1jd6blen4fn102vn7bg3o2pjvgeogmnv.apps.googleusercontent.com';
+const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks.readonly';
+let gAccessToken = null;
+let tokenClient = null;
+
+function initGoogleAuth(){
+  if(typeof google === 'undefined' || !google.accounts){ setTimeout(initGoogleAuth, 400); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: GOOGLE_SCOPES,
+    callback: (resp) => {
+      if(resp && resp.access_token){
+        gAccessToken = resp.access_token;
+        document.getElementById('signin-block').style.display='none';
+        document.getElementById('agenda-block').style.display='block';
+        loadAgenda();
+      }
+    }
+  });
+  document.getElementById('gsi-btn').onclick = () => tokenClient.requestAccessToken();
+}
+
+async function loadAgenda(){
+  const now = new Date();
+  const startToday = new Date(now); startToday.setHours(0,0,0,0);
+  const endWeek = new Date(now); endWeek.setDate(endWeek.getDate()+7); endWeek.setHours(23,59,59,999);
+
+  const headers = { 'Authorization': 'Bearer ' + gAccessToken };
+  let events = [], tasks = [];
+
+  try{
+    const evRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startToday.toISOString()}&timeMax=${endWeek.toISOString()}&singleEvents=true&orderBy=startTime`, {headers});
+    if(!evRes.ok) throw new Error('cal fetch failed');
+    const evData = await evRes.json();
+    events = evData.items || [];
+  }catch(e){ console.error(e); }
+
+  try{
+    const listRes = await fetch('https://tasks.googleapis.com/tasks/v1/users/@me/lists', {headers});
+    if(listRes.ok)y
+      const listData = await listRes.json();
+      for(const list of (listData.items||[])){
+        const tRes = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${list.id}/tasks?showCompleted=false&dueMin=${startToday.toISOString()}&dueMax=${endWeek.toISOString()}`, {headers});
+        if(tRes.ok){ const tData = await tRes.json(); tasks = tasks.concat(tData.items||[]); }
+      }
+    }
+  }catch(e){ console.error(e); }
+
+  renderToday(events, tasks, now);
+  renderWeekStrip(events, tasks, now);
+  document.getElementById('stamp-cal').innerText = 'Updated '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+
+function isSameDay(d1,d2){ return d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth() && d1.getDate()===d2.getDate(); }
+
+function renderToday(events, tasks, now){
+  const list = document.getElementById('today-list');
+  list.innerHTML = '';
+  const items = [];
+  events.forEach(ev=>{
+    const start = ev.start.dateTime ? new Date(ev.start.dateTime) : new Date(ev.start.date+'T00:00:00');
+    if(isSameDay(start, now)){
+      items.push({time: ev.start.dateTime ? start.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : 'All day', sortKey: start.getTime(), title: ev.summary||'(untitled)', type:'event'});
+    }
+  });
+  tasks.forEach(t=>{
+    if(t.due){
+      const due = new Date(t.due);
+      if(isSameDay(due, now)){
+        items.push({time: 'Due', sortKey: due.getTime(), title: t.title||'(untitled)', type:'task'});
+      }
+    }
+  });
+  items.sort((a,b)=>a.sortKey-b.sortKey);
+  if(items.length===0){ list.innerHTML = '<div class="agenda-empty">Nothing scheduled today.</div>'; return; }
+  items.forEach(it=>{
+    const row = document.createElement('div'); row.className='agenda-item';
+    row.innerHTML = `<span class="agenda-time">${it.time}</span><span class="agenda-title">${escapeHtml(it.title)}</span><span class="agenda-tag ${it.type}">${it.type}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function renderWeekStrip(events, tasks, now){
+  const strip = document.getElementById('week-strip');
+  strip.innerHTML='';
+  for(let i=0;i<7;i++){
+    const day = new Date(now); day.setDate(now.getDate()+i);
+    const dayEvents = events.filter(ev=>{
+      const start = ev.start.dateTime ? new Date(ev.start.dateTime) : new Date(ev.start.date+'T00:00:00');
+      return isSameDay(start, day);
+    });
+    const dayTasks = tasks.filter(t=> t.due && isSameDay(new Date(t.due), day));
+    const count = dayEvents.length + dayTasks.length;
+    const first = dayEvents[0]?.summary || dayTasks[0]?.title || '';
+    const cell = document.createElement('div'); cell.className='week-day';
+    cell.innerHTML = `<div class="wd-name">${day.toLocaleDateString('en-US',{weekday:'short'})}</div><div class="wd-count">${count}</div><div class="wd-first">${escapeHtml(first.slice(0,14))}</div>`;
+    strip.appendChild(cell);
+  }
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div'); d.innerText = str; return d.innerHTML;
+}
+
+/* ---------- INIT ---------- */
+updateClocks(); fetchWeather(); fetchFX(); refreshGold(); updatePrayerTimes(); initGoogleAuth();
+setInterval(updateClocks, 1000);
+setInterval(updatePrayerTimes, 60000);
+setInterval(fetchWeather, 900000);
+setInterval(fetchFX, 3600000);
+setInterval(refreshGold, 3600000);
+setInterval(()=>{ if(gAccessToken) loadAgenda(); }, 900000);
+</script>
+</body>
+</html>
