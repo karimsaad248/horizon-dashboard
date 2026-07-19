@@ -425,7 +425,7 @@ streamBtn.onclick = () => {
     audioEl.play().then(()=>{ radioStatus.innerText='Live'; streamBtn.innerText='⏸'; })
       .catch(()=>{ radioStatus.innerText='Stream unavailable — check network/URL'; });
   } else {
-    audioEl.pause(); streamBtn.innerText='▶'; radioStatus.innerText='Paused';
+    audioEl.pause(); streamBtn.innerText='▶'; radioStatus='Paused';
   }
 };
 audioEl.addEventListener('error', ()=>{ radioStatus.innerHTML='<span class="err">Stream error — URL may be dead</span>'; });
@@ -470,7 +470,7 @@ async function loadAgenda(){
 
   try{
     const listRes = await fetch('https://tasks.googleapis.com/tasks/v1/users/@me/lists', {headers});
-    if(listRes.ok)y
+    if(listRes.ok){
       const listData = await listRes.json();
       for(const list of (listData.items||[])){
         const tRes = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${list.id}/tasks?showCompleted=false&dueMin=${startToday.toISOString()}&dueMax=${endWeek.toISOString()}`, {headers});
