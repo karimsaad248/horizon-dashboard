@@ -59,6 +59,11 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 .agenda-tag{font-size:.65rem;padding:2px 8px;border-radius:8px;font-weight:700;text-transform:uppercase;margin-left:auto;}
 .agenda-tag.event{background:rgba(14,165,233,.18);color:#7fd4f5;}
 .agenda-tag.task{background:rgba(16,185,129,.18);color:#7fe0bb;}
+.agenda-tag.overdue{background:rgba(224,83,83,.22);color:#f39a9a;}
+.overdue-block{margin-bottom:14px;}
+.week-day{cursor:pointer;transition:border-color .2s,background .2s;}
+.week-day:hover{border-color:var(--emerald);}
+.week-day.selected{border-color:var(--gold);background:rgba(224,165,60,.12);}
 .agenda-empty{color:var(--text-low);font-size:.85rem;padding:10px;}
 .week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
 .week-day{padding:10px 6px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);text-align:center;}
@@ -133,8 +138,10 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
       <div class="fx-note" style="margin-top:10px;">Sign-in only works on the published web page (sites.google.com) — not inside a desktop wallpaper wrapper.</div>
     </div>
     <div id="agenda-block" style="display:none;">
+      <div id="overdue-block"></div>
+      <h2 id="agenda-day-label">Today</h2>
       <div id="today-list" class="agenda-list"></div>
-      <h2 style="margin-top:22px;">Next 7 Days</h2>
+      <h2 style="margin-top:22px;">Next 7 Days <span style="font-weight:400;text-transform:none;font-size:.7rem;color:var(--text-low);">(tap a day)</span></h2>
       <div id="week-strip" class="week-strip"></div>
     </div>
     <div class="stamp" id="stamp-cal"></div>
@@ -425,7 +432,7 @@ streamBtn.onclick = () => {
     audioEl.play().then(()=>{ radioStatus.innerText='Live'; streamBtn.innerText='⏸'; })
       .catch(()=>{ radioStatus.innerText='Stream unavailable — check network/URL'; });
   } else {
-    audioEl.pause(); streamBtn.innerText='▶'; radioStatus='Paused';
+    audioEl.pause(); streamBtn.innerText='▶'; radioStatus.innerText='Paused';
   }
 };
 audioEl.addEventListener('error', ()=>{ radioStatus.innerHTML='<span class="err">Stream error — URL may be dead</span>'; });
@@ -435,6 +442,23 @@ const GOOGLE_CLIENT_ID = '280014070383-1jd6blen4fn102vn7bg3o2pjvgeogmnv.apps.goo
 const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks.readonly';
 let gAccessToken = null;
 let tokenClient = null;
+let allEvents = [], allTasks = [];
+let selectedDayOffset = 0;
+const TOKEN_STORAGE_KEY = 'horizon_g_token';
+
+function saveToken(resp){
+  const expiry = Date.now() + (resp.expires_in ? resp.expires_in*1000 : 3500*1000);
+  try{ localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify({token: resp.access_token, expiry})); }catch(e){}
+}
+function loadStoredToken(){
+  try{
+    const raw = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(data.expiry && data.expiry > Date.now()+60000) return data.token;
+  }catch(e){}
+  return null;
+}
 
 function initGoogleAuth(){
   if(typeof google === 'undefined' || !google.accounts){ setTimeout(initGoogleAuth, 400); return; }
@@ -444,19 +468,33 @@ function initGoogleAuth(){
     callback: (resp) => {
       if(resp && resp.access_token){
         gAccessToken = resp.access_token;
+        saveToken(resp);
         document.getElementById('signin-block').style.display='none';
         document.getElementById('agenda-block').style.display='block';
         loadAgenda();
       }
     }
   });
-  document.getElementById('gsi-btn').onclick = () => tokenClient.requestAccessToken();
+  document.getElementById('gsi-btn').onclick = () => tokenClient.requestAccessToken({prompt:'consent'});
+
+  // Try silent reuse of stored token, else attempt silent re-auth once.
+  const stored = loadStoredToken();
+  if(stored){
+    gAccessToken = stored;
+    document.getElementById('signin-block').style.display='none';
+    document.getElementById('agenda-block').style.display='block';
+    loadAgenda();
+  } else {
+    // Attempt a silent (no-popup) auth in case the user already granted consent in this browser.
+    try{ tokenClient.requestAccessToken({prompt:''}); }catch(e){}
+  }
 }
 
 async function loadAgenda(){
   const now = new Date();
-  const startToday = new Date(now); startToday.setHours(0,0,0,0);
+  const overdueFloor = new Date(now); overdueFloor.setDate(overdueFloor.getDate()-60); // catch overdue tasks up to 60 days back
   const endWeek = new Date(now); endWeek.setDate(endWeek.getDate()+7); endWeek.setHours(23,59,59,999);
+  const startToday = new Date(now); startToday.setHours(0,0,0,0);
 
   const headers = { 'Authorization': 'Bearer ' + gAccessToken };
   let events = [], tasks = [];
@@ -473,39 +511,60 @@ async function loadAgenda(){
     if(listRes.ok){
       const listData = await listRes.json();
       for(const list of (listData.items||[])){
-        const tRes = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${list.id}/tasks?showCompleted=false&dueMin=${startToday.toISOString()}&dueMax=${endWeek.toISOString()}`, {headers});
+        const tRes = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${list.id}/tasks?showCompleted=false&dueMin=${overdueFloor.toISOString()}&dueMax=${endWeek.toISOString()}&maxResults=100`, {headers});
         if(tRes.ok){ const tData = await tRes.json(); tasks = tasks.concat(tData.items||[]); }
       }
     }
   }catch(e){ console.error(e); }
 
-  renderToday(events, tasks, now);
-  renderWeekStrip(events, tasks, now);
+  allEvents = events; allTasks = tasks;
+  renderOverdue(now);
+  renderDayAgenda(selectedDayOffset, now);
+  renderWeekStrip(now);
   document.getElementById('stamp-cal').innerText = 'Updated '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 }
 
 function isSameDay(d1,d2){ return d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth() && d1.getDate()===d2.getDate(); }
 
-function renderToday(events, tasks, now){
+function renderOverdue(now){
+  const block = document.getElementById('overdue-block');
+  const todayStart = new Date(now); todayStart.setHours(0,0,0,0);
+  const overdue = allTasks.filter(t=> t.due && new Date(t.due) < todayStart);
+  if(overdue.length===0){ block.innerHTML=''; return; }
+  overdue.sort((a,b)=> new Date(a.due)-new Date(b.due));
+  let html = '<h2 style="color:var(--danger);">Overdue</h2><div class="agenda-list">';
+  overdue.forEach(t=>{
+    const d = new Date(t.due);
+    html += `<div class="agenda-item"><span class="agenda-time">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span><span class="agenda-title">${escapeHtml(t.title||'(untitled)')}</span><span class="agenda-tag overdue">overdue</span></div>`;
+  });
+  html += '</div>';
+  block.innerHTML = html;
+}
+
+function renderDayAgenda(offset, now){
+  const day = new Date(now); day.setDate(now.getDate()+offset);
+  const label = document.getElementById('agenda-day-label');
+  label.innerText = offset===0 ? 'Today' : day.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+
   const list = document.getElementById('today-list');
   list.innerHTML = '';
   const items = [];
-  events.forEach(ev=>{
+  allEvents.forEach(ev=>{
     const start = ev.start.dateTime ? new Date(ev.start.dateTime) : new Date(ev.start.date+'T00:00:00');
-    if(isSameDay(start, now)){
+    if(isSameDay(start, day)){
       items.push({time: ev.start.dateTime ? start.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : 'All day', sortKey: start.getTime(), title: ev.summary||'(untitled)', type:'event'});
     }
   });
-  tasks.forEach(t=>{
+  allTasks.forEach(t=>{
     if(t.due){
       const due = new Date(t.due);
-      if(isSameDay(due, now)){
+      if(isSameDay(due, day)){
         items.push({time: 'Due', sortKey: due.getTime(), title: t.title||'(untitled)', type:'task'});
       }
     }
   });
   items.sort((a,b)=>a.sortKey-b.sortKey);
-  if(items.length===0){ list.innerHTML = '<div class="agenda-empty">Nothing scheduled today.</div>'; return; }
+  if(items.length===0){ list.innerHTML = '<div class="agenda-empty">Nothing scheduled.</div>'; return; }
   items.forEach(it=>{
     const row = document.createElement('div'); row.className='agenda-item';
     row.innerHTML = `<span class="agenda-time">${it.time}</span><span class="agenda-title">${escapeHtml(it.title)}</span><span class="agenda-tag ${it.type}">${it.type}</span>`;
@@ -513,20 +572,21 @@ function renderToday(events, tasks, now){
   });
 }
 
-function renderWeekStrip(events, tasks, now){
+function renderWeekStrip(now){
   const strip = document.getElementById('week-strip');
   strip.innerHTML='';
   for(let i=0;i<7;i++){
     const day = new Date(now); day.setDate(now.getDate()+i);
-    const dayEvents = events.filter(ev=>{
+    const dayEvents = allEvents.filter(ev=>{
       const start = ev.start.dateTime ? new Date(ev.start.dateTime) : new Date(ev.start.date+'T00:00:00');
       return isSameDay(start, day);
     });
-    const dayTasks = tasks.filter(t=> t.due && isSameDay(new Date(t.due), day));
+    const dayTasks = allTasks.filter(t=> t.due && isSameDay(new Date(t.due), day));
     const count = dayEvents.length + dayTasks.length;
     const first = dayEvents[0]?.summary || dayTasks[0]?.title || '';
-    const cell = document.createElement('div'); cell.className='week-day';
+    const cell = document.createElement('div'); cell.className='week-day'+(i===selectedDayOffset?' selected':'');
     cell.innerHTML = `<div class="wd-name">${day.toLocaleDateString('en-US',{weekday:'short'})}</div><div class="wd-count">${count}</div><div class="wd-first">${escapeHtml(first.slice(0,14))}</div>`;
+    cell.onclick = () => { selectedDayOffset = i; renderDayAgenda(i, new Date()); renderWeekStrip(new Date()); };
     strip.appendChild(cell);
   }
 }
