@@ -37,8 +37,8 @@ body{
   border-radius:var(--radius);padding:20px;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);
   transition:transform .25s, border-color .25s; position:relative;}
 .card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.15);}
-.c-cal{grid-column:span 7;grid-row:span 2;} .c-side{grid-column:span 5;display:flex;flex-direction:column;gap:18px;}
-.c-clocks{grid-column:span 12;} .c-prayer{grid-column:span 4;} .c-fx{grid-column:span 8;} .c-holiday{grid-column:span 4;}
+.c-cal{grid-column:span 12;}
+.c-clocks{grid-column:span 12;} .c-prayer{grid-column:span 6;} .c-fx{grid-column:span 12;} .c-holiday{grid-column:span 6;}
 .c-radio{grid-column:span 12;}
 
 h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--text-mid);margin-bottom:14px;font-weight:700;}
@@ -74,9 +74,14 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 /* Prayer */
 .prayer-count{font-size:1.3rem;font-weight:800;color:var(--gold);margin-bottom:12px;}
 .p-list{display:flex;flex-direction:column;gap:8px;}
-.p-row{display:flex;justify-content:space-between;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,0.03);font-size:.88rem;}
+.p-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,0.03);font-size:.88rem;}
 .p-row.active{background:linear-gradient(120deg,rgba(16,185,129,.25),rgba(224,165,60,.2));border:1px solid var(--emerald);}
-.p-name{color:var(--text-mid);} .p-row.active .p-name{color:var(--text-hi);}
+.p-name{color:var(--text-mid);flex:1;} .p-time{font-variant-numeric:tabular-nums;}
+.p-bell{background:none;border:1px solid var(--glass-border);border-radius:14px;padding:2px 9px;cursor:pointer;font-size:.72rem;color:var(--text-low);}
+.p-bell.on{border-color:var(--emerald);color:var(--emerald);background:rgba(16,185,129,.12);}
+.athan-note{font-size:.68rem;color:var(--text-low);margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.mini-btn{background:var(--glass);border:1px solid var(--glass-border);color:var(--text-hi);border-radius:14px;padding:3px 11px;cursor:pointer;font-size:.72rem;}
+.mini-btn:hover{border-color:var(--emerald);} .p-row.active .p-name{color:var(--text-hi);}
 
 /* FX */
 .fx-input-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
@@ -109,7 +114,25 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 
 .err{color:var(--danger);font-size:.72rem;}
 
-@media(max-width:1100px){.c-cal,.c-side{grid-column:span 12;} .c-prayer,.c-fx,.c-holiday{grid-column:span 12;}}
+.clock-item{cursor:pointer;} .clock-item.sel{border-color:var(--gold);background:rgba(224,165,60,.1);}
+.hourly-wrap{margin-top:16px;}
+.hourly-title{font-size:.78rem;color:var(--text-mid);margin-bottom:8px;font-weight:600;}
+.hourly{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;}
+.hr-cell{min-width:62px;text-align:center;padding:10px 6px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);font-size:.78rem;}
+.hr-cell.now{border-color:var(--emerald);}
+.hr-t{color:var(--text-mid);font-variant-numeric:tabular-nums;} .hr-i{font-size:1.2rem;margin:4px 0;} .hr-d{font-weight:700;} .hr-r{color:#7fd4f5;font-size:.68rem;margin-top:2px;}
+.quran{display:grid;grid-template-columns:minmax(260px,1fr) 2fr;gap:20px;}
+.q-now{font-family:Georgia,serif;font-size:1.6rem;direction:rtl;color:var(--gold);margin-bottom:2px;}
+.q-sub{font-size:.8rem;color:var(--text-mid);margin-bottom:14px;}
+.q-ctl{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.q-ctl .mini-btn.on{border-color:var(--emerald);color:var(--emerald);}
+.q-seek{width:100%;accent-color:var(--emerald);} .q-times{display:flex;justify-content:space-between;font-size:.7rem;color:var(--text-low);}
+.q-search{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:10px;padding:8px 12px;color:var(--text-hi);margin-bottom:10px;}
+.q-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;max-height:300px;overflow-y:auto;padding-right:4px;}
+.q-item{display:flex;gap:8px;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid transparent;cursor:pointer;font-size:.8rem;text-align:left;color:var(--text-hi);}
+.q-item:hover{border-color:var(--glass-border);} .q-item.cur{border-color:var(--emerald);background:rgba(16,185,129,.12);}
+.q-num{color:var(--text-low);min-width:26px;font-size:.7rem;} .q-ar{margin-left:auto;direction:rtl;font-family:Georgia,serif;color:var(--text-mid);}
+@media(max-width:1100px){.c-prayer,.c-holiday{grid-column:span 12;} .quran{grid-template-columns:1fr;}}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
@@ -130,38 +153,21 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 
 <div class="grid">
 
-  <!-- Calendar / Tasks Agenda -->
-  <div class="card c-cal">
-    <h2>📅 Today — Events &amp; Tasks</h2>
-    <div id="signin-block">
-      <button id="gsi-btn" class="pill" style="cursor:pointer;border:1px solid var(--emerald);">Sign in with Google</button>
-      <div class="fx-note" style="margin-top:10px;">Sign-in only works on the published web page (sites.google.com) — not inside a desktop wallpaper wrapper.</div>
-    </div>
-    <div id="agenda-block" style="display:none;">
-      <div id="overdue-block"></div>
-      <h2 id="agenda-day-label">Today</h2>
-      <div id="today-list" class="agenda-list"></div>
-      <h2 style="margin-top:22px;">Next 7 Days <span style="font-weight:400;text-transform:none;font-size:.7rem;color:var(--text-low);">(tap a day)</span></h2>
-      <div id="week-strip" class="week-strip"></div>
-    </div>
-    <div class="stamp" id="stamp-cal"></div>
-  </div>
-
-  <div class="c-side">
-    <div class="card c-prayer" style="grid-column:span 12;">
+    <div class="card c-prayer">
       <h2>🕌 Prayers · Cairo</h2>
       <div class="prayer-count" id="prayer-countdown">-- h -- m</div>
       <div class="p-list" id="prayer-list">
-        <div class="p-row" id="p-fajr"><span class="p-name">Fajr</span><span>--:--</span></div>
-        <div class="p-row" id="p-dhuhr"><span class="p-name">Dhuhr</span><span>--:--</span></div>
-        <div class="p-row" id="p-asr"><span class="p-name">Asr</span><span>--:--</span></div>
-        <div class="p-row" id="p-maghrib"><span class="p-name">Maghrib</span><span>--:--</span></div>
-        <div class="p-row" id="p-isha"><span class="p-name">Isha</span><span>--:--</span></div>
+        <div class="p-row" id="p-fajr"><span class="p-name">Fajr</span><span class="p-time">--:--</span><button class="p-bell" data-p="fajr" title="Athan on/off">🔕 Athan off</button></div>
+        <div class="p-row" id="p-dhuhr"><span class="p-name">Dhuhr</span><span class="p-time">--:--</span><button class="p-bell" data-p="dhuhr" title="Athan on/off">🔕 Athan off</button></div>
+        <div class="p-row" id="p-asr"><span class="p-name">Asr</span><span class="p-time">--:--</span><button class="p-bell" data-p="asr" title="Athan on/off">🔕 Athan off</button></div>
+        <div class="p-row" id="p-maghrib"><span class="p-name">Maghrib</span><span class="p-time">--:--</span><button class="p-bell" data-p="maghrib" title="Athan on/off">🔕 Athan off</button></div>
+        <div class="p-row" id="p-isha"><span class="p-name">Isha</span><span class="p-time">--:--</span><button class="p-bell" data-p="isha" title="Athan on/off">🔕 Athan off</button></div>
       </div>
+      <div class="athan-note"><span>Athan plays while this page is open. Tap a bell once per visit to allow sound.</span><button class="mini-btn" id="athan-test">▶ Test</button><button class="mini-btn" id="athan-stop" style="display:none;">⏹ Stop</button></div>
       <div class="stamp" id="stamp-prayer"></div>
     </div>
 
-    <div class="card c-holiday" style="grid-column:span 12;">
+    <div class="card c-holiday">
       <h2>🎉 30-Day Holidays &amp; Weekends</h2>
       <div id="holiday-list">
         <div class="h-country" id="hc-eg"><div class="h-head"><span>🇪🇬 Egypt</span><span class="h-tag" id="we-eg">–</span></div><div class="h-alert" id="al-eg">Loading…</div></div>
@@ -170,7 +176,6 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
       </div>
       <div class="stamp" id="stamp-holiday"></div>
     </div>
-  </div>
 
   <!-- Clocks -->
   <div class="card c-clocks">
@@ -179,8 +184,9 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
       <div class="clock-item" id="tz-cairo"><div class="clock-name">Cairo</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
       <div class="clock-item" id="tz-istanbul"><div class="clock-name">Istanbul</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
       <div class="clock-item" id="tz-london"><div class="clock-name">London</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
-      <div class="clock-item" id="tz-newyork"><div class="clock-name">New York</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
+      <div class="clock-item" id="tz-local" style="display:none;"><div class="clock-name" id="local-name">Local</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
     </div>
+    <div class="hourly-wrap"><div class="hourly-title" id="hourly-title">Tap a city for hourly weather</div><div class="hourly" id="hourly"></div></div>
     <div class="stamp" id="stamp-weather"></div>
   </div>
 
@@ -203,19 +209,48 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
     <div class="stamp" id="stamp-fx"></div>
   </div>
 
-  <!-- Radio -->
+  <!-- Quran -->
   <div class="card c-radio">
-    <h2>📻 Live Radio</h2>
-    <div class="radio-bar">
-      <button class="play-btn" id="stream-trigger">▶</button>
+    <h2>📖 Quran — Mahmoud Khalil Al-Husary</h2>
+    <div class="quran">
       <div>
-        <div class="radio-meta">Quran Radio — Cairo</div>
-        <div class="radio-status" id="radio-status">Ready</div>
+        <div class="q-now" id="q-ar">—</div>
+        <div class="q-sub" id="q-sub">Pick a surah to play</div>
+        <div class="q-ctl">
+          <button class="mini-btn" id="q-prev">⏮</button>
+          <button class="play-btn" id="q-play">▶</button>
+          <button class="mini-btn" id="q-next">⏭</button>
+          <button class="mini-btn" id="q-rep" title="Repeat this surah">🔁 Repeat</button>
+        </div>
+        <input type="range" class="q-seek" id="q-seek" min="0" max="1000" value="0">
+        <div class="q-times"><span id="q-cur">0:00</span><span id="q-dur">0:00</span></div>
+        <div class="radio-status" id="q-status" style="margin-top:8px;">Ready</div>
+        <audio id="q-audio" preload="none"></audio>
+        <audio id="athan-audio" preload="none"></audio>
       </div>
-      <audio id="live-stream-core" preload="none" crossorigin="anonymous"
-        src="https://n0a.radiojar.com/8s9u5tzzwczuv?rj-ttl=5&rj-tok=AAABmC0aQhYAaVkDU7v6nR0qXA"></audio>
+      <div>
+        <input class="q-search" id="q-search" placeholder="Search surah (name or number)">
+        <div class="q-list" id="q-list"></div>
+      </div>
     </div>
   </div>
+  <!-- Calendar / Tasks Agenda -->
+  <div class="card c-cal">
+    <h2>📅 Agenda — Events &amp; Tasks</h2>
+    <div id="signin-block">
+      <button id="gsi-btn" class="pill" style="cursor:pointer;border:1px solid var(--emerald);">Sign in with Google</button>
+      <div class="fx-note" style="margin-top:10px;">Read-only access to your Google Calendar and Tasks. Sign-in lasts about an hour, then tap the button again.</div>
+    </div>
+    <div id="agenda-block" style="display:none;">
+      <div id="overdue-block"></div>
+      <h2 id="agenda-day-label">Today</h2>
+      <div id="today-list" class="agenda-list"></div>
+      <h2 style="margin-top:22px;">Next 7 Days <span style="font-weight:400;text-transform:none;font-size:.7rem;color:var(--text-low);">(tap a day)</span></h2>
+      <div id="week-strip" class="week-strip"></div>
+    </div>
+    <div class="stamp" id="stamp-cal"></div>
+  </div>
+
 
 </div>
 
@@ -232,7 +267,7 @@ const locations = {
   cairo:{tz:'Africa/Cairo',lat:30.0444,lon:31.2357},
   istanbul:{tz:'Europe/Istanbul',lat:41.0082,lon:28.9784},
   london:{tz:'Europe/London',lat:51.5074,lon:-0.1278},
-  newyork:{tz:'America/New_York',lat:40.7128,lon:-74.0060}
+  // 'local' (4th card) is added after the IP lookup
 };
 function updateClocks(){
   const now = new Date();
@@ -321,6 +356,52 @@ function wxIcon(code){
   return '🌡️';
 }
 
+/* ---------- LOCATION (IP) + HOURLY WEATHER ---------- */
+let selectedCity = 'cairo';
+async function initLocation(){
+  try{
+    const r = await fetch('https://ipwho.is/');
+    const d = await r.json();
+    if(!d.success) throw new Error('ip');
+    const map = {EG:'cairo', TR:'istanbul', GB:'london'};
+    if(map[d.country_code]){ selectedCity = map[d.country_code]; }
+    else{
+      locations.local = {tz:(d.timezone&&d.timezone.id)||Intl.DateTimeFormat().resolvedOptions().timeZone, lat:d.latitude, lon:d.longitude};
+      document.getElementById('local-name').innerText = '📍 ' + (d.city || d.country);
+      document.getElementById('tz-local').style.display = '';
+      selectedCity = 'local';
+    }
+  }catch(e){ /* keep Cairo as default */ }
+  fetchWeather();
+  selectCity(selectedCity);
+}
+document.querySelector('.clocks-row').addEventListener('click', ev=>{
+  const it = ev.target.closest('.clock-item'); if(!it) return;
+  selectCity(it.id.replace('tz-',''));
+});
+async function selectCity(name){
+  if(!locations[name]) return;
+  selectedCity = name;
+  document.querySelectorAll('.clock-item').forEach(e=>e.classList.toggle('sel', e.id==='tz-'+name));
+  const cfg = locations[name], box = document.getElementById('hourly'), title = document.getElementById('hourly-title');
+  const label = document.querySelector('#tz-'+name+' .clock-name').innerText;
+  title.innerText = label + ' — next 24 hours';
+  box.innerHTML = '<span class="err" style="color:var(--text-low)">Loading…</span>';
+  try{
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${cfg.lat}&longitude=${cfg.lon}&current_weather=true&hourly=temperature_2m,weathercode,precipitation_probability&timezone=auto&forecast_days=2`);
+    if(!res.ok) throw new Error('bad');
+    const d = await res.json();
+    const curHour = d.current_weather.time.slice(0,13)+':00';
+    let i = d.hourly.time.findIndex(t=>t>=curHour); if(i<0) i=0;
+    let html='';
+    for(let k=i;k<i+24 && k<d.hourly.time.length;k++){
+      const hh = d.hourly.time[k].slice(11,16);
+      html += `<div class="hr-cell${k===i?' now':''}"><div class="hr-t">${k===i?'Now':hh}</div><div class="hr-i">${wxIcon(d.hourly.weathercode[k])}</div><div class="hr-d">${Math.round(d.hourly.temperature_2m[k])}°</div><div class="hr-r">💧${d.hourly.precipitation_probability[k]??0}%</div></div>`;
+    }
+    box.innerHTML = html;
+  }catch(e){ box.innerHTML = '<span class="err">Hourly weather unavailable — offline</span>'; }
+}
+
 /* ---------- FX + GOLD ---------- */
 let ratesUSD = null; // rates relative to USD base
 const currencies = ['USD','GBP','EUR','EGP','TRY'];
@@ -386,6 +467,7 @@ document.getElementById('base-currency').addEventListener('change', renderFX);
 document.getElementById('base-amount').addEventListener('input', renderFX);
 
 /* ---------- PRAYER TIMES ---------- */
+let prayerTimes = null;
 async function updatePrayerTimes(){
   try{
     const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5');
@@ -394,17 +476,19 @@ async function updatePrayerTimes(){
     const t = data.data.timings;
     const prayers = {Fajr:t.Fajr,Dhuhr:t.Dhuhr,Asr:t.Asr,Maghrib:t.Maghrib,Isha:t.Isha};
     for(const [name,time] of Object.entries(prayers)){
-      document.querySelector(`#p-${name.toLowerCase()} span:last-child`).innerText = time;
+      document.querySelector(`#p-${name.toLowerCase()} .p-time`).innerText = time.slice(0,5);
     }
+    prayerTimes = prayers;
     calcCountdown(prayers);
     document.getElementById('stamp-prayer').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
   }catch(e){
     document.getElementById('prayer-countdown').innerHTML = '<span class="err">offline</span>';
   }
 }
+function cairoHM(d){ return d.toLocaleTimeString('en-GB',{timeZone:'Africa/Cairo',hour12:false,hour:'2-digit',minute:'2-digit'}); }
 function calcCountdown(prayers){
   const now = new Date();
-  const [ch,cm] = now.toLocaleTimeString('en-US',{hour12:false}).split(':').map(Number);
+  const [ch,cm] = cairoHM(now).split(':').map(Number);
   const cur = ch*60+cm;
   let next='Fajr', diffMin=Infinity;
   for(const [name,time] of Object.entries(prayers)){
@@ -422,20 +506,123 @@ function calcCountdown(prayers){
   document.getElementById('prayer-countdown').innerText = `${Math.floor(diffMin/60)}h ${diffMin%60}m to ${next}`;
 }
 
-/* ---------- RADIO ---------- */
-const audioEl = document.getElementById('live-stream-core');
-const streamBtn = document.getElementById('stream-trigger');
-const radioStatus = document.getElementById('radio-status');
-streamBtn.onclick = () => {
-  if(audioEl.paused){
-    radioStatus.innerText='Connecting…';
-    audioEl.play().then(()=>{ radioStatus.innerText='Live'; streamBtn.innerText='⏸'; })
-      .catch(()=>{ radioStatus.innerText='Stream unavailable — check network/URL'; });
-  } else {
-    audioEl.pause(); streamBtn.innerText='▶'; radioStatus.innerText='Paused';
+/* ---------- QURAN PLAYER (Husary, Hafs murattal via mp3quran.net) ---------- */
+const SURAHS = [
+['Al-Fatihah','الفاتحة'],['Al-Baqarah','البقرة'],['Aal-E-Imran','آل عمران'],['An-Nisa','النساء'],['Al-Ma\'idah','المائدة'],['Al-An\'am','الأنعام'],['Al-A\'raf','الأعراف'],['Al-Anfal','الأنفال'],['At-Tawbah','التوبة'],['Yunus','يونس'],
+['Hud','هود'],['Yusuf','يوسف'],['Ar-Ra\'d','الرعد'],['Ibrahim','إبراهيم'],['Al-Hijr','الحجر'],['An-Nahl','النحل'],['Al-Isra','الإسراء'],['Al-Kahf','الكهف'],['Maryam','مريم'],['Ta-Ha','طه'],
+['Al-Anbiya','الأنبياء'],['Al-Hajj','الحج'],['Al-Mu\'minun','المؤمنون'],['An-Nur','النور'],['Al-Furqan','الفرقان'],['Ash-Shu\'ara','الشعراء'],['An-Naml','النمل'],['Al-Qasas','القصص'],['Al-Ankabut','العنكبوت'],['Ar-Rum','الروم'],
+['Luqman','لقمان'],['As-Sajdah','السجدة'],['Al-Ahzab','الأحزاب'],['Saba','سبأ'],['Fatir','فاطر'],['Ya-Sin','يس'],['As-Saffat','الصافات'],['Sad','ص'],['Az-Zumar','الزمر'],['Ghafir','غافر'],
+['Fussilat','فصلت'],['Ash-Shura','الشورى'],['Az-Zukhruf','الزخرف'],['Ad-Dukhan','الدخان'],['Al-Jathiyah','الجاثية'],['Al-Ahqaf','الأحقاف'],['Muhammad','محمد'],['Al-Fath','الفتح'],['Al-Hujurat','الحجرات'],['Qaf','ق'],
+['Adh-Dhariyat','الذاريات'],['At-Tur','الطور'],['An-Najm','النجم'],['Al-Qamar','القمر'],['Ar-Rahman','الرحمن'],['Al-Waqi\'ah','الواقعة'],['Al-Hadid','الحديد'],['Al-Mujadila','المجادلة'],['Al-Hashr','الحشر'],['Al-Mumtahanah','الممتحنة'],
+['As-Saff','الصف'],['Al-Jumu\'ah','الجمعة'],['Al-Munafiqun','المنافقون'],['At-Taghabun','التغابن'],['At-Talaq','الطلاق'],['At-Tahrim','التحريم'],['Al-Mulk','الملك'],['Al-Qalam','القلم'],['Al-Haqqah','الحاقة'],['Al-Ma\'arij','المعارج'],
+['Nuh','نوح'],['Al-Jinn','الجن'],['Al-Muzzammil','المزمل'],['Al-Muddaththir','المدثر'],['Al-Qiyamah','القيامة'],['Al-Insan','الإنسان'],['Al-Mursalat','المرسلات'],['An-Naba','النبأ'],['An-Nazi\'at','النازعات'],['Abasa','عبس'],
+['At-Takwir','التكوير'],['Al-Infitar','الانفطار'],['Al-Mutaffifin','المطففين'],['Al-Inshiqaq','الانشقاق'],['Al-Buruj','البروج'],['At-Tariq','الطارق'],['Al-A\'la','الأعلى'],['Al-Ghashiyah','الغاشية'],['Al-Fajr','الفجر'],['Al-Balad','البلد'],
+['Ash-Shams','الشمس'],['Al-Layl','الليل'],['Ad-Duha','الضحى'],['Ash-Sharh','الشرح'],['At-Tin','التين'],['Al-Alaq','العلق'],['Al-Qadr','القدر'],['Al-Bayyinah','البينة'],['Az-Zalzalah','الزلزلة'],['Al-Adiyat','العاديات'],
+['Al-Qari\'ah','القارعة'],['At-Takathur','التكاثر'],['Al-Asr','العصر'],['Al-Humazah','الهمزة'],['Al-Fil','الفيل'],['Quraysh','قريش'],['Al-Ma\'un','الماعون'],['Al-Kawthar','الكوثر'],['Al-Kafirun','الكافرون'],['An-Nasr','النصر'],
+['Al-Masad','المسد'],['Al-Ikhlas','الإخلاص'],['Al-Falaq','الفلق'],['An-Nas','الناس']
+];
+const QURAN_BASE = 'https://cdn.mp3quran.net/audio/mahmoud-husary/r1/';
+const qAudio = document.getElementById('q-audio');
+const qPlay = document.getElementById('q-play'), qStatus = document.getElementById('q-status');
+const qSeek = document.getElementById('q-seek');
+let qCur = 0, qRepeat = false;
+try{ qCur = parseInt(localStorage.getItem('horizon_surah')||'0',10)||0; }catch(e){}
+function fmtT(t){ if(!isFinite(t)) return '0:00'; const m=Math.floor(t/60), s=Math.floor(t%60); return m+':'+String(s).padStart(2,'0'); }
+function renderSurahList(filter){
+  const f=(filter||'').trim().toLowerCase();
+  const box=document.getElementById('q-list'); let html='';
+  SURAHS.forEach((x,i)=>{
+    const n=i+1;
+    if(f && !(x[0].toLowerCase().includes(f) || x[1].includes(f) || String(n)===f)) return;
+    html+=`<button class="q-item${n===qCur?' cur':''}" data-n="${n}"><span class="q-num">${n}</span><span>${x[0]}</span><span class="q-ar">${x[1]}</span></button>`;
+  });
+  box.innerHTML = html || '<span class="err">No match</span>';
+}
+function qShowInfo(n){
+  const x=SURAHS[n-1];
+  document.getElementById('q-ar').innerText = 'سورة '+x[1];
+  document.getElementById('q-sub').innerText = n+' · '+x[0];
+}
+function playSurah(n, autoplay=true){
+  if(n<1) n=114; if(n>114) n=1;
+  qCur=n; qShowInfo(n);
+  try{ localStorage.setItem('horizon_surah', String(n)); }catch(e){}
+  qAudio.src = QURAN_BASE + String(n).padStart(3,'0') + '.mp3';
+  renderSurahList(document.getElementById('q-search').value);
+  if(autoplay){
+    qStatus.innerText='Loading…';
+    qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; })
+      .catch(()=>{ qStatus.innerHTML='<span class="err">Could not play — check connection</span>'; qPlay.innerText='▶'; });
   }
+}
+document.getElementById('q-list').addEventListener('click', ev=>{ const b=ev.target.closest('.q-item'); if(b) playSurah(parseInt(b.dataset.n,10)); });
+document.getElementById('q-search').addEventListener('input', e=>renderSurahList(e.target.value));
+qPlay.onclick = ()=>{
+  if(!qAudio.src){ playSurah(qCur||1); return; }
+  if(qAudio.paused){ qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{ qStatus.innerHTML='<span class="err">Could not play</span>'; }); }
+  else { qAudio.pause(); qPlay.innerText='▶'; qStatus.innerText='Paused'; }
 };
-audioEl.addEventListener('error', ()=>{ radioStatus.innerHTML='<span class="err">Stream error — URL may be dead</span>'; });
+document.getElementById('q-prev').onclick = ()=>playSurah((qCur||1)-1);
+document.getElementById('q-next').onclick = ()=>playSurah((qCur||0)+1);
+document.getElementById('q-rep').onclick = e=>{ qRepeat=!qRepeat; e.currentTarget.classList.toggle('on',qRepeat); };
+qAudio.addEventListener('ended', ()=>{ if(qRepeat){ qAudio.currentTime=0; qAudio.play(); } else playSurah(qCur+1); });
+qAudio.addEventListener('error', ()=>{ qStatus.innerHTML='<span class="err">Audio error — try another surah</span>'; qPlay.innerText='▶'; });
+qAudio.addEventListener('timeupdate', ()=>{
+  document.getElementById('q-cur').innerText=fmtT(qAudio.currentTime);
+  document.getElementById('q-dur').innerText=fmtT(qAudio.duration);
+  if(qAudio.duration) qSeek.value = Math.round(qAudio.currentTime/qAudio.duration*1000);
+});
+qSeek.addEventListener('input', ()=>{ if(qAudio.duration) qAudio.currentTime = qSeek.value/1000*qAudio.duration; });
+renderSurahList('');
+if(qCur){ qShowInfo(qCur); qAudio.src = QURAN_BASE + String(qCur).padStart(3,'0') + '.mp3'; }
+
+/* ---------- ATHAN (per-prayer on/off) ---------- */
+const ATHAN_URL = 'https://archive.org/download/20230209_20230209_1744/' + encodeURIComponent('اذان نادر جدا تخشع له القلوب بصوت الشيخ محمد صديق المنشاوي من فترة الخمسينات.mp3');
+const athanAudio = document.getElementById('athan-audio');
+athanAudio.src = ATHAN_URL;
+const PR = ['fajr','dhuhr','asr','maghrib','isha'];
+let athanOn = {fajr:false,dhuhr:false,asr:false,maghrib:false,isha:false};
+try{ Object.assign(athanOn, JSON.parse(localStorage.getItem('horizon_athan')||'{}')); }catch(e){}
+let athanFired = {}, resumeQuran = false;
+function renderBells(){
+  document.querySelectorAll('.p-bell').forEach(b=>{
+    const on = !!athanOn[b.dataset.p];
+    b.classList.toggle('on', on);
+    b.innerText = on ? '🔔 Athan on' : '🔕 Athan off';
+  });
+}
+function unlockAthan(){ // a user click lets the browser play later without a click
+  athanAudio.muted = true;
+  athanAudio.play().then(()=>{ athanAudio.pause(); athanAudio.currentTime=0; athanAudio.muted=false; }).catch(()=>{ athanAudio.muted=false; });
+}
+document.querySelectorAll('.p-bell').forEach(b=>b.onclick = ()=>{
+  const p=b.dataset.p; athanOn[p]=!athanOn[p];
+  try{ localStorage.setItem('horizon_athan', JSON.stringify(athanOn)); }catch(e){}
+  renderBells(); if(athanOn[p]) unlockAthan();
+});
+function startAthan(){
+  if(!qAudio.paused){ qAudio.pause(); resumeQuran=true; qPlay.innerText='▶'; }
+  athanAudio.currentTime=0;
+  athanAudio.play().then(()=>{ document.getElementById('athan-stop').style.display=''; })
+    .catch(()=>{ document.getElementById('prayer-countdown').insertAdjacentHTML('afterend','<div class="err">Athan blocked by browser — tap any bell once to allow sound.</div>'); });
+}
+athanAudio.addEventListener('ended', ()=>{
+  document.getElementById('athan-stop').style.display='none';
+  if(resumeQuran){ resumeQuran=false; qAudio.play().then(()=>{ qPlay.innerText='⏸'; }).catch(()=>{}); }
+});
+document.getElementById('athan-test').onclick = startAthan;
+document.getElementById('athan-stop').onclick = ()=>{ athanAudio.pause(); athanAudio.dispatchEvent(new Event('ended')); };
+function checkAthan(){
+  if(!prayerTimes) return;
+  const now=new Date(), hm=cairoHM(now), day=now.toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
+  for(const p of PR){
+    const t = prayerTimes[p.charAt(0).toUpperCase()+p.slice(1)];
+    if(!t) continue;
+    const key=day+p;
+    if(athanOn[p] && t.slice(0,5)===hm && !athanFired[key]){ athanFired[key]=true; startAthan(); }
+  }
+}
+renderBells();
 
 /* ---------- CALENDAR + TASKS AGENDA (OAuth) ---------- */
 const GOOGLE_CLIENT_ID = '280014070383-1jd6blen4fn102vn7bg3o2pjvgeogmnv.apps.googleusercontent.com';
@@ -596,8 +783,9 @@ function escapeHtml(str){
 }
 
 /* ---------- INIT ---------- */
-updateClocks(); fetchWeather(); fetchFX(); refreshGold(); updatePrayerTimes(); initGoogleAuth();
+updateClocks(); initLocation(); fetchFX(); refreshGold(); updatePrayerTimes(); initGoogleAuth();
 setInterval(updateClocks, 1000);
+setInterval(checkAthan, 5000);
 setInterval(updatePrayerTimes, 60000);
 setInterval(fetchWeather, 900000);
 setInterval(fetchFX, 3600000);
