@@ -2,61 +2,60 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Horizon Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,380;0,9..144,560;0,9..144,680;1,9..144,500&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg-0:#0b0f14; --bg-1:#101720; --bg-2:#151d28;
-  --glass: rgba(255,255,255,0.045); --glass-border: rgba(255,255,255,0.08);
-  --emerald:#10b981; --gold:#e0a53c; --text-hi:#eef2f0; --text-mid:#9aa7ac; --text-low:#61707a;
-  --danger:#e05353; --radius:20px;
+  --bg-0:#121a2e; --bg-1:#182544; --bg-2:#1e2f54;
+  --glass: rgba(255,255,255,0.055); --glass-border: rgba(255,255,255,0.10);
+  --emerald:#2FB8A6; --gold:#FFC857; --coral:#FF8A5C; --text-hi:#FBF4E8; --text-mid:#B9C3DE; --text-low:#7F8CAE;
+  --danger:#FF7A6B; --radius:22px; --radius-sm:16px;
+  --shadow: 0 24px 48px -22px rgba(10,15,30,.55);
 }
 body.light{
-  --bg-0:#f3f5f4; --bg-1:#ffffff; --bg-2:#eef1f0;
-  --glass: rgba(255,255,255,0.6); --glass-border: rgba(0,0,0,0.06);
-  --text-hi:#12181a; --text-mid:#5a6a6d; --text-low:#8a9599;
+  --bg-0:#FFF8EC; --bg-1:#FFFDF8; --bg-2:#FBEFDA;
+  --glass: rgba(255,255,255,0.72); --glass-border: rgba(27,42,74,0.08);
+  --text-hi:#1B2A4A; --text-mid:#5C5042; --text-low:#9A8E7C;
+  --shadow: 0 20px 40px -20px rgba(120,90,40,.25);
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  -webkit-tap-highlight-color:transparent;
-  -webkit-touch-callout:none;
-  -webkit-user-select:none;
-  user-select:none;
-}
-input, textarea { -webkit-user-select:text; user-select:text; }
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif;}
 body{
-  background: radial-gradient(circle at 15% 10%, var(--bg-2), var(--bg-0) 60%);
-  color:var(--text-hi); min-height:100vh; padding:26px; transition:background .4s;
-  -webkit-overflow-scrolling:touch;
+  background: radial-gradient(ellipse 900px 500px at 12% -5%, color-mix(in srgb, var(--coral) 20%, transparent), transparent),
+              radial-gradient(ellipse 800px 600px at 100% 10%, color-mix(in srgb, var(--emerald) 16%, transparent), transparent),
+              var(--bg-0);
+  color:var(--text-hi); min-height:100vh; padding:28px; transition:background .4s;
 }
-.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
-.brand h1{font-family:Georgia,'Times New Roman',serif;font-size:2.1rem;font-weight:600;letter-spacing:.3px;
-  background:linear-gradient(120deg,var(--emerald),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.brand .sub{color:var(--text-mid);font-size:.85rem;margin-top:2px;}
+.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
+.brand h1{font-family:'Fraunces',Georgia,serif;font-size:2.4rem;font-weight:560;letter-spacing:-.01em; color:var(--text-hi);}
+.brand .sub{color:var(--text-mid);font-size:.9rem;margin-top:3px;}
 .top-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.pill{background:var(--glass);border:1px solid var(--glass-border);
+.pill{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(14px);
   padding:8px 16px;border-radius:30px;font-size:.85rem;color:var(--text-mid);display:flex;align-items:center;gap:8px;}
 .toggle-btn{background:var(--glass);border:1px solid var(--glass-border);color:var(--text-hi);
   width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
-.toggle-btn:hover{border-color:var(--emerald);}
+.toggle-btn:hover{border-color:var(--coral);}
 
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;}
-.card{background:var(--glass);border:1px solid var(--glass-border);
-  /* backdrop-filter removed: not supported on iOS 10 Safari */
-  border-radius:var(--radius);padding:20px;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);
-  transition:transform .25s, border-color .25s; position:relative;}
-/* Fallback solid bg for iOS 10 where glass is transparent */
-body:not(.light) .card { background: rgba(16,23,32,0.92); }
-body.light .card { background: rgba(240,243,242,0.96); }
-.card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.15);}
-.c-cal{grid-column:span 12;}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;align-items:start;}
+.tile{grid-column:span 12;}
+.card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(18px);
+  border-radius:var(--radius-sm);padding:20px;box-shadow:var(--shadow);
+  transition:transform .2s, box-shadow .2s, border-color .2s; position:relative;}
+.tile.dragging .card{opacity:.4;}
+.tile.drag-over .card{border-color:var(--coral); box-shadow:0 0 0 2px var(--coral), var(--shadow);}
+.drag-handle{position:absolute;top:14px;right:16px;cursor:grab;color:var(--text-low);font-size:.95rem;
+  opacity:0;transition:opacity .2s;padding:4px;line-height:1;user-select:none;touch-action:none;}
+.card:hover .drag-handle{opacity:.7;} .drag-handle:hover{opacity:1 !important;color:var(--coral);}
+.drag-handle:active{cursor:grabbing;}
+.c-cal .tile, .c-cal{grid-column:span 12;}
 .c-clocks{grid-column:span 12;} .c-prayer{grid-column:span 6;} .c-fx{grid-column:span 12;} .c-holiday{grid-column:span 6;}
 .c-radio{grid-column:span 12;}
+.tile.hero .card{border-radius:28px;}
 
-h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--text-mid);margin-bottom:14px;font-weight:700;}
-.stamp{position:absolute;top:18px;right:20px;font-size:.65rem;color:var(--text-low);}
+h2{font-size:.78rem;color:var(--text-mid);margin-bottom:14px;font-weight:700;letter-spacing:.01em;}
+.stamp{position:absolute;top:18px;right:48px;font-size:.65rem;color:var(--text-low);}
 
 /* Clocks */
 .clocks-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
@@ -86,7 +85,7 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 .week-day .wd-first{font-size:.65rem;color:var(--text-low);}
 
 /* Prayer */
-.prayer-count{font-size:1.3rem;font-weight:800;color:var(--gold);margin-bottom:12px;}
+.prayer-count{font-family:'Fraunces',Georgia,serif;font-size:2.6rem;font-weight:560;color:var(--coral);margin-bottom:14px;line-height:1;}
 .p-list{display:flex;flex-direction:column;gap:8px;}
 .p-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,0.03);font-size:.88rem;}
 .p-row.active{background:linear-gradient(120deg,rgba(16,185,129,.25),rgba(224,165,60,.2));border:1px solid var(--emerald);}
@@ -136,7 +135,7 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 .hr-cell.now{border-color:var(--emerald);}
 .hr-t{color:var(--text-mid);font-variant-numeric:tabular-nums;} .hr-i{font-size:1.2rem;margin:4px 0;} .hr-d{font-weight:700;} .hr-r{color:#7fd4f5;font-size:.68rem;margin-top:2px;}
 .quran{display:grid;grid-template-columns:minmax(260px,1fr) 2fr;gap:20px;}
-.q-now{font-family:Georgia,serif;font-size:1.6rem;direction:rtl;color:var(--gold);margin-bottom:2px;}
+.q-now{font-family:'Fraunces',Georgia,serif;font-size:1.7rem;direction:rtl;color:var(--coral);margin-bottom:2px;}
 .q-sub{font-size:.8rem;color:var(--text-mid);margin-bottom:14px;}
 .q-ctl{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .q-ctl .mini-btn.on{border-color:var(--emerald);color:var(--emerald);}
@@ -147,55 +146,12 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 .q-item:hover{border-color:var(--glass-border);} .q-item.cur{border-color:var(--emerald);background:rgba(16,185,129,.12);}
 .q-num{color:var(--text-low);min-width:26px;font-size:.7rem;} .q-ar{margin-left:auto;direction:rtl;font-family:Georgia,serif;color:var(--text-mid);}
 @media(max-width:1100px){.c-prayer,.c-holiday{grid-column:span 12;} .quran{grid-template-columns:1fr;}}
-
-/* iPad portrait (768px) */
-@media(max-width:820px){
-  body{ padding:14px; }
-  .brand h1{ font-size:1.6rem; }
-  .top{ gap:10px; margin-bottom:14px; }
-  .grid{ gap:12px; }
-  .c-prayer,.c-holiday,.c-clocks,.c-fx,.c-radio,.c-cal{ grid-column:span 12; }
-  .clocks-row{ grid-template-columns:repeat(2,1fr); }
-  .fx-grid{ grid-template-columns:repeat(3,1fr); }
-  .q-list{ grid-template-columns:1fr; max-height:200px; }
-  .quran{ grid-template-columns:1fr; }
-  .week-strip{ grid-template-columns:repeat(7,1fr); gap:4px; }
-  .week-day{ padding:6px 2px; }
-  .week-day .wd-name{ font-size:.6rem; }
-  .week-day .wd-count{ font-size:.95rem; }
-  .week-day .wd-first{ display:none; }
-  .hourly{ gap:5px; }
-  .hr-cell{ min-width:52px; padding:8px 4px; }
-  .top-controls{ gap:6px; }
-  .fx-input-row input{ width:80px; }
-}
-
-/* iPhone / very small — just in case */
-@media(max-width:480px){
-  body{ padding:10px; }
-  .clocks-row{ grid-template-columns:1fr 1fr; }
-  .fx-grid{ grid-template-columns:repeat(2,1fr); }
-}
-
-/* Connection status badge */
-#conn-status{
-  position:fixed;bottom:10px;right:12px;
-  font-size:.68rem;padding:4px 10px;border-radius:20px;
-  background:rgba(16,185,129,.18);color:#7fe0bb;
-  border:1px solid var(--emerald);
-  z-index:999;transition:opacity .5s;
-}
-#conn-status.offline{
-  background:rgba(224,83,83,.22);color:#f39a9a;border-color:var(--danger);
-}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
 
 </head>
 <body>
-
-<div id="conn-status">● Online</div>
 
 <div class="top">
   <div class="brand">
@@ -210,7 +166,9 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
 
 <div class="grid">
 
+    <div class="tile hero" draggable="true" data-tile="c-prayer" id="tile-c-prayer">
     <div class="card c-prayer">
+      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
       <h2>🕌 Prayers · Cairo</h2>
       <div class="prayer-count" id="prayer-countdown">-- h -- m</div>
       <div class="p-list" id="prayer-list">
@@ -223,8 +181,11 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
       <div class="athan-note"><span>Athan plays while this page is open. Tap a bell once per visit to allow sound.</span><button class="mini-btn" id="athan-test">▶ Test</button><button class="mini-btn" id="athan-stop" style="display:none;">⏹ Stop</button></div>
       <div class="stamp" id="stamp-prayer"></div>
     </div>
+    </div>
 
+    <div class="tile" draggable="true" data-tile="c-holiday" id="tile-c-holiday">
     <div class="card c-holiday">
+      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
       <h2>🎉 30-Day Holidays &amp; Weekends</h2>
       <div id="holiday-list">
         <div class="h-country" id="hc-eg"><div class="h-head"><span>🇪🇬 Egypt</span><span class="h-tag" id="we-eg">–</span></div><div class="h-alert" id="al-eg">Loading…</div></div>
@@ -233,9 +194,12 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
       </div>
       <div class="stamp" id="stamp-holiday"></div>
     </div>
+    </div>
 
   <!-- Clocks -->
-  <div class="card c-clocks">
+  <div class="tile" draggable="true" data-tile="c-clocks" id="tile-c-clocks">
+    <div class="card c-clocks">
+      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
     <h2>🌍 World Clocks &amp; Weather</h2>
     <div class="clocks-row">
       <div class="clock-item" id="tz-cairo"><div class="clock-name">Cairo</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
@@ -246,9 +210,12 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
     <div class="hourly-wrap"><div class="hourly-title" id="hourly-title">Tap a city for hourly weather</div><div class="hourly" id="hourly"></div></div>
     <div class="stamp" id="stamp-weather"></div>
   </div>
+  </div>
 
   <!-- FX -->
-  <div class="card c-fx">
+  <div class="tile" draggable="true" data-tile="c-fx" id="tile-c-fx">
+    <div class="card c-fx">
+      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
     <h2>📈 Currency &amp; Gold</h2>
     <div class="fx-input-row">
       <select id="base-currency">
@@ -265,9 +232,12 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
     <div class="fx-note">Mid-market indicative rates — not buy/sell (exchange office) pricing.</div>
     <div class="stamp" id="stamp-fx"></div>
   </div>
+  </div>
 
   <!-- Quran -->
-  <div class="card c-radio">
+  <div class="tile" draggable="true" data-tile="c-radio" id="tile-c-radio">
+    <div class="card c-radio">
+      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
     <h2>📖 Quran — Mahmoud Khalil Al-Husary</h2>
     <div class="quran">
       <div>
@@ -291,8 +261,11 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
       </div>
     </div>
   </div>
+  </div>
   <!-- Calendar / Tasks Agenda -->
-  <div class="card c-cal">
+  <div class="tile" draggable="true" data-tile="c-cal" id="tile-c-cal">
+    <div class="card c-cal">
+      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
     <h2>📅 Agenda — Events &amp; Tasks</h2>
     <div id="signin-block">
       <button id="gsi-btn" class="pill" style="cursor:pointer;border:1px solid var(--emerald);">Sign in with Google</button>
@@ -307,6 +280,7 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--te
     </div>
     <div class="stamp" id="stamp-cal"></div>
   </div>
+  </div>
 
 
 </div>
@@ -317,7 +291,41 @@ const themeToggle = document.getElementById('theme-toggle');
 themeToggle.onclick = () => {
   document.body.classList.toggle('light');
   themeToggle.innerText = document.body.classList.contains('light') ? '☀️' : '🌙';
+  try{ localStorage.setItem('horizon_theme', document.body.classList.contains('light')?'light':'dark'); }catch(e){}
 };
+try{
+  if(localStorage.getItem('horizon_theme')==='light'){ document.body.classList.add('light'); themeToggle.innerText='☀️'; }
+}catch(e){}
+
+/* ---------- DRAG TO REARRANGE (saved per browser) ---------- */
+(function(){
+  const grid = document.querySelector('.grid');
+  const TILE_ORDER_KEY = 'horizon_tile_order';
+  let dragged = null;
+  function applySavedOrder(){
+    let order = [];
+    try{ order = JSON.parse(localStorage.getItem(TILE_ORDER_KEY)||'[]'); }catch(e){}
+    order.forEach(id=>{ const el = document.getElementById('tile-'+id); if(el) grid.appendChild(el); });
+  }
+  function saveOrder(){
+    const order = [...grid.querySelectorAll('.tile')].map(t=>t.dataset.tile);
+    try{ localStorage.setItem(TILE_ORDER_KEY, JSON.stringify(order)); }catch(e){}
+  }
+  applySavedOrder();
+  grid.querySelectorAll('.tile').forEach(tile=>{
+    tile.addEventListener('dragstart', e=>{ dragged = tile; tile.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    tile.addEventListener('dragend', ()=>{ tile.classList.remove('dragging'); grid.querySelectorAll('.tile').forEach(t=>t.classList.remove('drag-over')); saveOrder(); });
+    tile.addEventListener('dragover', e=>{ e.preventDefault(); if(tile!==dragged) tile.classList.add('drag-over'); });
+    tile.addEventListener('dragleave', ()=>{ tile.classList.remove('drag-over'); });
+    tile.addEventListener('drop', e=>{
+      e.preventDefault(); tile.classList.remove('drag-over');
+      if(!dragged || dragged===tile) return;
+      const tiles = [...grid.querySelectorAll('.tile')];
+      const from = tiles.indexOf(dragged), to = tiles.indexOf(tile);
+      if(from<to) tile.after(dragged); else tile.before(dragged);
+    });
+  });
+})();
 
 /* ---------- CLOCKS / DATE ---------- */
 const locations = {
@@ -848,23 +856,6 @@ setInterval(fetchWeather, 900000);
 setInterval(fetchFX, 3600000);
 setInterval(refreshGold, 3600000);
 setInterval(()=>{ if(gAccessToken) loadAgenda(); }, 900000);
-
-/* ---------- CONNECTION STATUS ---------- */
-function updateConnStatus(){
-  const el = document.getElementById('conn-status');
-  if(navigator.onLine){ el.className=''; el.innerText='● Online'; }
-  else { el.className='offline'; el.innerText='● Offline'; }
-}
-window.addEventListener('online', updateConnStatus);
-window.addEventListener('offline', updateConnStatus);
-updateConnStatus();
-
-/* ---------- AUTO-REFRESH (every 30 min) — prevents memory leaks on old hardware ---------- */
-setTimeout(function(){ location.reload(); }, 30 * 60 * 1000);
-
-/* ---------- KIOSK: prevent accidental navigation ---------- */
-window.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-document.addEventListener('gesturestart', function(e){ e.preventDefault(); }); // iOS pinch-zoom
 </script>
 </body>
 </html>
