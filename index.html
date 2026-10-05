@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Horizon Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,9 +25,9 @@ body.light{
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif;}
 body{
-  background: radial-gradient(ellipse 900px 500px at 12% -5%, color-mix(in srgb, var(--coral) 20%, transparent), transparent),
-              radial-gradient(ellipse 800px 600px at 100% 10%, color-mix(in srgb, var(--emerald) 16%, transparent), transparent),
-              var(--bg-0);
+  background-color: var(--bg-0);
+  background-image: radial-gradient(ellipse 900px 500px at 12% -5%, rgba(255,138,92,.20), rgba(255,138,92,0)),
+                    radial-gradient(ellipse 800px 600px at 100% 10%, rgba(47,184,166,.16), rgba(47,184,166,0));
   color:var(--text-hi); min-height:100vh; padding:28px; transition:background .4s;
 }
 .top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
@@ -856,6 +858,10 @@ setInterval(fetchWeather, 900000);
 setInterval(fetchFX, 3600000);
 setInterval(refreshGold, 3600000);
 setInterval(()=>{ if(gAccessToken) loadAgenda(); }, 900000);
+
+/* ---------- KIOSK (iPad) ---------- */
+setTimeout(function(){ location.reload(); }, 30*60*1000); // fresh page every 30 min on old hardware
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
 </script>
 </body>
 </html>
