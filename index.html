@@ -589,6 +589,24 @@ const SURAHS = [
 ['Al-Masad','المسد'],['Al-Ikhlas','الإخلاص'],['Al-Falaq','الفلق'],['An-Nas','الناس']
 ];
 const QURAN_BASE = 'https://cdn.mp3quran.net/audio/mahmoud-husary/r1/';
+// Fallback sources: older iOS may reject the main CDN's certificate, so try others in turn.
+const QURAN_SOURCES = [
+  QURAN_BASE,
+  'https://download.quranicaudio.com/quran/mahmood_khaleel_al-husaree/',
+  'http://cdn.mp3quran.net/audio/mahmoud-husary/r1/'
+];
+let qSrcIdx = 0;
+function qUrl(n){ return QURAN_SOURCES[qSrcIdx] + String(n).padStart(3,'0') + '.mp3'; }
+function qTryNext(){
+  if(qSrcIdx < QURAN_SOURCES.length-1){
+    qSrcIdx++; qStatus.innerText='Trying backup source ' + qSrcIdx + '…';
+    qAudio.src = qUrl(qCur);
+    qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{});
+    return true;
+  }
+  qStatus.innerHTML='<span class="err">Could not play — all sources failed</span>'; qPlay.innerText='▶';
+  return false;
+}
 const qAudio = document.getElementById('q-audio');
 const qPlay = document.getElementById('q-play'), qStatus = document.getElementById('q-status');
 const qSeek = document.getElementById('q-seek');
@@ -614,12 +632,12 @@ function playSurah(n, autoplay=true){
   if(n<1) n=114; if(n>114) n=1;
   qCur=n; qShowInfo(n);
   try{ localStorage.setItem('horizon_surah', String(n)); }catch(e){}
-  qAudio.src = QURAN_BASE + String(n).padStart(3,'0') + '.mp3';
+  qAudio.src = qUrl(n);
   renderSurahList(document.getElementById('q-search').value);
   if(autoplay){
     qStatus.innerText='Loading…';
     qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; })
-      .catch(()=>{ qStatus.innerHTML='<span class="err">Could not play — check connection</span>'; qPlay.innerText='▶'; });
+      .catch(()=>{ /* error event handles fallback */ });
   }
 }
 document.getElementById('q-list').addEventListener('click', ev=>{ const b=ev.target.closest('.q-item'); if(b) playSurah(parseInt(b.dataset.n,10)); });
@@ -633,7 +651,7 @@ document.getElementById('q-prev').onclick = ()=>playSurah((qCur||1)-1);
 document.getElementById('q-next').onclick = ()=>playSurah((qCur||0)+1);
 document.getElementById('q-rep').onclick = e=>{ qRepeat=!qRepeat; e.currentTarget.classList.toggle('on',qRepeat); };
 qAudio.addEventListener('ended', ()=>{ if(qRepeat){ qAudio.currentTime=0; qAudio.play(); } else playSurah(qCur+1); });
-qAudio.addEventListener('error', ()=>{ qStatus.innerHTML='<span class="err">Audio error — try another surah</span>'; qPlay.innerText='▶'; });
+qAudio.addEventListener('error', ()=>{ qTryNext(); });
 qAudio.addEventListener('timeupdate', ()=>{
   document.getElementById('q-cur').innerText=fmtT(qAudio.currentTime);
   document.getElementById('q-dur').innerText=fmtT(qAudio.duration);
@@ -641,7 +659,7 @@ qAudio.addEventListener('timeupdate', ()=>{
 });
 qSeek.addEventListener('input', ()=>{ if(qAudio.duration) qAudio.currentTime = qSeek.value/1000*qAudio.duration; });
 renderSurahList('');
-if(qCur){ qShowInfo(qCur); qAudio.src = QURAN_BASE + String(qCur).padStart(3,'0') + '.mp3'; }
+if(qCur){ qShowInfo(qCur); qAudio.src = qUrl(qCur); }
 
 /* ---------- ATHAN (per-prayer on/off) ---------- */
 const ATHAN_URL = 'https://archive.org/download/20230209_20230209_1744/' + encodeURIComponent('اذان نادر جدا تخشع له القلوب بصوت الشيخ محمد صديق المنشاوي من فترة الخمسينات.mp3');
