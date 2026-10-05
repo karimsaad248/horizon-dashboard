@@ -153,15 +153,79 @@ h2{font-size:.78rem;color:var(--text-mid);margin-bottom:14px;font-weight:700;let
 .q-num{color:var(--text-low);min-width:26px;font-size:.7rem;} .q-ar{margin-left:auto;direction:rtl;font-family:Georgia,serif;color:var(--text-mid);}
 @media(max-width:1100px){.c-prayer,.c-holiday{grid-column:span 12;} .quran{grid-template-columns:1fr;}}
 
+
+/* ===== PAPER (Kindle-style) THEME — default ===== */
+html.paper-root{font-size:18px;} /* ~12% larger text in paper look */
+body.paper{
+  --bg-0:#F4F1EA; --glass:#FBFAF6; --glass-border:#D9D4C7;
+  --text-hi:#1A1A1A; --text-mid:#4A4740; --text-low:#7A766C;
+  --emerald:#2E7D72; --gold:#1A1A1A; --coral:#1A1A1A; --danger:#9B2C2C;
+  --shadow:none;
+  background:#F4F1EA !important; background-image:none !important; color:#1A1A1A; transition:none;
+}
+body.paper .tile.hero .card{border-radius:6px;}
+body.paper *{font-family:Georgia,'Times New Roman',serif;}
+body.paper .card{background:#FBFAF6 !important;border:1px solid #D9D4C7;box-shadow:none !important;
+  -webkit-backdrop-filter:none;backdrop-filter:none;border-radius:6px;transition:none;}
+body.paper .card:hover{transform:none;}
+body.paper .pill, body.paper .toggle-btn, body.paper .mini-btn{background:#FBFAF6;border:1px solid #BDB7A8;color:#1A1A1A;-webkit-backdrop-filter:none;backdrop-filter:none;}
+body.paper .brand h1{font-size:2.3rem;font-weight:400;color:#1A1A1A;}
+body.paper h2{font-size:.85rem;color:#4A4740;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #D9D4C7;padding-bottom:8px;}
+body.paper .stamp{font-size:.72rem;}
+/* inner boxes: flat, hairline */
+body.paper .clock-item, body.paper .agenda-item, body.paper .week-day, body.paper .p-row,
+body.paper .fx-box, body.paper .hr-cell, body.paper .q-item{background:transparent;border:1px solid #E2DDD0;border-radius:4px;}
+body.paper .clock-time{font-size:2.1rem;font-weight:400;}
+body.paper .clock-name, body.paper .clock-wx{font-size:.85rem;}
+body.paper .clock-item.sel, body.paper .week-day.selected{border:2px solid #1A1A1A;background:transparent;}
+/* prayers: next prayer = solid black block */
+body.paper .prayer-count{font-size:2.6rem;font-weight:400;color:#1A1A1A;}
+body.paper .p-row{font-size:1rem;padding:10px 12px;}
+body.paper .p-row.active{background:#1A1A1A;border-color:#1A1A1A;}
+body.paper .p-row.active .p-name, body.paper .p-row.active .p-time{color:#F4F1EA;}
+body.paper .p-bell{font-size:.8rem;border-color:#BDB7A8;color:#7A766C;background:transparent;}
+body.paper .p-row.active .p-bell{border-color:#7A766C;color:#D9D4C7;}
+body.paper .p-bell.on{border-color:#2E7D72;color:#2E7D72;background:transparent;}
+body.paper .p-row.active .p-bell.on{color:#9ED2C9;border-color:#9ED2C9;}
+body.paper .athan-note, body.paper .fx-note{font-size:.78rem;}
+/* tags: ink only, no colour */
+body.paper .agenda-tag, body.paper .h-tag{background:transparent !important;color:#4A4740 !important;border:1px solid #BDB7A8;}
+body.paper .agenda-tag.overdue{color:#F4F1EA !important;background:#1A1A1A !important;border-color:#1A1A1A;}
+body.paper .h-tag.weekend{color:#F4F1EA !important;background:#4A4740 !important;border-color:#4A4740;}
+body.paper .agenda-time{color:#1A1A1A;font-size:.95rem;}
+body.paper .agenda-title{font-size:1rem;}
+body.paper .h-head{font-size:.95rem;} body.paper .h-alert{font-size:.9rem;}
+body.paper .h-alert.today{color:#1A1A1A;text-decoration:underline;}
+/* FX */
+body.paper .fx-label{font-size:.78rem;} body.paper .fx-val{font-size:1.3rem;font-weight:400;}
+body.paper .fx-box.gold{border:2px solid #1A1A1A;}
+body.paper .fx-input-row select, body.paper .fx-input-row input, body.paper .q-search{background:#FFF;border:1px solid #BDB7A8;color:#1A1A1A;}
+/* weather */
+body.paper .hr-cell{font-size:.85rem;} body.paper .hr-cell.now{border:2px solid #1A1A1A;}
+body.paper .hr-r{color:#4A4740;font-size:.75rem;}
+body.paper .hourly-title{font-size:.85rem;}
+/* Quran: the only colour is on actions */
+body.paper .q-now{color:#1A1A1A;font-size:2rem;}
+body.paper .q-sub, body.paper .radio-status{font-size:.85rem;}
+body.paper .q-item{font-size:.9rem;color:#1A1A1A;}
+body.paper .q-item.cur{border:2px solid #2E7D72;background:transparent;}
+body.paper .play-btn{background:#2E7D72;color:#FBFAF6;width:52px;height:52px;font-size:1.15rem;}
+body.paper .q-ctl .mini-btn.on{border-color:#2E7D72;color:#2E7D72;}
+body.paper .q-seek{accent-color:#2E7D72;}
+body.paper .q-times{font-size:.8rem;}
+body.paper .err{color:#9B2C2C;font-size:.8rem;}
+body.paper #sound-banner{background:#2E7D72 !important;color:#FBFAF6 !important;}
+body.paper .drag-handle{color:#9A958A;}
+
 /* Night clock (00:00–08:00 Cairo) */
-#night-clock{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;background:#05070d;
+#night-clock{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;background:#000;
   display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   -webkit-user-select:none;user-select:none;cursor:pointer;}
 #night-clock.on{display:-webkit-flex;display:flex;}
 #nc-time{font-family:'Figtree',-apple-system,sans-serif;font-weight:300;font-size:28vw;line-height:1;
-  color:#d9b26a;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
-#nc-date{font-size:3.2vw;color:#6f7a92;margin-top:2vh;}
-#nc-prayer{font-size:2.6vw;color:#4f6f6a;margin-top:1.5vh;}
+  color:#8C8C8C;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+#nc-date{font-size:3.2vw;color:#555;margin-top:2vh;}
+#nc-prayer{font-size:2.6vw;color:#4a4a4a;margin-top:1.5vh;}
 #nc-hint{position:absolute;bottom:3vh;font-size:1.6vw;color:#2c3446;}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -307,14 +371,22 @@ h2{font-size:.78rem;color:var(--text-mid);margin-bottom:14px;font-weight:700;let
 <script>
 /* ---------- THEME ---------- */
 const themeToggle = document.getElementById('theme-toggle');
+// Default look is "paper" (Kindle-style). The button switches to the dark look and back.
+function applyTheme(t){
+  document.body.classList.remove('light');
+  document.body.classList.toggle('paper', t !== 'dark');
+  document.documentElement.classList.toggle('paper-root', t !== 'dark');
+  themeToggle.innerText = t === 'dark' ? '📖' : '🌙';
+  themeToggle.title = t === 'dark' ? 'Paper look' : 'Dark look';
+}
+let curTheme = 'paper';
+try{ if(localStorage.getItem('horizon_theme')==='dark') curTheme='dark'; }catch(e){}
+applyTheme(curTheme);
 themeToggle.onclick = () => {
-  document.body.classList.toggle('light');
-  themeToggle.innerText = document.body.classList.contains('light') ? '☀️' : '🌙';
-  try{ localStorage.setItem('horizon_theme', document.body.classList.contains('light')?'light':'dark'); }catch(e){}
+  curTheme = curTheme === 'dark' ? 'paper' : 'dark';
+  applyTheme(curTheme);
+  try{ localStorage.setItem('horizon_theme', curTheme); }catch(e){}
 };
-try{
-  if(localStorage.getItem('horizon_theme')==='light'){ document.body.classList.add('light'); themeToggle.innerText='☀️'; }
-}catch(e){}
 
 /* ---------- DRAG TO REARRANGE (saved per browser) ---------- */
 (function(){
