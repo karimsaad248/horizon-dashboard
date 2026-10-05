@@ -1,0 +1,30 @@
+name: Fetch offline audio
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/fetch-audio.yml']
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Athan and selected surahs
+        run: |
+          set -e
+          mkdir -p audio/quran
+          curl -fL --retry 3 -o audio/athan.mp3 "https://archive.org/download/20230209_20230209_1744/%D8%A7%D8%B0%D8%A7%D9%86%20%D9%86%D8%A7%D8%AF%D8%B1%20%D8%AC%D8%AF%D8%A7%20%D8%AA%D8%AE%D8%B4%D8%B9%20%D9%84%D9%87%20%D8%A7%D9%84%D9%82%D9%84%D9%88%D8%A8%20%D8%A8%D8%B5%D9%88%D8%AA%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D9%85%D8%AD%D9%85%D8%AF%20%D8%B5%D8%AF%D9%8A%D9%82%20%D8%A7%D9%84%D9%85%D9%86%D8%B4%D8%A7%D9%88%D9%8A%20%D9%85%D9%86%20%D9%81%D8%AA%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AE%D9%85%D8%B3%D9%8A%D9%86%D8%A7%D8%AA.mp3"
+          for n in 1 18 36 55 56 67 $(seq 78 114); do
+            f=$(printf "%03d" $n)
+            curl -fL --retry 3 -o audio/quran/$f.mp3 "https://cdn.mp3quran.net/audio/mahmoud-husary/r1/$f.mp3"
+          done
+          ls -la audio audio/quran
+          du -sh audio
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add audio
+          git diff --cached --quiet || git commit -m "Add offline audio (Athan + selected surahs)"
+          git push
