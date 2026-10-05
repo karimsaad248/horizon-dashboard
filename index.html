@@ -461,7 +461,7 @@ async function selectCity(name){
     let html='';
     for(let k=i;k<i+24 && k<d.hourly.time.length;k++){
       const hh = d.hourly.time[k].slice(11,16);
-      html += `<div class="hr-cell${k===i?' now':''}"><div class="hr-t">${k===i?'Now':hh}</div><div class="hr-i">${wxIcon(d.hourly.weathercode[k])}</div><div class="hr-d">${Math.round(d.hourly.temperature_2m[k])}°</div><div class="hr-r">💧${d.hourly.precipitation_probability[k]??0}%</div></div>`;
+      html += `<div class="hr-cell${k===i?' now':''}"><div class="hr-t">${k===i?'Now':hh}</div><div class="hr-i">${wxIcon(d.hourly.weathercode[k])}</div><div class="hr-d">${Math.round(d.hourly.temperature_2m[k])}°</div><div class="hr-r">💧${d.hourly.precipitation_probability[k]!=null?d.hourly.precipitation_probability[k]:0}%</div></div>`;
     }
     box.innerHTML = html;
   }catch(e){ box.innerHTML = '<span class="err">Hourly weather unavailable — offline</span>'; }
@@ -835,7 +835,7 @@ function renderWeekStrip(now){
     });
     const dayTasks = allTasks.filter(t=> t.due && isSameDay(new Date(t.due), day));
     const count = dayEvents.length + dayTasks.length;
-    const first = dayEvents[0]?.summary || dayTasks[0]?.title || '';
+    const first = (dayEvents[0] && dayEvents[0].summary) || (dayTasks[0] && dayTasks[0].title) || '';
     const cell = document.createElement('div'); cell.className='week-day'+(i===selectedDayOffset?' selected':'');
     cell.innerHTML = `<div class="wd-name">${day.toLocaleDateString('en-US',{weekday:'short'})}</div><div class="wd-count">${count}</div><div class="wd-first">${escapeHtml(first.slice(0,14))}</div>`;
     cell.onclick = () => { selectedDayOffset = i; renderDayAgenda(i, new Date()); renderWeekStrip(new Date()); };
