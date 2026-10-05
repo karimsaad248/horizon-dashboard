@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" manifest="horizon.appcache">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -150,6 +150,7 @@ h2{font-size:.78rem;color:var(--text-mid);margin-bottom:14px;font-weight:700;let
 .q-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;max-height:300px;overflow-y:auto;padding-right:4px;}
 .q-item{display:flex;gap:8px;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid transparent;cursor:pointer;font-size:.8rem;text-align:left;color:var(--text-hi);}
 .q-item:hover{border-color:var(--glass-border);} .q-item.cur{border-color:var(--emerald);background:rgba(16,185,129,.12);}
+.q-off{color:var(--emerald);font-size:.75rem;margin-left:4px;}
 .q-num{color:var(--text-low);min-width:26px;font-size:.7rem;} .q-ar{margin-left:auto;direction:rtl;font-family:Georgia,serif;color:var(--text-mid);}
 @media(max-width:1100px){.c-prayer,.c-holiday{grid-column:span 12;} .quran{grid-template-columns:1fr;}}
 
@@ -485,6 +486,50 @@ function setTag(id,isWknd){
   el.className = 'h-tag '+(isWknd?'weekend':'workday');
 }
 
+/* ---------- LOCAL SAVE (use internet only to refresh) ---------- */
+function saveLocal(k,v){ try{ localStorage.setItem('hz_'+k, JSON.stringify({t:Date.now(), v:v})); }catch(e){} }
+function loadLocal(k){ try{ const r=JSON.parse(localStorage.getItem('hz_'+k)||'null'); return r; }catch(e){ return null; } }
+function agoText(t){ const m=Math.round((Date.now()-t)/60000); if(m<1) return 'just now'; if(m<60) return m+' min ago'; const h=Math.round(m/60); if(h<48) return h+' h ago'; return Math.round(h/24)+' days ago'; }
+
+/* Offline prayer times — Egyptian General Authority (Fajr 19.5°, Isha 17.5°), Shafi Asr. */
+function calcPrayerTimes(date, lat, lon, tzHours){
+  var D2R=Math.PI/180, R2D=180/Math.PI;
+  function sin(d){return Math.sin(d*D2R);} function cos(d){return Math.cos(d*D2R);} function tan(d){return Math.tan(d*D2R);}
+  function asin(x){return R2D*Math.asin(x);} function acos(x){return R2D*Math.acos(x);} function atan2(y,x){return R2D*Math.atan2(y,x);}
+  function acot(x){return R2D*Math.atan(1/x);}
+  function fix(a,b){a=a-b*Math.floor(a/b);return a<0?a+b:a;}
+  var y=date.getFullYear(), m=date.getMonth()+1, d=date.getDate();
+  if(m<=2){y-=1;m+=12;}
+  var A=Math.floor(y/100), B=2-A+Math.floor(A/4);
+  var jd=Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5 - lon/(15*24);
+  function sunPos(t){ // t = fraction of day
+    var D=jd+t-2451545.0, g=fix(357.529+0.98560028*D,360), q=fix(280.459+0.98564736*D,360);
+    var L=fix(q+1.915*sin(g)+0.020*sin(2*g),360), e=23.439-0.00000036*D;
+    var RA=fix(atan2(cos(e)*sin(L),cos(L))/15,24);
+    return {decl:asin(sin(e)*sin(L)), eqt:q/15-RA};
+  }
+  function midDay(t){ return fix(12-sunPos(t).eqt,24); }
+  function sunAngleTime(angle,t,ccw){
+    var decl=sunPos(t).decl, noon=midDay(t);
+    var v=acos((-sin(angle)-sin(decl)*sin(lat))/(cos(decl)*cos(lat)))/15;
+    return noon+(ccw?-v:v);
+  }
+  function asrTime(factor,t){ var decl=sunPos(t).decl; var ang=-acot(factor+tan(Math.abs(lat-decl))); return sunAngleTime(ang,t); }
+  var t={fajr:5/24,sunrise:6/24,dhuhr:12/24,asr:13/24,maghrib:18/24,isha:18/24};
+  var r={};
+  for(var i=0;i<2;i++){ // two refinement passes
+    r.fajr=sunAngleTime(19.5,t.fajr,true); r.sunrise=sunAngleTime(0.833,t.sunrise,true);
+    r.dhuhr=midDay(t.dhuhr); r.asr=asrTime(1,t.asr); r.maghrib=sunAngleTime(0.833,t.maghrib);
+    r.isha=sunAngleTime(17.5,t.isha);
+    for(var k in r) t[k]=r[k]/24;
+  }
+  var adj=tzHours-lon/15, out={};
+  function fmt(h){ h=fix(h+0.5/60,24); var H=Math.floor(h), M=Math.floor((h-H)*60); return (H<10?'0':'')+H+':'+(M<10?'0':'')+M; }
+  out.Fajr=fmt(r.fajr+adj); out.Sunrise=fmt(r.sunrise+adj); out.Dhuhr=fmt(r.dhuhr+adj);
+  out.Asr=fmt(r.asr+adj); out.Maghrib=fmt(r.maghrib+adj); out.Isha=fmt(r.isha+adj);
+  return out;
+}
+
 /* ---------- WEATHER ---------- */
 async function fetchWeather(){
   for(const [name,cfg] of Object.entries(locations)){
@@ -496,7 +541,11 @@ async function fetchWeather(){
       const t = Math.round(data.current_weather.temperature);
       const code = data.current_weather.weathercode;
       el.innerText = `${wxIcon(code)} ${t}°C`;
-    }catch(e){ el.innerHTML = `<span class="err">offline</span>`; }
+      saveLocal('wx_'+name, el.innerText);
+    }catch(e){
+      const c = loadLocal('wx_'+name);
+      el.innerHTML = c ? (c.v + ' <span style="opacity:.6;font-size:.8em">· ' + agoText(c.t) + '</span>') : '<span class="err">offline</span>';
+    }
   }
   document.getElementById('stamp-weather').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 }
@@ -555,7 +604,12 @@ async function selectCity(name){
       html += `<div class="hr-cell${k===i?' now':''}"><div class="hr-t">${k===i?'Now':hh}</div><div class="hr-i">${wxIcon(d.hourly.weathercode[k])}</div><div class="hr-d">${Math.round(d.hourly.temperature_2m[k])}°</div><div class="hr-r">💧${d.hourly.precipitation_probability[k]!=null?d.hourly.precipitation_probability[k]:0}%</div></div>`;
     }
     box.innerHTML = html;
-  }catch(e){ box.innerHTML = '<span class="err">Hourly weather unavailable — offline</span>'; }
+    saveLocal('hourly_'+name, {title:title.innerText, html:html});
+  }catch(e){
+    const c = loadLocal('hourly_'+name);
+    if(c){ box.innerHTML = c.v.html; title.innerText = c.v.title + ' (saved ' + agoText(c.t) + ')'; }
+    else box.innerHTML = '<span class="err">Hourly weather unavailable — offline</span>';
+  }
 }
 
 /* ---------- FX + GOLD ---------- */
@@ -569,11 +623,14 @@ async function fetchFX(){
     const data = await res.json();
     if(data.result !== 'success') throw new Error('api error');
     ratesUSD = data.rates;
+    saveLocal('fx', data.rates);
     statusEl.innerText = 'live';
     statusEl.style.color = 'var(--emerald)';
     renderFX();
   }catch(e){
-    statusEl.innerText = 'offline — showing last known';
+    const c = loadLocal('fx');
+    if(c){ ratesUSD = c.v; renderFX(); statusEl.innerText = 'offline — saved ' + agoText(c.t); }
+    else statusEl.innerText = 'offline — no saved rates yet';
     statusEl.style.color = 'var(--danger)';
   }
   document.getElementById('stamp-fx').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
@@ -584,9 +641,9 @@ async function fetchGoldOunceUSD(){
     const res = await fetch('https://api.gold-api.com/price/XAU');
     if(!res.ok) throw new Error('bad');
     const d = await res.json();
-    if(d && d.price) return d.price;
+    if(d && d.price){ saveLocal('gold', d.price); return d.price; }
     throw new Error('no price');
-  }catch(e){ return null; }
+  }catch(e){ const c = loadLocal('gold'); return c ? c.v : null; }
 }
 let goldOunceUSD = null;
 async function refreshGold(){ goldOunceUSD = await fetchGoldOunceUSD(); renderFX(); }
@@ -624,22 +681,42 @@ document.getElementById('base-amount').addEventListener('input', renderFX);
 
 /* ---------- PRAYER TIMES ---------- */
 let prayerTimes = null;
+function cairoNowParts(){ // Cairo date + UTC offset, without relying on newer Intl APIs
+  const now=new Date();
+  const d=now.toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'}); // YYYY-MM-DD
+  const [h,m]=cairoHM(now).split(':').map(Number);
+  let off=(h*60+m)-(now.getUTCHours()*60+now.getUTCMinutes()); if(off>720) off-=1440; if(off<-720) off+=1440;
+  return {date:d, tz:Math.round(off/30)/2};
+}
+function showPrayerTimes(prayers, sourceText){
+  for(const name of Object.keys(prayers)){
+    const el = document.querySelector(`#p-${name.toLowerCase()} .p-time`);
+    if(el) el.innerText = prayers[name].slice(0,5);
+  }
+  prayerTimes = prayers;
+  calcCountdown(prayers);
+  document.getElementById('stamp-prayer').innerText = sourceText;
+}
 async function updatePrayerTimes(){
+  const cp = cairoNowParts();
+  const saved = loadLocal('prayer');
+  if(saved && saved.v.date === cp.date){ showPrayerTimes(saved.v.times, 'Online times'); }
+  else{
+    const ymd = cp.date.split('-').map(Number);
+    const c = calcPrayerTimes(new Date(ymd[0],ymd[1]-1,ymd[2]), 30.0444, 31.2357, cp.tz);
+    showPrayerTimes({Fajr:c.Fajr,Dhuhr:c.Dhuhr,Asr:c.Asr,Maghrib:c.Maghrib,Isha:c.Isha}, 'Calculated on device');
+  }
+  if(saved && saved.v.date === cp.date) return; // already refreshed today
+  if(updatePrayerTimes.busy) return; updatePrayerTimes.busy = true;
   try{
     const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5');
     if(!res.ok) throw new Error('bad');
-    const data = await res.json();
-    const t = data.data.timings;
-    const prayers = {Fajr:t.Fajr,Dhuhr:t.Dhuhr,Asr:t.Asr,Maghrib:t.Maghrib,Isha:t.Isha};
-    for(const [name,time] of Object.entries(prayers)){
-      document.querySelector(`#p-${name.toLowerCase()} .p-time`).innerText = time.slice(0,5);
-    }
-    prayerTimes = prayers;
-    calcCountdown(prayers);
-    document.getElementById('stamp-prayer').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  }catch(e){
-    document.getElementById('prayer-countdown').innerHTML = '<span class="err">offline</span>';
-  }
+    const t = (await res.json()).data.timings;
+    const times = {Fajr:t.Fajr.slice(0,5),Dhuhr:t.Dhuhr.slice(0,5),Asr:t.Asr.slice(0,5),Maghrib:t.Maghrib.slice(0,5),Isha:t.Isha.slice(0,5)};
+    saveLocal('prayer', {date:cp.date, times:times});
+    showPrayerTimes(times, 'Online times');
+  }catch(e){ /* offline: device calculation stays */ }
+  finally{ updatePrayerTimes.busy = false; }
 }
 function cairoHM(d){ return d.toLocaleTimeString('en-GB',{timeZone:'Africa/Cairo',hour12:false,hour:'2-digit',minute:'2-digit'}); }
 function calcCountdown(prayers){
@@ -685,8 +762,29 @@ const QURAN_SOURCES = [
   'http://cdn.mp3quran.net/audio/mahmoud-husary/r1/'
 ];
 let qSrcIdx = 0;
-function qUrl(n){ return QURAN_SOURCES[qSrcIdx] + String(n).padStart(3,'0') + '.mp3'; }
+// Surahs bundled with the dashboard and saved on the iPad for offline use.
+const OFFLINE_SURAHS = [1,18,36,55,56,67].concat(Array.from({length:37},(_, i)=>78+i));
+const savedAudio = {}; // key -> true when stored in IndexedDB
+let qLocalUrl = null, qTriedLocal = false;
+function qPad(n){ return String(n).padStart(3,'0'); }
+function qUrl(n){ return QURAN_SOURCES[qSrcIdx] + qPad(n) + '.mp3'; }
+function qSetSource(n){
+  qTriedLocal = false;
+  if(qLocalUrl){ try{ URL.revokeObjectURL(qLocalUrl); }catch(e){} qLocalUrl = null; }
+  if(savedAudio['q'+n]){
+    qTriedLocal = true;
+    return audioDB.getUrl('q'+n).then(u=>{ if(u){ qLocalUrl=u; qAudio.src=u; } else qAudio.src = OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : qUrl(n); });
+  }
+  qAudio.src = OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : qUrl(n);
+  return Promise.resolve();
+}
 function qTryNext(){
+  if(qTriedLocal || qAudio.src.indexOf('audio/quran/')>=0){ // saved/bundled copy failed → go to internet sources
+    qTriedLocal = false; qSrcIdx = 0;
+    qAudio.src = qUrl(qCur);
+    qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing (online)'; }).catch(()=>{});
+    return true;
+  }
   if(qSrcIdx < QURAN_SOURCES.length-1){
     qSrcIdx++; qStatus.innerText='Trying backup source ' + qSrcIdx + '…';
     qAudio.src = qUrl(qCur);
@@ -708,7 +806,7 @@ function renderSurahList(filter){
   SURAHS.forEach((x,i)=>{
     const n=i+1;
     if(f && !(x[0].toLowerCase().includes(f) || x[1].includes(f) || String(n)===f)) return;
-    html+=`<button class="q-item${n===qCur?' cur':''}" data-n="${n}"><span class="q-num">${n}</span><span>${x[0]}</span><span class="q-ar">${x[1]}</span></button>`;
+    html+=`<button class="q-item${n===qCur?' cur':''}" data-n="${n}"><span class="q-num">${n}</span><span>${x[0]}</span><span class="q-ar">${x[1]}</span>${savedAudio['q'+n]?'<span class="q-off" title="Saved on this iPad">✓</span>':''}</button>`;
   });
   box.innerHTML = html || '<span class="err">No match</span>';
 }
@@ -721,11 +819,12 @@ function playSurah(n, autoplay=true){
   if(n<1) n=114; if(n>114) n=1;
   qCur=n; qShowInfo(n);
   try{ localStorage.setItem('horizon_surah', String(n)); }catch(e){}
-  qAudio.src = qUrl(n);
+  qSrcIdx = 0;
   renderSurahList(document.getElementById('q-search').value);
+  const ready = qSetSource(n);
   if(autoplay){
     qStatus.innerText='Loading…';
-    qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; })
+    ready.then(()=>qAudio.play()).then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; })
       .catch(()=>{ /* error event handles fallback */ });
   }
 }
@@ -748,12 +847,14 @@ qAudio.addEventListener('timeupdate', ()=>{
 });
 qSeek.addEventListener('input', ()=>{ if(qAudio.duration) qAudio.currentTime = qSeek.value/1000*qAudio.duration; });
 renderSurahList('');
-if(qCur){ qShowInfo(qCur); qAudio.src = qUrl(qCur); }
+if(qCur){ qShowInfo(qCur); }
 
 /* ---------- ATHAN (per-prayer on/off) ---------- */
 const ATHAN_URL = 'https://archive.org/download/20230209_20230209_1744/' + encodeURIComponent('اذان نادر جدا تخشع له القلوب بصوت الشيخ محمد صديق المنشاوي من فترة الخمسينات.mp3');
 const athanAudio = document.getElementById('athan-audio');
-athanAudio.src = ATHAN_URL;
+let athanTriedRemote = false;
+athanAudio.src = 'audio/athan.mp3';
+athanAudio.addEventListener('error', ()=>{ if(!athanTriedRemote){ athanTriedRemote = true; athanAudio.src = ATHAN_URL; } });
 const PR = ['fajr','dhuhr','asr','maghrib','isha'];
 let athanOn = {fajr:false,dhuhr:false,asr:false,maghrib:false,isha:false};
 try{ Object.assign(athanOn, JSON.parse(localStorage.getItem('horizon_athan')||'{}')); }catch(e){}
@@ -954,6 +1055,63 @@ function renderWeekStrip(now){
 
 function escapeHtml(str){
   const d = document.createElement('div'); d.innerText = str; return d.innerHTML;
+}
+
+/* ---------- OFFLINE AUDIO STORE (IndexedDB) ---------- */
+const audioDB = (function(){
+  let dbp = null;
+  function open(){
+    if(dbp) return dbp;
+    dbp = new Promise((res,rej)=>{
+      if(!window.indexedDB){ rej(new Error('no idb')); return; }
+      const r = indexedDB.open('horizon-audio', 1);
+      r.onupgradeneeded = ()=>{ r.result.createObjectStore('files'); };
+      r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error);
+    });
+    return dbp;
+  }
+  function tx(mode, fn){ return open().then(db=>new Promise((res,rej)=>{ const t=db.transaction('files',mode); const st=t.objectStore('files'); const out=fn(st); t.oncomplete=()=>res(out&&out.result); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); })); }
+  return {
+    keys: ()=>open().then(db=>new Promise((res)=>{ const ks=[]; const c=db.transaction('files').objectStore('files').openCursor(); c.onsuccess=()=>{ const cur=c.result; if(cur){ ks.push(cur.key); cur.continue(); } else res(ks); }; c.onerror=()=>res(ks); })),
+    put: (k,buf)=>tx('readwrite', st=>st.put(buf,k)),
+    getUrl: (k)=>tx('readonly', st=>st.get(k)).then(buf=>buf ? URL.createObjectURL(new Blob([buf],{type:'audio/mpeg'})) : null).catch(()=>null)
+  };
+})();
+const offlineStatusEl = document.createElement('div');
+offlineStatusEl.className = 'radio-status'; offlineStatusEl.style.marginTop = '6px';
+document.getElementById('q-status').insertAdjacentElement('afterend', offlineStatusEl);
+function offlineCount(){ return OFFLINE_SURAHS.filter(n=>savedAudio['q'+n]).length; }
+function showOfflineStatus(extra){ offlineStatusEl.innerText = 'Offline: ' + offlineCount() + '/' + OFFLINE_SURAHS.length + ' surahs saved' + (savedAudio.athan?' · Athan saved':'') + (extra?(' · '+extra):''); }
+function fetchBuf(url){ return fetch(url).then(r=>{ if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); }); }
+async function saveOfflineAudio(){
+  try{ (await audioDB.keys()).forEach(k=>savedAudio[k]=true); }catch(e){ offlineStatusEl.innerText='Offline saving not supported on this browser'; return; }
+  renderSurahList(document.getElementById('q-search').value); showOfflineStatus();
+  if(savedAudio.athan){ audioDB.getUrl('athan').then(u=>{ if(u) athanAudio.src = u; }); }
+  if(!navigator.onLine) return;
+  const queue = [['athan','audio/athan.mp3']].concat(OFFLINE_SURAHS.slice().reverse().map(n=>['q'+n,'audio/quran/'+qPad(n)+'.mp3'])); // short surahs first
+  for(const [k,url] of queue){
+    if(savedAudio[k]) continue;
+    if(!navigator.onLine){ showOfflineStatus('paused (offline)'); return; }
+    showOfflineStatus('saving…');
+    try{
+      const buf = await fetchBuf(url);
+      await audioDB.put(k, buf);
+      savedAudio[k] = true;
+      if(k==='athan' && athanAudio.paused){ audioDB.getUrl('athan').then(u=>{ if(u) athanAudio.src = u; }); }
+      renderSurahList(document.getElementById('q-search').value);
+    }catch(e){ showOfflineStatus('storage full or error — stopped'); return; }
+  }
+  showOfflineStatus();
+}
+setTimeout(saveOfflineAudio, 4000);
+
+/* ---------- PAGE OFFLINE CACHE (AppCache, works on iOS 10) ---------- */
+if(window.applicationCache){
+  applicationCache.addEventListener('updateready', function(){
+    try{ applicationCache.swapCache(); }catch(e){}
+    const tryReload = ()=>{ if(qAudio.paused && athanAudio.paused) location.reload(); else setTimeout(tryReload, 60000); };
+    tryReload();
+  });
 }
 
 /* ---------- INIT ---------- */
