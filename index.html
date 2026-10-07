@@ -218,23 +218,102 @@ body.paper .err{color:#9B2C2C;font-size:.8rem;}
 body.paper #sound-banner{background:#2E7D72 !important;color:#FBFAF6 !important;}
 body.paper .drag-handle{color:#9A958A;}
 
-/* Night clock (00:00–08:00 Cairo) */
-#night-clock{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;background:#000;
-  display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  -webkit-user-select:none;user-select:none;cursor:pointer;}
-#night-clock.on{display:-webkit-flex;display:flex;}
-#nc-time{font-family:'Figtree',-apple-system,sans-serif;font-weight:300;font-size:28vw;line-height:1;
-  color:#8C8C8C;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
-#nc-date{font-size:3.2vw;color:#555;margin-top:2vh;}
-#nc-prayer{font-size:2.6vw;color:#4a4a4a;margin-top:1.5vh;}
-#nc-hint{position:absolute;bottom:3vh;font-size:1.6vw;color:#2c3446;}
+/* ===== SAVER: always-on clock (day + night), Athan scene, mini Quran player ===== */
+#saver{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;display:none;overflow:hidden;
+  -webkit-user-select:none;user-select:none;cursor:pointer;font-family:Georgia,'Times New Roman',serif;}
+#saver.on{display:block;}
+#sv-inner{position:absolute;top:0;left:0;right:0;bottom:0;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;
+  -webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;text-align:center;
+  -webkit-transition:-webkit-transform 2s;transition:transform 2s;}
+#sv-time{font-family:-apple-system,'Helvetica Neue',sans-serif;font-weight:200;font-size:34vmin;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+#sv-date{font-size:3.6vmin;margin-top:1.5vmin;}
+#sv-row{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;margin-top:4vmin;}
+#sv-wx{font-size:4.6vmin;padding:0 4vmin;}
+#sv-sep{width:1px;height:9vmin;}
+#sv-next{padding:0 4vmin;text-align:left;}
+#sv-next-name{font-size:6vmin;line-height:1.1;}
+#sv-next-in{font-size:3.4vmin;margin-top:.6vmin;}
+#sv-hint{position:absolute;bottom:2.5vmin;left:0;right:0;text-align:center;font-size:2vmin;}
+/* day: paper */
+#saver.day{background:#F4F1EA;color:#1A1A1A;}
+#saver.day #sv-date,#saver.day #sv-next-in{color:#6A665C;} #saver.day #sv-sep{background:#CFC9BA;} #saver.day #sv-hint{color:#B5AFA2;}
+#saver.day .sv-sun{position:absolute;top:-22vmin;right:-16vmin;width:60vmin;height:60vmin;border-radius:50%;
+  background:radial-gradient(circle, rgba(232,190,110,.45) 0%, rgba(232,190,110,.12) 45%, rgba(244,241,234,0) 70%);}
+#saver.day .sv-stars,#saver.day .sv-moon{display:none;}
+/* night: black, dim */
+#saver.night{background:#000;color:#8C8C8C;}
+#saver.night #sv-date,#saver.night #sv-next-in{color:#4F4F4F;} #saver.night #sv-wx,#saver.night #sv-next-name{color:#7A7A7A;}
+#saver.night #sv-sep{background:#262626;} #saver.night #sv-hint{color:#1F1F1F;}
+#saver.night .sv-sun{display:none;}
+.sv-moon{position:absolute;top:7vmin;right:9vmin;width:9vmin;height:9vmin;border-radius:50%;box-shadow:2.2vmin 1.2vmin 0 0 #6E6A5E;}
+.sv-star{position:absolute;width:3px;height:3px;border-radius:50%;background:#7a7a7a;opacity:.15;
+  -webkit-animation:svTw 6s ease-in-out infinite;animation:svTw 6s ease-in-out infinite;}
+@-webkit-keyframes svTw{0%,100%{opacity:.1}50%{opacity:.6}} @keyframes svTw{0%,100%{opacity:.1}50%{opacity:.6}}
+/* Athan scene */
+.sv-athan{display:none;}
+#saver.athan{background:#071a1f;background-image:radial-gradient(ellipse at 50% 100%, #12424a 0%, #0a252b 45%, #071a1f 75%);color:#EAD9A8;}
+#saver.athan .sv-sun,#saver.athan .sv-moon{display:none;} #saver.athan .sv-stars{display:block;}
+#saver.athan .sv-star{background:#EAD9A8;}
+#saver.athan #sv-row,#saver.athan #sv-date,#saver.athan #sv-hint{display:none;}
+#saver.athan #sv-inner{-webkit-justify-content:flex-start;justify-content:flex-start;padding-top:12vmin;}
+#saver.athan #sv-time{font-size:16vmin;color:#EAD9A8;opacity:.85;}
+#saver.athan .sv-athan{display:block;}
+.sv-athan-title{font-size:13vmin;line-height:1.2;direction:rtl;color:#F2E3B3;margin-bottom:1vmin;
+  text-shadow:0 0 4vmin rgba(242,227,179,.35);-webkit-animation:svGlow 4s ease-in-out infinite;animation:svGlow 4s ease-in-out infinite;}
+@-webkit-keyframes svGlow{0%,100%{opacity:.75}50%{opacity:1}} @keyframes svGlow{0%,100%{opacity:.75}50%{opacity:1}}
+.sv-athan-sub{font-size:4.4vmin;color:#BFD8D2;margin-bottom:3vmin;}
+.sv-mosque{position:absolute;left:0;bottom:0;width:100%;height:26vmin;overflow:visible;}
+.sv-ring{position:absolute;left:50%;top:50%;width:70vmin;height:70vmin;margin:-35vmin 0 0 -35vmin;border-radius:50%;
+  border:1px solid rgba(234,217,168,.25);-webkit-animation:svRing 5s ease-out infinite;animation:svRing 5s ease-out infinite;}
+@-webkit-keyframes svRing{0%{-webkit-transform:scale(.6);opacity:.7}100%{-webkit-transform:scale(1.4);opacity:0}}
+@keyframes svRing{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.4);opacity:0}}
+.sv-btn{display:inline-block;padding:1.6vmin 4vmin;border-radius:5vmin;font-size:3.2vmin;border:1px solid rgba(234,217,168,.5);color:#EAD9A8;background:rgba(0,0,0,.2);}
+/* mini Quran player */
+#sv-player{display:none;position:absolute;left:50%;bottom:6vmin;width:72vmin;margin-left:-36vmin;padding:2vmin 3vmin;border-radius:3vmin;
+  font-family:Georgia,serif;-webkit-align-items:center;align-items:center;}
+#sv-player.on{display:-webkit-flex;display:flex;}
+#saver.day #sv-player{background:#FBFAF6;border:1px solid #D9D4C7;color:#1A1A1A;}
+#saver.night #sv-player{background:#0d0d0d;border:1px solid #222;color:#8C8C8C;}
+#saver.athan #sv-player{display:none;}
+#sv-p-info{-webkit-flex:1;flex:1;text-align:right;direction:rtl;padding:0 2vmin;overflow:hidden;}
+#sv-p-name{font-size:4vmin;white-space:nowrap;}
+#sv-p-bar{height:3px;margin-top:1.2vmin;background:rgba(128,128,128,.25);border-radius:2px;overflow:hidden;}
+#sv-p-fill{height:3px;width:0;background:#2E7D72;}
+.sv-pbtn{width:8vmin;height:8vmin;border-radius:50%;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
+  -webkit-justify-content:center;justify-content:center;font-size:3.2vmin;margin:0 .6vmin;border:1px solid rgba(128,128,128,.35);}
+.sv-pbtn.main{width:10vmin;height:10vmin;font-size:4vmin;background:#2E7D72;border-color:#2E7D72;color:#FBFAF6;}
+#saver.night .sv-pbtn.main{background:#1f4e48;border-color:#1f4e48;color:#9a9a9a;}
+#saver.has-player #sv-hint{display:none;}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
 
 </head>
 <body>
-<div id="night-clock"><div id="nc-time">--:--</div><div id="nc-date"></div><div id="nc-prayer"></div><div id="nc-hint">Tap to open dashboard</div></div>
+<div id="saver">
+  <div class="sv-sun"></div><div class="sv-moon"></div><div class="sv-stars" id="sv-stars"></div>
+  <div class="sv-athan"><div class="sv-ring"></div><div class="sv-ring" style="-webkit-animation-delay:2.5s;animation-delay:2.5s"></div>
+    <svg class="sv-mosque" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMax meet"><g fill="#04110f">
+      <rect x="-2000" y="250" width="5000" height="60"/>
+      <rect x="140" y="80" width="26" height="180"/><path d="M136 80 L153 30 L170 80 Z"/><circle cx="153" cy="24" r="5"/>
+      <rect x="834" y="80" width="26" height="180"/><path d="M830 80 L847 30 L864 80 Z"/><circle cx="847" cy="24" r="5"/>
+      <rect x="260" y="170" width="480" height="90"/>
+      <path d="M380 170 Q380 70 500 60 Q620 70 620 170 Z"/><rect x="497" y="20" width="6" height="40"/><path d="M500 6 a10 10 0 1 0 8 16 a8 8 0 1 1 -8 -16 z"/>
+      <path d="M270 170 Q270 125 315 120 Q360 125 360 170 Z"/><path d="M640 170 Q640 125 685 120 Q730 125 730 170 Z"/>
+    </g></svg></div>
+  <div id="sv-inner">
+    <div class="sv-athan"><div class="sv-athan-title">الله أكبر</div><div class="sv-athan-sub" id="sv-athan-sub">Time for prayer</div></div>
+    <div id="sv-time">--:--</div>
+    <div id="sv-date"></div>
+    <div id="sv-row"><div id="sv-wx"></div><div id="sv-sep"></div><div id="sv-next"><div id="sv-next-name"></div><div id="sv-next-in"></div></div></div>
+    <div class="sv-athan" style="margin-top:4vmin"><span class="sv-btn sv-keep" id="sv-athan-stop">⏹ Stop Athan</span></div>
+  </div>
+  <div id="sv-player" class="sv-keep">
+    <div class="sv-pbtn sv-keep" id="sv-p-prev">⏮</div><div class="sv-pbtn main sv-keep" id="sv-p-play">⏸</div><div class="sv-pbtn sv-keep" id="sv-p-next">⏭</div>
+    <div id="sv-p-info"><div id="sv-p-name"></div><div id="sv-p-bar"><div id="sv-p-fill"></div></div></div>
+  </div>
+  <div id="sv-hint">Tap to open dashboard</div>
+</div>
 <div id="sound-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;text-align:center;font-weight:700;font-size:.95rem;background:#FFC857;color:#1B2A4A;cursor:pointer;">🔇 Tap anywhere once to enable Athan sound</div>
 
 <div class="top">
@@ -1150,31 +1229,91 @@ setInterval(function(){
 }, 30000);
 document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
 
-/* ---------- NIGHT CLOCK: big clock 00:00–08:00 Cairo; tap shows dashboard, back to clock after 60s idle ---------- */
-const NIGHT_IDLE_MS = 60*1000;
-const nightEl = document.getElementById('night-clock');
-let lastTouch = 0;
-function isNightHours(){ const h = parseInt(cairoHM(new Date()).split(':')[0],10); return h >= 0 && h < 8; }
-function updateNightClock(){
-  const now = new Date();
-  const show = isNightHours() && (Date.now() - lastTouch > NIGHT_IDLE_MS);
-  nightEl.classList.toggle('on', show);
-  if(!show) return;
-  document.getElementById('nc-time').innerText = cairoHM(now);
-  document.getElementById('nc-date').innerText = now.toLocaleDateString('en-GB',{timeZone:'Africa/Cairo',weekday:'long',day:'numeric',month:'long'});
-  const pc = document.getElementById('prayer-countdown');
-  document.getElementById('nc-prayer').innerText = pc ? pc.innerText : '';
+/* ---------- SAVER: always-on clock; tap shows dashboard for 60s; Athan scene; mini Quran player ---------- */
+const SAVER_IDLE_MS = 60*1000;
+const saverEl = document.getElementById('saver');
+let lastTouch = 0, athanScene = false;
+(function makeStars(){ let h=''; for(let i=0;i<28;i++){ h+='<div class="sv-star" style="left:'+(Math.random()*100).toFixed(1)+'%;top:'+(Math.random()*55).toFixed(1)+'%;-webkit-animation-delay:'+(Math.random()*6).toFixed(1)+'s;animation-delay:'+(Math.random()*6).toFixed(1)+'s"></div>'; } document.getElementById('sv-stars').innerHTML=h; })();
+function toMin(hm){ const a=hm.split(':').map(Number); return a[0]*60+a[1]; }
+function isNightNow(){ // dim look from 21:00 until 30 min after Fajr
+  const cur = toMin(cairoHM(new Date()));
+  const fajr = prayerTimes && prayerTimes.Fajr ? toMin(prayerTimes.Fajr) : 6*60;
+  return cur >= 21*60 || cur < fajr + 30;
 }
+function nextPrayerInfo(){
+  if(!prayerTimes) return null;
+  const cur = toMin(cairoHM(new Date()));
+  let best=null;
+  for(const n of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){ const t=toMin(prayerTimes[n]); if(t>cur && (!best || t<best.t)) best={n:n,t:t}; }
+  if(!best) best={n:'Fajr', t:toMin(prayerTimes.Fajr)+1440};
+  const d=best.t-cur; return {name:best.n, time:prayerTimes[best.n==='Fajr'&&best.t>=1440?'Fajr':best.n], h:Math.floor(d/60), m:d%60};
+}
+const AR_PRAYER = {Fajr:'الفجر',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'};
+let athanPrayerName = '';
+function updateSaver(){
+  const now = new Date();
+  const idle = Date.now() - lastTouch > SAVER_IDLE_MS;
+  const athanPlaying = !athanAudio.paused;
+  if(!athanPlaying) athanScene = false;
+  const show = idle || athanScene;
+  saverEl.classList.toggle('on', show);
+  if(!show) return;
+  const mode = athanScene ? 'athan' : (isNightNow() ? 'night' : 'day');
+  saverEl.className = 'on ' + mode;
+  document.getElementById('sv-time').innerText = cairoHM(now);
+  document.getElementById('sv-date').innerText = now.toLocaleDateString('en-GB',{timeZone:'Africa/Cairo',weekday:'long',day:'numeric',month:'long'});
+  const wxEl = document.querySelector('#tz-'+(typeof selectedCity!=='undefined'?selectedCity:'cairo')+' .clock-wx') || document.querySelector('#tz-cairo .clock-wx');
+  const cityEl = document.querySelector('#tz-'+(typeof selectedCity!=='undefined'?selectedCity:'cairo')+' .clock-name');
+  const wx = wxEl ? wxEl.innerText.split('·')[0].trim() : '';
+  document.getElementById('sv-wx').innerText = (wx && wx!=='offline' && wx.indexOf('Loading')<0) ? wx + (cityEl?'  '+cityEl.innerText.replace('📍 ',''):'') : '';
+  const np = nextPrayerInfo();
+  document.getElementById('sv-next-name').innerText = np ? np.name + '  ' + np.time : '';
+  document.getElementById('sv-next-in').innerText = np ? 'in ' + (np.h? np.h+'h ':'') + np.m + 'm' : '';
+  document.getElementById('sv-athan-sub').innerText = athanPrayerName ? ('صلاة ' + AR_PRAYER[athanPrayerName] + ' · ' + athanPrayerName + ' prayer') : 'Time for prayer';
+  const hint = document.getElementById('sv-hint');
+  const locked = (typeof soundUnlocked!=='undefined') && !soundUnlocked && athanEnabledAny();
+  hint.innerText = locked ? '🔇 Tap once to enable Athan sound' : 'Tap to open dashboard';
+  hint.style.color = locked ? '#2E7D72' : '';
+  // mini player: visible while a surah is loaded and was started
+  const pl = document.getElementById('sv-player');
+  const hasP = !athanScene && qAudio.src && qAudio.currentTime > 0 && !qAudio.ended;
+  pl.classList.toggle('on', !!hasP); saverEl.classList.toggle('has-player', !!hasP);
+  if(hasP){
+    const x = SURAHS[qCur-1] || ['',''];
+    document.getElementById('sv-p-name').innerText = 'سورة ' + x[1] + '  ·  ' + x[0];
+    document.getElementById('sv-p-play').innerText = qAudio.paused ? '▶' : '⏸';
+    document.getElementById('sv-p-fill').style.width = qAudio.duration ? (qAudio.currentTime/qAudio.duration*100).toFixed(1)+'%' : '0';
+  }
+  // slow drift so nothing sits on exactly the same pixels all day
+  const k = Math.floor(Date.now()/60000)%8, dx=[0,6,10,6,0,-6,-10,-6][k], dy=[0,4,0,-4,0,4,0,-4][k];
+  document.getElementById('sv-inner').style.webkitTransform = document.getElementById('sv-inner').style.transform = 'translate('+dx+'px,'+dy+'px)';
+}
+// Athan opens the saver in the Athan scene
+const _startAthan = startAthan;
+startAthan = function(){
+  athanPrayerName = '';
+  if(prayerTimes){ // the prayer whose time was reached most recently (within 30 min)
+    const cur=toMin(cairoHM(new Date())); let best=31;
+    for(const n of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){ const d=cur-toMin(prayerTimes[n]); if(d>=0 && d<best){ best=d; athanPrayerName=n; } }
+  }
+  athanScene = true; _startAthan(); updateSaver(); };
+document.getElementById('athan-test').onclick = startAthan;
+// controls inside the saver
+function svAct(id, fn){ document.getElementById(id).addEventListener('click', function(e){ e.stopPropagation(); fn(); updateSaver(); }); }
+svAct('sv-p-play', ()=>qPlay.onclick());
+svAct('sv-p-prev', ()=>playSurah((qCur||1)-1));
+svAct('sv-p-next', ()=>playSurah((qCur||0)+1));
+svAct('sv-athan-stop', ()=>{ athanAudio.pause(); athanAudio.dispatchEvent(new Event('ended')); athanScene=false; });
 let swallowUntil = 0;
-function noteTouch(){
-  if(nightEl.classList.contains('on')) swallowUntil = Date.now() + 600; // the waking tap shouldn't press anything underneath
-  lastTouch = Date.now(); nightEl.classList.remove('on');
+function noteTouch(e){
+  if(e && e.target && e.target.closest && e.target.closest('.sv-keep')) return; // saver buttons keep the saver open
+  if(saverEl.classList.contains('on')) swallowUntil = Date.now() + 600; // the waking tap shouldn't press anything underneath
+  lastTouch = Date.now(); athanScene = false; saverEl.classList.remove('on');
 }
 document.addEventListener('click', function(e){ if(Date.now() < swallowUntil){ e.preventDefault(); e.stopPropagation(); } }, true);
 ['touchstart','mousedown'].forEach(ev=>document.addEventListener(ev, noteTouch, true));
-nightEl.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); });
-updateNightClock();
-setInterval(updateNightClock, 1000);
+updateSaver();
+setInterval(updateSaver, 1000);
 </script>
 </body>
 </html>
