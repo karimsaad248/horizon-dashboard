@@ -218,6 +218,30 @@ body.paper .err{color:#9B2C2C;font-size:.8rem;}
 body.paper #sound-banner{background:#2E7D72 !important;color:#FBFAF6 !important;}
 body.paper .drag-handle{color:#9A958A;}
 
+/* Alarms */
+.al-row{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--glass-border);border-radius:6px;margin-bottom:8px;}
+.al-row + .al-row{margin-top:0;}
+.al-t{font-size:1.5rem;min-width:84px;font-variant-numeric:tabular-nums;}
+.al-meta{-webkit-flex:1;flex:1;font-size:.85rem;color:var(--text-mid);}
+.al-row.off .al-t,.al-row.off .al-meta{opacity:.4;}
+.al-form{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:8px;-webkit-align-items:center;align-items:center;margin-top:12px;}
+.al-form input,.al-form select{background:#FFF;border:1px solid var(--glass-border);color:var(--text-hi);border-radius:6px;padding:8px 10px;font-size:1rem;}
+body:not(.paper) .al-form input,body:not(.paper) .al-form select{background:rgba(255,255,255,.06);}
+.al-days{display:-webkit-flex;display:flex;gap:4px;}
+.al-day{width:34px;height:34px;border-radius:50%;border:1px solid var(--glass-border);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:.8rem;cursor:pointer;}
+.al-day.on{background:var(--emerald);border-color:var(--emerald);color:#fff;}
+.al-add{font-size:.95rem;padding:8px 14px;}
+.al-tog.on{border-color:var(--emerald);color:var(--emerald);}
+/* Alarm scene on the saver */
+.sv-alarm{display:none;}
+#saver.alarm{background:#0b0b0b;color:#EDEDED;}
+#saver.alarm .sv-sun,#saver.alarm .sv-moon,#saver.alarm .sv-stars,#saver.alarm #sv-row,#saver.alarm #sv-date,#saver.alarm #sv-hint,#saver.alarm #sv-player{display:none;}
+#saver.alarm .sv-alarm{display:block;}
+#saver.alarm #sv-time{-webkit-animation:svBlink 1s steps(2) infinite;animation:svBlink 1s steps(2) infinite;color:#F2F2F2;}
+@-webkit-keyframes svBlink{50%{opacity:.35}} @keyframes svBlink{50%{opacity:.35}}
+.sv-alarm-title{font-size:6vmin;margin-bottom:2vmin;color:#CFCFCF;}
+.sv-alarm .sv-btn{border-color:#666;color:#EEE;margin:0 1.5vmin;font-size:4vmin;padding:2.2vmin 6vmin;}
+.sv-alarm .sv-btn.stop{background:#2E7D72;border-color:#2E7D72;color:#fff;}
 /* ===== SAVER: always-on clock (day + night), Athan scene, mini Quran player ===== */
 #saver{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;display:none;overflow:hidden;
   -webkit-user-select:none;user-select:none;cursor:pointer;font-family:Georgia,'Times New Roman',serif;}
@@ -302,11 +326,13 @@ body.paper .drag-handle{color:#9A958A;}
       <path d="M270 170 Q270 125 315 120 Q360 125 360 170 Z"/><path d="M640 170 Q640 125 685 120 Q730 125 730 170 Z"/>
     </g></svg></div>
   <div id="sv-inner">
+    <div class="sv-alarm"><div class="sv-alarm-title" id="sv-alarm-title">⏰ Alarm</div></div>
     <div class="sv-athan"><div class="sv-athan-title">الله أكبر</div><div class="sv-athan-sub" id="sv-athan-sub">Time for prayer</div></div>
     <div id="sv-time">--:--</div>
     <div id="sv-date"></div>
     <div id="sv-row"><div id="sv-wx"></div><div id="sv-sep"></div><div id="sv-next"><div id="sv-next-name"></div><div id="sv-next-in"></div></div></div>
     <div class="sv-athan" style="margin-top:4vmin"><span class="sv-btn sv-keep" id="sv-athan-stop">⏹ Stop Athan</span></div>
+    <div class="sv-alarm" style="margin-top:5vmin"><span class="sv-btn stop sv-keep" id="sv-alarm-stop">Stop</span><span class="sv-btn sv-keep" id="sv-alarm-snooze">Snooze 5 min</span></div>
   </div>
   <div id="sv-player" class="sv-keep">
     <div class="sv-pbtn sv-keep" id="sv-p-prev">⏮</div><div class="sv-pbtn main sv-keep" id="sv-p-play">⏸</div><div class="sv-pbtn sv-keep" id="sv-p-next">⏭</div>
@@ -360,6 +386,22 @@ body.paper .drag-handle{color:#9A958A;}
     </div>
 
   <!-- Clocks -->
+  <div class="tile" draggable="true" data-tile="c-alarm" id="tile-c-alarm">
+  <div class="card c-alarm">
+    <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
+    <h2>⏰ Alarms</h2>
+    <div id="alarm-list"></div>
+    <div class="al-form">
+      <input type="time" id="al-time" value="07:00">
+      <select id="al-sound"><option value="beep">🔔 Beep (loud)</option><option value="athan">🕌 Athan</option></select>
+      <input type="text" id="al-label" placeholder="Label (optional)" maxlength="30">
+      <div class="al-days" id="al-days"></div>
+      <button class="mini-btn al-add" id="al-add">＋ Add alarm</button>
+    </div>
+    <div class="fx-note">No days ticked = rings once. Rings for up to 10 minutes or until stopped. Plays only while this page is open on screen.</div>
+  </div>
+  </div>
+
   <div class="tile" draggable="true" data-tile="c-clocks" id="tile-c-clocks">
     <div class="card c-clocks">
       <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
@@ -417,6 +459,7 @@ body.paper .drag-handle{color:#9A958A;}
         <div class="radio-status" id="q-status" style="margin-top:8px;">Ready</div>
         <audio id="q-audio" preload="none"></audio>
         <audio id="athan-audio" preload="none"></audio>
+        <audio id="alarm-audio" preload="none" loop></audio>
       </div>
       <div>
         <input class="q-search" id="q-search" placeholder="Search surah (name or number)">
@@ -1207,12 +1250,13 @@ setInterval(()=>{ if(gAccessToken) loadAgenda(); }, 900000);
 // Safari only allows sound after a tap. One tap anywhere unlocks both players for the whole session.
 let soundUnlocked = false;
 const soundBanner = document.getElementById('sound-banner');
-function athanEnabledAny(){ return PR.some(p=>athanOn[p]); }
+function athanEnabledAny(){ return PR.some(p=>athanOn[p]) || (window.hzAlarmsOn && window.hzAlarmsOn()); }
 function updateSoundBanner(){ soundBanner.style.display = (!soundUnlocked && athanEnabledAny()) ? 'block' : 'none'; }
 function unlockAllSound(){
   if(soundUnlocked) return;
   soundUnlocked = true;
   unlockAthan();
+  const aa=document.getElementById('alarm-audio'); if(aa){ aa.src='audio/beep.wav'; aa.muted=true; aa.play().then(()=>{ aa.pause(); aa.muted=false; }).catch(()=>{ aa.muted=false; }); }
   if(qAudio.paused && qAudio.src){ qAudio.muted=true; qAudio.play().then(()=>{ qAudio.pause(); qAudio.muted=false; }).catch(()=>{ qAudio.muted=false; }); }
   updateSoundBanner();
 }
@@ -1228,6 +1272,67 @@ setInterval(function(){
   if(reloadDue && qAudio.paused && athanAudio.paused) location.reload();
 }, 30000);
 document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+
+/* ---------- ALARMS (several; beep or Athan sound; saved on the iPad) ---------- */
+const alarmAudio = document.getElementById('alarm-audio');
+const DAY_LET = ['S','M','T','W','T','F','S'];
+let alarms = []; try{ alarms = JSON.parse(localStorage.getItem('horizon_alarms')||'[]'); }catch(e){}
+let alarmRinging = null, alarmStopTimer = null; const alarmFired = {};
+window.hzAlarmsOn = ()=>alarms.some(a=>a.on);
+function saveAlarms(){ try{ localStorage.setItem('horizon_alarms', JSON.stringify(alarms)); }catch(e){} if(typeof updateSoundBanner==='function') updateSoundBanner(); }
+let newDays = [];
+function renderAlarmDays(){
+  document.getElementById('al-days').innerHTML = DAY_LET.map((d,i)=>'<span class="al-day'+(newDays.indexOf(i)>=0?' on':'')+'" data-d="'+i+'">'+d+'</span>').join('');
+}
+function daysText(a){ if(!a.days.length) return 'Once'; if(a.days.length===7) return 'Every day'; return a.days.map(i=>['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i]).join(' '); }
+function renderAlarms(){
+  const box = document.getElementById('alarm-list');
+  if(!alarms.length){ box.innerHTML = '<div class="agenda-empty">No alarms yet.</div>'; return; }
+  box.innerHTML = alarms.slice().sort((a,b)=>a.time<b.time?-1:1).map(a=>'<div class="al-row'+(a.on?'':' off')+'"><span class="al-t">'+a.time+'</span><span class="al-meta">'+(a.label?escapeHtml(a.label)+' · ':'')+daysText(a)+' · '+(a.sound==='athan'?'🕌 Athan':'🔔 Beep')+'</span><button class="mini-btn al-tog'+(a.on?' on':'')+'" data-id="'+a.id+'">'+(a.on?'On':'Off')+'</button><button class="mini-btn al-del" data-id="'+a.id+'">✕</button></div>').join('');
+}
+document.getElementById('al-days').addEventListener('click', e=>{ const d=e.target.closest('.al-day'); if(!d) return; const i=+d.dataset.d; const k=newDays.indexOf(i); if(k>=0) newDays.splice(k,1); else newDays.push(i); newDays.sort(); renderAlarmDays(); });
+document.getElementById('al-add').addEventListener('click', ()=>{
+  const t = document.getElementById('al-time').value; if(!/^\d\d:\d\d$/.test(t)) return;
+  alarms.push({id:Date.now(), time:t, sound:document.getElementById('al-sound').value, label:document.getElementById('al-label').value.trim(), days:newDays.slice(), on:true});
+  newDays=[]; document.getElementById('al-label').value=''; renderAlarmDays(); saveAlarms(); renderAlarms();
+});
+document.getElementById('alarm-list').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return; const id=+b.dataset.id; const a=alarms.find(x=>x.id===id); if(!a) return;
+  if(b.classList.contains('al-del')) alarms = alarms.filter(x=>x.id!==id); else a.on=!a.on;
+  saveAlarms(); renderAlarms();
+});
+function alarmSoundUrl(a){ return a.sound==='athan' ? (athanAudio.src && athanAudio.src.indexOf('blob:')===0 ? athanAudio.src : 'audio/athan.mp3') : 'audio/beep.wav'; }
+function ringAlarm(a){
+  alarmRinging = a;
+  if(!athanAudio.paused) athanAudio.pause();
+  if(!qAudio.paused){ qAudio.pause(); qPlay.innerText='▶'; }
+  alarmAudio.src = alarmSoundUrl(a); alarmAudio.loop = true; alarmAudio.currentTime = 0;
+  alarmAudio.play().catch(()=>{});
+  clearTimeout(alarmStopTimer); alarmStopTimer = setTimeout(stopAlarm, 10*60*1000);
+  if(typeof updateSaver==='function') updateSaver();
+}
+function stopAlarm(){ alarmAudio.pause(); alarmRinging = null; clearTimeout(alarmStopTimer); lastTouch = Date.now(); }
+function snoozeAlarm(){
+  const a = alarmRinging; stopAlarm(); if(!a) return;
+  const t = new Date(Date.now()+5*60000), hm = cairoHM(t);
+  alarms.push({id:Date.now(), time:hm, sound:a.sound, label:(a.label||'Alarm')+' (snooze)', days:[], on:true, snooze:true}); saveAlarms(); renderAlarms();
+}
+function checkAlarms(){
+  const now=new Date(), hm=cairoHM(now), day=now.toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
+  const dow = new Date(day+'T12:00:00').getDay();
+  let changed=false;
+  alarms.forEach(a=>{
+    if(!a.on || a.time!==hm) return;
+    if(a.days.length && a.days.indexOf(dow)<0) return;
+    const key=day+a.id; if(alarmFired[key]) return; alarmFired[key]=true;
+    ringAlarm(a);
+    if(!a.days.length){ a.on=false; changed=true; }
+  });
+  const before=alarms.length; alarms = alarms.filter(a=>!(a.snooze && !a.on)); if(alarms.length!==before) changed=true;
+  if(changed){ saveAlarms(); renderAlarms(); }
+}
+renderAlarmDays(); renderAlarms();
+setInterval(checkAlarms, 5000);
 
 /* ---------- SAVER: always-on clock; tap shows dashboard for 60s; Athan scene; mini Quran player ---------- */
 const SAVER_IDLE_MS = 60*1000;
@@ -1255,10 +1360,11 @@ function updateSaver(){
   const idle = Date.now() - lastTouch > SAVER_IDLE_MS;
   const athanPlaying = !athanAudio.paused;
   if(!athanPlaying) athanScene = false;
-  const show = idle || athanScene;
+  const show = idle || athanScene || alarmRinging;
   saverEl.classList.toggle('on', show);
   if(!show) return;
-  const mode = athanScene ? 'athan' : (isNightNow() ? 'night' : 'day');
+  const mode = alarmRinging ? 'alarm' : athanScene ? 'athan' : (isNightNow() ? 'night' : 'day');
+  if(alarmRinging) document.getElementById('sv-alarm-title').innerText = '⏰ ' + (alarmRinging.label || 'Alarm');
   saverEl.className = 'on ' + mode;
   document.getElementById('sv-time').innerText = cairoHM(now);
   document.getElementById('sv-date').innerText = now.toLocaleDateString('en-GB',{timeZone:'Africa/Cairo',weekday:'long',day:'numeric',month:'long'});
@@ -1303,11 +1409,14 @@ function svAct(id, fn){ document.getElementById(id).addEventListener('click', fu
 svAct('sv-p-play', ()=>qPlay.onclick());
 svAct('sv-p-prev', ()=>playSurah((qCur||1)-1));
 svAct('sv-p-next', ()=>playSurah((qCur||0)+1));
+svAct('sv-alarm-stop', stopAlarm);
+svAct('sv-alarm-snooze', snoozeAlarm);
 svAct('sv-athan-stop', ()=>{ athanAudio.pause(); athanAudio.dispatchEvent(new Event('ended')); athanScene=false; });
 let swallowUntil = 0;
 function noteTouch(e){
   if(e && e.target && e.target.closest && e.target.closest('.sv-keep')) return; // saver buttons keep the saver open
   if(saverEl.classList.contains('on')) swallowUntil = Date.now() + 600; // the waking tap shouldn't press anything underneath
+  if(alarmRinging) return; // a ringing alarm stays up until Stop or Snooze
   lastTouch = Date.now(); athanScene = false; saverEl.classList.remove('on');
 }
 document.addEventListener('click', function(e){ if(Date.now() < swallowUntil){ e.preventDefault(); e.stopPropagation(); } }, true);
