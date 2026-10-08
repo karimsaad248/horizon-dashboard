@@ -1,7 +1,7 @@
 CACHE MANIFEST
 # Horizon dashboard offline page cache (iOS 10 Safari).
 # Change the version line whenever index.html changes, or devices keep the old page.
-# version 2026-10-07-2
+# version 2026-10-08-1
 
 CACHE:
 index.html

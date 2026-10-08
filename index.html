@@ -44,7 +44,10 @@ body{
   width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
 .toggle-btn:hover{border-color:var(--coral);}
 
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;align-items:start;}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;align-items:start;width:100%;max-width:100%;}
+.tile,.card{min-width:0;max-width:100%;}
+.hourly,.clocks-row,.al-form,.fx-grid,.q-list,.week-strip{max-width:100%;min-width:0;}
+html,body{overflow-x:hidden;max-width:100%;}
 .tile{grid-column:span 12;}
 .card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(18px);
   border-radius:var(--radius-sm);padding:20px;box-shadow:var(--shadow);
@@ -224,8 +227,10 @@ body.paper .drag-handle{color:#9A958A;}
 .al-t{font-size:1.5rem;min-width:84px;font-variant-numeric:tabular-nums;}
 .al-meta{-webkit-flex:1;flex:1;font-size:.85rem;color:var(--text-mid);}
 .al-row.off .al-t,.al-row.off .al-meta{opacity:.4;}
+.al-form > *{margin:0 8px 8px 0;}
+.al-days .al-day{margin-right:4px;}
 .al-form{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:8px;-webkit-align-items:center;align-items:center;margin-top:12px;}
-.al-form input,.al-form select{background:#FFF;border:1px solid var(--glass-border);color:var(--text-hi);border-radius:6px;padding:8px 10px;font-size:1rem;}
+.al-form input,.al-form select{max-width:100%;background:#FFF;border:1px solid var(--glass-border);color:var(--text-hi);border-radius:6px;padding:8px 10px;font-size:1rem;}
 body:not(.paper) .al-form input,body:not(.paper) .al-form select{background:rgba(255,255,255,.06);}
 .al-days{display:-webkit-flex;display:flex;gap:4px;}
 .al-day{width:34px;height:34px;border-radius:50%;border:1px solid var(--glass-border);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:.8rem;cursor:pointer;}
@@ -945,6 +950,7 @@ function playSurah(n, autoplay=true){
   renderSurahList(document.getElementById('q-search').value);
   const ready = qSetSource(n);
   if(autoplay){
+    qWantPlay = true; qAdvanceAt = 0;
     qStatus.innerText='Loading…';
     ready.then(()=>qAudio.play()).then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; })
       .catch(()=>{ /* error event handles fallback */ });
@@ -954,13 +960,30 @@ document.getElementById('q-list').addEventListener('click', ev=>{ const b=ev.tar
 document.getElementById('q-search').addEventListener('input', e=>renderSurahList(e.target.value));
 qPlay.onclick = ()=>{
   if(!qAudio.src){ playSurah(qCur||1); return; }
-  if(qAudio.paused){ qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{ qStatus.innerHTML='<span class="err">Could not play</span>'; }); }
-  else { qAudio.pause(); qPlay.innerText='▶'; qStatus.innerText='Paused'; }
+  if(qAudio.paused){ qWantPlay = true; qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{ qStatus.innerHTML='<span class="err">Could not play</span>'; }); }
+  else { qWantPlay = false; qAudio.pause(); qPlay.innerText='▶'; qStatus.innerText='Paused'; }
 };
 document.getElementById('q-prev').onclick = ()=>playSurah((qCur||1)-1);
 document.getElementById('q-next').onclick = ()=>playSurah((qCur||0)+1);
 document.getElementById('q-rep').onclick = e=>{ qRepeat=!qRepeat; e.currentTarget.classList.toggle('on',qRepeat); };
-qAudio.addEventListener('ended', ()=>{ if(qRepeat){ qAudio.currentTime=0; qAudio.play(); } else playSurah(qCur+1); });
+// Keep playing surah after surah until the user presses pause/stop.
+let qWantPlay = false, qAdvanceAt = 0;
+function qAdvance(){
+  if(Date.now() - qAdvanceAt < 4000) return; // avoid double-advancing
+  qAdvanceAt = Date.now();
+  if(qRepeat){ qAudio.currentTime=0; qAudio.play().catch(()=>{}); } else playSurah(qCur+1);
+}
+qAudio.addEventListener('ended', qAdvance);
+qAudio.addEventListener('pause', ()=>{ qPlay.innerText='▶'; });
+qAudio.addEventListener('playing', ()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; });
+setInterval(function(){ // watchdog: older iOS sometimes misses 'ended' or blocks the next play()
+  if(!qWantPlay || !qAudio.paused) return;
+  if(!athanAudio.paused) return;
+  const aa = document.getElementById('alarm-audio'); if(aa && !aa.paused) return;
+  const d = qAudio.duration;
+  if(qAudio.ended || (d && isFinite(d) && qAudio.currentTime >= d - 1.5)) qAdvance();
+  else if(Date.now() - qAdvanceAt > 8000) qAudio.play().catch(()=>{});
+}, 3000);
 qAudio.addEventListener('error', ()=>{ qTryNext(); });
 qAudio.addEventListener('timeupdate', ()=>{
   document.getElementById('q-cur').innerText=fmtT(qAudio.currentTime);
@@ -998,14 +1021,13 @@ document.querySelectorAll('.p-bell').forEach(b=>b.onclick = ()=>{
   renderBells(); if(athanOn[p]) unlockAthan();
 });
 function startAthan(){
-  if(!qAudio.paused){ qAudio.pause(); resumeQuran=true; qPlay.innerText='▶'; }
+  if(!qAudio.paused){ qWantPlay = false; qAudio.pause(); qPlay.innerText='▶'; qStatus.innerText='Stopped for Athan'; }
   athanAudio.currentTime=0;
   athanAudio.play().then(()=>{ document.getElementById('athan-stop').style.display=''; })
     .catch(()=>{ document.getElementById('prayer-countdown').insertAdjacentHTML('afterend','<div class="err">Athan blocked by browser — tap any bell once to allow sound.</div>'); });
 }
 athanAudio.addEventListener('ended', ()=>{
   document.getElementById('athan-stop').style.display='none';
-  if(resumeQuran){ resumeQuran=false; qAudio.play().then(()=>{ qPlay.innerText='⏸'; }).catch(()=>{}); }
 });
 document.getElementById('athan-test').onclick = startAthan;
 document.getElementById('athan-stop').onclick = ()=>{ athanAudio.pause(); athanAudio.dispatchEvent(new Event('ended')); };
@@ -1305,7 +1327,7 @@ function alarmSoundUrl(a){ return a.sound==='athan' ? (athanAudio.src && athanAu
 function ringAlarm(a){
   alarmRinging = a;
   if(!athanAudio.paused) athanAudio.pause();
-  if(!qAudio.paused){ qAudio.pause(); qPlay.innerText='▶'; }
+  if(!qAudio.paused){ qWantPlay = false; qAudio.pause(); qPlay.innerText='▶'; }
   alarmAudio.src = alarmSoundUrl(a); alarmAudio.loop = true; alarmAudio.currentTime = 0;
   alarmAudio.play().catch(()=>{});
   clearTimeout(alarmStopTimer); alarmStopTimer = setTimeout(stopAlarm, 10*60*1000);
