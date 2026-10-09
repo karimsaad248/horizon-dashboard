@@ -344,6 +344,7 @@ body:not(.paper) .al-form input,body:not(.paper) .al-form select{background:rgba
     <div id="sv-p-info"><div id="sv-p-name"></div><div id="sv-p-bar"><div id="sv-p-fill"></div></div></div>
   </div>
   <div id="sv-hint">Tap to open dashboard</div>
+  <div style="position:absolute;bottom:1vmin;right:1.5vmin;font-size:1.4vmin;opacity:.35">v2026-10-10</div>
 </div>
 <div id="sound-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;text-align:center;font-weight:700;font-size:.95rem;background:#FFC857;color:#1B2A4A;cursor:pointer;">🔇 Tap anywhere once to enable Athan sound</div>
 
@@ -895,15 +896,24 @@ const savedAudio = {}; // key -> true when stored in IndexedDB
 let qLocalUrl = null, qTriedLocal = false;
 function qPad(n){ return String(n).padStart(3,'0'); }
 function qUrl(n){ return QURAN_SOURCES[qSrcIdx] + qPad(n) + '.mp3'; }
-function qSetSource(n){
+let qPrepared = null; // next surah's saved-copy URL, made ready in advance so switching needs no waiting
+function qPrepareNext(){
+  const nx = qCur >= 114 ? 1 : qCur + 1;
+  if(qPrepared && qPrepared.n === nx) return;
+  if(!savedAudio['q'+nx]){ qPrepared = null; return; }
+  audioDB.getUrl('q'+nx).then(u=>{ if(u) qPrepared = {n:nx, url:u}; });
+}
+function qSetSource(n){ // returns null when the source was set immediately, else a promise
   qTriedLocal = false;
-  if(qLocalUrl){ try{ URL.revokeObjectURL(qLocalUrl); }catch(e){} qLocalUrl = null; }
+  const old = qLocalUrl; qLocalUrl = null;
+  if(old) setTimeout(()=>{ try{ URL.revokeObjectURL(old); }catch(e){} }, 5000);
+  if(qPrepared && qPrepared.n === n){ qTriedLocal = true; qLocalUrl = qPrepared.url; qPrepared = null; qAudio.src = qLocalUrl; return null; }
   if(savedAudio['q'+n]){
     qTriedLocal = true;
     return audioDB.getUrl('q'+n).then(u=>{ if(u){ qLocalUrl=u; qAudio.src=u; } else qAudio.src = OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : qUrl(n); });
   }
   qAudio.src = OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : qUrl(n);
-  return Promise.resolve();
+  return null;
 }
 function qTryNext(){
   if(qTriedLocal || qAudio.src.indexOf('audio/quran/')>=0){ // saved/bundled copy failed → go to internet sources
@@ -952,8 +962,8 @@ function playSurah(n, autoplay=true){
   if(autoplay){
     qWantPlay = true; qAdvanceAt = 0;
     qStatus.innerText='Loading…';
-    ready.then(()=>qAudio.play()).then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; })
-      .catch(()=>{ /* error event handles fallback */ });
+    const go = ()=>{ const pr = qAudio.play(); if(pr && pr.then) pr.then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{}); };
+    if(ready) ready.then(go); else go(); // play right away when possible (older iOS is stricter about delayed play)
   }
 }
 document.getElementById('q-list').addEventListener('click', ev=>{ const b=ev.target.closest('.q-item'); if(b) playSurah(parseInt(b.dataset.n,10)); });
@@ -975,15 +985,26 @@ function qAdvance(){
 }
 qAudio.addEventListener('ended', qAdvance);
 qAudio.addEventListener('pause', ()=>{ qPlay.innerText='▶'; });
-qAudio.addEventListener('playing', ()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; });
+qAudio.addEventListener('playing', ()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing · next plays automatically'; qPrepareNext(); });
+let qLastPos = 0, qLastPosAt = Date.now();
+qAudio.addEventListener('timeupdate', ()=>{
+  if(qAudio.currentTime !== qLastPos){ qLastPos = qAudio.currentTime; qLastPosAt = Date.now(); }
+  const d = qAudio.duration; // some iOS versions never fire 'ended': advance at the very end ourselves
+  if(qWantPlay && d && isFinite(d) && d > 5 && qAudio.currentTime >= d - 0.35) qAdvance();
+});
 setInterval(function(){ // watchdog: older iOS sometimes misses 'ended' or blocks the next play()
   if(!qWantPlay || !qAudio.paused) return;
   if(!athanAudio.paused) return;
   const aa = document.getElementById('alarm-audio'); if(aa && !aa.paused) return;
   const d = qAudio.duration;
   if(qAudio.ended || (d && isFinite(d) && qAudio.currentTime >= d - 1.5)) qAdvance();
-  else if(Date.now() - qAdvanceAt > 8000) qAudio.play().catch(()=>{});
+  else if(Date.now() - qAdvanceAt > 8000){ const pr = qAudio.play(); if(pr && pr.catch) pr.catch(()=>{}); }
 }, 3000);
+setInterval(function(){ // stuck while "playing" (no progress for 15s) near the end → move on
+  if(!qWantPlay || qAudio.paused) return;
+  const d = qAudio.duration;
+  if(Date.now() - qLastPosAt > 15000 && d && isFinite(d) && qAudio.currentTime >= d - 5) qAdvance();
+}, 5000);
 qAudio.addEventListener('error', ()=>{ qTryNext(); });
 qAudio.addEventListener('timeupdate', ()=>{
   document.getElementById('q-cur').innerText=fmtT(qAudio.currentTime);
