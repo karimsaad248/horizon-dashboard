@@ -344,7 +344,7 @@ body:not(.paper) .al-form input,body:not(.paper) .al-form select{background:rgba
     <div id="sv-p-info"><div id="sv-p-name"></div><div id="sv-p-bar"><div id="sv-p-fill"></div></div></div>
   </div>
   <div id="sv-hint">Tap to open dashboard</div>
-  <div style="position:absolute;bottom:1vmin;right:1.5vmin;font-size:1.4vmin;opacity:.35">v2026-10-10</div>
+  <div style="position:absolute;bottom:1vmin;right:1.5vmin;font-size:1.4vmin;opacity:.35">v2026-10-15</div>
 </div>
 <div id="sound-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;text-align:center;font-weight:700;font-size:.95rem;background:#FFC857;color:#1B2A4A;cursor:pointer;">🔇 Tap anywhere once to enable Athan sound</div>
 
@@ -464,6 +464,7 @@ body:not(.paper) .al-form input,body:not(.paper) .al-form select{background:rgba
         <div class="q-times"><span id="q-cur">0:00</span><span id="q-dur">0:00</span></div>
         <div class="radio-status" id="q-status" style="margin-top:8px;">Ready</div>
         <audio id="q-audio" preload="none"></audio>
+        <audio id="q-audio-b" preload="none"></audio>
         <audio id="athan-audio" preload="none"></audio>
         <audio id="alarm-audio" preload="none" loop></audio>
       </div>
@@ -893,48 +894,83 @@ let qSrcIdx = 0;
 // Surahs bundled with the dashboard and saved on the iPad for offline use.
 const OFFLINE_SURAHS = [1,18,36,55,56,67].concat(Array.from({length:37},(_, i)=>78+i));
 const savedAudio = {}; // key -> true when stored in IndexedDB
-let qLocalUrl = null, qTriedLocal = false;
 function qPad(n){ return String(n).padStart(3,'0'); }
 function qUrl(n){ return QURAN_SOURCES[qSrcIdx] + qPad(n) + '.mp3'; }
-let qPrepared = null; // next surah's saved-copy URL, made ready in advance so switching needs no waiting
-function qPrepareNext(){
-  const nx = qCur >= 114 ? 1 : qCur + 1;
-  if(qPrepared && qPrepared.n === nx) return;
-  if(!savedAudio['q'+nx]){ qPrepared = null; return; }
-  audioDB.getUrl('q'+nx).then(u=>{ if(u) qPrepared = {n:nx, url:u}; });
+/* ---------- Two-player engine: surah after surah without stopping ----------
+   iOS 10 only lets sound start after a tap. A tap unlocks BOTH players, so while one
+   plays, the other loads the next surah and takes over at the end (no new permission needed). */
+function qFallbackUrl(n){ return OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : QURAN_SOURCES[0]+qPad(n)+'.mp3'; }
+const qTemp = {};            // rolling download: n -> blob URL for surahs not saved permanently
+const qTempBusy = {};
+function qNextNum(n){ return n >= 114 ? 1 : n + 1; }
+function qSourceFor(n){      // saved copy > rolling download > bundled file > online
+  if(savedAudio['q'+n]) return audioDB.getUrl('q'+n).then(u=>u || qFallbackUrl(n));
+  if(qTemp[n]) return Promise.resolve(qTemp[n]);
+  return Promise.resolve(qFallbackUrl(n));
 }
-function qSetSource(n){ // returns null when the source was set immediately, else a promise
-  qTriedLocal = false;
-  const old = qLocalUrl; qLocalUrl = null;
-  if(old) setTimeout(()=>{ try{ URL.revokeObjectURL(old); }catch(e){} }, 5000);
-  if(qPrepared && qPrepared.n === n){ qTriedLocal = true; qLocalUrl = qPrepared.url; qPrepared = null; qAudio.src = qLocalUrl; return null; }
-  if(savedAudio['q'+n]){
-    qTriedLocal = true;
-    return audioDB.getUrl('q'+n).then(u=>{ if(u){ qLocalUrl=u; qAudio.src=u; } else qAudio.src = OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : qUrl(n); });
-  }
-  qAudio.src = OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : qUrl(n);
-  return null;
+function qPrefetch(n){       // download a not-saved surah ahead of time (keeps only the next two)
+  if(savedAudio['q'+n] || qTemp[n] || qTempBusy[n] || !navigator.onLine) return Promise.resolve();
+  if(OFFLINE_SURAHS.indexOf(n)>=0) return Promise.resolve(); // bundled with the page, loads fast anyway
+  qTempBusy[n] = true;
+  return fetch(QURAN_SOURCES[0]+qPad(n)+'.mp3').then(r=>{
+    if(!r.ok) throw new Error(r.status);
+    const len = +r.headers.get('content-length') || 0;
+    if(len > 80*1024*1024) throw new Error('too big to hold'); // very long surahs just stream
+    return r.blob();
+  }).then(b=>{
+    qTemp[n] = URL.createObjectURL(b.type ? b : new Blob([b],{type:'audio/mpeg'}));
+    const keep = [qCur, qNextNum(qCur), qNextNum(qNextNum(qCur))];
+    Object.keys(qTemp).forEach(k=>{ k=+k; if(keep.indexOf(k)<0 && qAudio.src!==qTemp[k] && qStandby().src!==qTemp[k]){ try{ URL.revokeObjectURL(qTemp[k]); }catch(e){} delete qTemp[k]; } });
+  }).catch(()=>{ /* blocked or offline: it will stream instead */ }).then(()=>{ delete qTempBusy[n]; });
 }
-function qTryNext(){
-  if(qTriedLocal || qAudio.src.indexOf('audio/quran/')>=0){ // saved/bundled copy failed → go to internet sources
-    qTriedLocal = false; qSrcIdx = 0;
-    qAudio.src = qUrl(qCur);
-    qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing (online)'; }).catch(()=>{});
-    return true;
-  }
-  if(qSrcIdx < QURAN_SOURCES.length-1){
-    qSrcIdx++; qStatus.innerText='Trying backup source ' + qSrcIdx + '…';
-    qAudio.src = qUrl(qCur);
-    qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{});
-    return true;
-  }
-  qStatus.innerHTML='<span class="err">Could not play — all sources failed</span>'; qPlay.innerText='▶';
-  return false;
+const qA = document.getElementById('q-audio'), qB = document.getElementById('q-audio-b');
+let qAudio = qA, qStandbyFor = 0;
+function qStandby(){ return qAudio === qA ? qB : qA; }
+function qSetEl(el, url){    // set a player's source, freeing its previous saved-copy URL
+  const old = el._blob;
+  el._blob = (url.indexOf('blob:')===0 && !Object.keys(qTemp).some(k=>qTemp[k]===url)) ? url : null;
+  el.src = url;
+  if(old && old !== url) setTimeout(()=>{ try{ URL.revokeObjectURL(old); }catch(e){} }, 5000);
 }
-const qAudio = document.getElementById('q-audio');
+function qUnlockBoth(){      // call inside a tap: lets both players start later without a tap
+  [qA,qB].forEach(el=>{
+    if(el === qAudio || !el.paused) return;
+    if(!el.src) el.src = 'audio/beep.wav';
+    el.muted = true;
+    const pr = el.play(); const done = ()=>{ el.pause(); el.muted = false; };
+    if(pr && pr.then) pr.then(done).catch(()=>{ el.muted = false; }); else done();
+  });
+}
+function qPrepareStandby(){
+  if(qRepeat || !qWantPlay) return;
+  const nx = qNextNum(qCur);
+  qPrefetch(nx).then(()=>{
+    if(qStandbyFor === nx || qNextNum(qCur) !== nx) return;
+    return qSourceFor(nx).then(url=>{
+      const sb = qStandby();
+      if(!sb.paused || qNextNum(qCur) !== nx) return;
+      qSetEl(sb, url); sb.preload = 'auto'; try{ sb.load(); }catch(e){}
+      qStandbyFor = nx;
+      qPrefetch(qNextNum(nx));
+    });
+  });
+}
+function qSetCurrent(n){
+  qCur = n; qShowInfo(n);
+  try{ localStorage.setItem('horizon_surah', String(n)); }catch(e){}
+  renderSurahList(document.getElementById('q-search').value);
+}
+function qTryNext(){         // the active player failed to load
+  const src = qAudio.src || '';
+  if(src.indexOf('blob:')===0 || src.indexOf('audio/quran/')>=0){ qSrcIdx = 0; qSetEl(qAudio, qUrl(qCur)); }
+  else if(qSrcIdx < QURAN_SOURCES.length-1){ qSrcIdx++; qSetEl(qAudio, qUrl(qCur)); qStatus.innerText='Trying backup source ' + qSrcIdx + '…'; }
+  else { qStatus.innerHTML='<span class="err">Could not play — all sources failed</span>'; qPlay.innerText='▶'; return false; }
+  const pr = qAudio.play(); if(pr && pr.catch) pr.catch(()=>{});
+  return true;
+}
 const qPlay = document.getElementById('q-play'), qStatus = document.getElementById('q-status');
 const qSeek = document.getElementById('q-seek');
-let qCur = 0, qRepeat = false;
+let qCur = 0, qRepeat = false, qWantPlay = false, qAdvanceAt = 0;
 try{ qCur = parseInt(localStorage.getItem('horizon_surah')||'0',10)||0; }catch(e){}
 function fmtT(t){ if(!isFinite(t)) return '0:00'; const m=Math.floor(t/60), s=Math.floor(t%60); return m+':'+String(s).padStart(2,'0'); }
 function renderSurahList(filter){
@@ -952,47 +988,61 @@ function qShowInfo(n){
   document.getElementById('q-ar').innerText = 'سورة '+x[1];
   document.getElementById('q-sub').innerText = n+' · '+x[0];
 }
-function playSurah(n, autoplay=true){
+function playSurah(n, autoplay=true, byTap=false){
   if(n<1) n=114; if(n>114) n=1;
-  qCur=n; qShowInfo(n);
-  try{ localStorage.setItem('horizon_surah', String(n)); }catch(e){}
-  qSrcIdx = 0;
-  renderSurahList(document.getElementById('q-search').value);
-  const ready = qSetSource(n);
-  if(autoplay){
-    qWantPlay = true; qAdvanceAt = 0;
-    qStatus.innerText='Loading…';
-    const go = ()=>{ const pr = qAudio.play(); if(pr && pr.then) pr.then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{}); };
-    if(ready) ready.then(go); else go(); // play right away when possible (older iOS is stricter about delayed play)
-  }
+  if(byTap) qUnlockBoth();
+  qSrcIdx = 0; qStandbyFor = 0;
+  qSetCurrent(n);
+  if(!autoplay){ qSourceFor(n).then(u=>qSetEl(qAudio,u)); return; }
+  qWantPlay = true; qAdvanceAt = 0;
+  qStatus.innerText='Loading…';
+  const sb = qStandby(); if(!sb.paused) sb.pause();
+  const go = url=>{ qSetEl(qAudio, url); const pr = qAudio.play(); if(pr && pr.catch) pr.catch(()=>{}); };
+  if(savedAudio['q'+n]) qSourceFor(n).then(go); else go(qTemp[n] || qFallbackUrl(n)); // no delay when possible
 }
-document.getElementById('q-list').addEventListener('click', ev=>{ const b=ev.target.closest('.q-item'); if(b) playSurah(parseInt(b.dataset.n,10)); });
+function qAdvance(){         // hand over to the player that already holds the next surah
+  if(Date.now() - qAdvanceAt < 4000) return;
+  qAdvanceAt = Date.now();
+  if(qRepeat){ qAudio.currentTime = 0; const pr=qAudio.play(); if(pr&&pr.catch) pr.catch(()=>{}); return; }
+  const nx = qNextNum(qCur), sb = qStandby();
+  if(qStandbyFor === nx && sb.src){
+    const old = qAudio;
+    qAudio = sb; qStandbyFor = 0;
+    try{ sb.currentTime = 0; }catch(e){}
+    const pr = sb.play(); if(pr && pr.catch) pr.catch(()=>{});
+    old.pause();
+    qSetCurrent(nx);
+    qStatus.innerText = 'Playing · next plays automatically';
+  } else playSurah(nx);
+}
+document.getElementById('q-list').addEventListener('click', ev=>{ const b=ev.target.closest('.q-item'); if(b) playSurah(parseInt(b.dataset.n,10), true, true); });
 document.getElementById('q-search').addEventListener('input', e=>renderSurahList(e.target.value));
 qPlay.onclick = ()=>{
-  if(!qAudio.src){ playSurah(qCur||1); return; }
-  if(qAudio.paused){ qWantPlay = true; qAudio.play().then(()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing'; }).catch(()=>{ qStatus.innerHTML='<span class="err">Could not play</span>'; }); }
-  else { qWantPlay = false; qAudio.pause(); qPlay.innerText='▶'; qStatus.innerText='Paused'; }
+  qUnlockBoth();
+  if(!qAudio.src || qAudio.src.indexOf('beep.wav')>=0){ playSurah(qCur||1, true, true); return; }
+  if(qAudio.paused){ qWantPlay = true; const pr=qAudio.play(); if(pr&&pr.then) pr.then(()=>{ qStatus.innerText='Playing · next plays automatically'; }).catch(()=>{ qStatus.innerHTML='<span class="err">Could not play</span>'; }); }
+  else { qWantPlay = false; qAudio.pause(); qStatus.innerText='Paused'; }
 };
-document.getElementById('q-prev').onclick = ()=>playSurah((qCur||1)-1);
-document.getElementById('q-next').onclick = ()=>playSurah((qCur||0)+1);
+document.getElementById('q-prev').onclick = ()=>playSurah((qCur||1)-1, true, true);
+document.getElementById('q-next').onclick = ()=>playSurah((qCur||0)+1, true, true);
 document.getElementById('q-rep').onclick = e=>{ qRepeat=!qRepeat; e.currentTarget.classList.toggle('on',qRepeat); };
-// Keep playing surah after surah until the user presses pause/stop.
-let qWantPlay = false, qAdvanceAt = 0;
-function qAdvance(){
-  if(Date.now() - qAdvanceAt < 4000) return; // avoid double-advancing
-  qAdvanceAt = Date.now();
-  if(qRepeat){ qAudio.currentTime=0; qAudio.play().catch(()=>{}); } else playSurah(qCur+1);
-}
-qAudio.addEventListener('ended', qAdvance);
-qAudio.addEventListener('pause', ()=>{ qPlay.innerText='▶'; });
-qAudio.addEventListener('playing', ()=>{ qPlay.innerText='⏸'; qStatus.innerText='Playing · next plays automatically'; qPrepareNext(); });
 let qLastPos = 0, qLastPosAt = Date.now();
-qAudio.addEventListener('timeupdate', ()=>{
-  if(qAudio.currentTime !== qLastPos){ qLastPos = qAudio.currentTime; qLastPosAt = Date.now(); }
-  const d = qAudio.duration; // some iOS versions never fire 'ended': advance at the very end ourselves
-  if(qWantPlay && d && isFinite(d) && d > 5 && qAudio.currentTime >= d - 0.35) qAdvance();
+[qA,qB].forEach(el=>{
+  el.addEventListener('ended', ()=>{ if(el===qAudio && qWantPlay) qAdvance(); });
+  el.addEventListener('pause', ()=>{ if(el===qAudio) qPlay.innerText='▶'; });
+  el.addEventListener('playing', ()=>{ if(el!==qAudio) return; qPlay.innerText='⏸'; qStatus.innerText='Playing · next plays automatically'; qPrepareStandby(); });
+  el.addEventListener('error', ()=>{ if(el===qAudio) qTryNext(); else qStandbyFor = 0; });
+  el.addEventListener('timeupdate', ()=>{
+    if(el!==qAudio) return;
+    if(el.currentTime !== qLastPos){ qLastPos = el.currentTime; qLastPosAt = Date.now(); }
+    const d = el.duration; // some iOS versions never fire 'ended': move on at the very end ourselves
+    if(qWantPlay && d && isFinite(d) && d > 5 && el.currentTime >= d - 0.35) qAdvance();
+    document.getElementById('q-cur').innerText=fmtT(el.currentTime);
+    document.getElementById('q-dur').innerText=fmtT(d);
+    if(d) qSeek.value = Math.round(el.currentTime/d*1000);
+  });
 });
-setInterval(function(){ // watchdog: older iOS sometimes misses 'ended' or blocks the next play()
+setInterval(function(){ // watchdog: ended but nothing started, or a play() that was refused
   if(!qWantPlay || !qAudio.paused) return;
   if(!athanAudio.paused) return;
   const aa = document.getElementById('alarm-audio'); if(aa && !aa.paused) return;
@@ -1000,20 +1050,15 @@ setInterval(function(){ // watchdog: older iOS sometimes misses 'ended' or block
   if(qAudio.ended || (d && isFinite(d) && qAudio.currentTime >= d - 1.5)) qAdvance();
   else if(Date.now() - qAdvanceAt > 8000){ const pr = qAudio.play(); if(pr && pr.catch) pr.catch(()=>{}); }
 }, 3000);
-setInterval(function(){ // stuck while "playing" (no progress for 15s) near the end → move on
+setInterval(function(){ // stuck while "playing" near the end → move on
   if(!qWantPlay || qAudio.paused) return;
   const d = qAudio.duration;
   if(Date.now() - qLastPosAt > 15000 && d && isFinite(d) && qAudio.currentTime >= d - 5) qAdvance();
 }, 5000);
-qAudio.addEventListener('error', ()=>{ qTryNext(); });
-qAudio.addEventListener('timeupdate', ()=>{
-  document.getElementById('q-cur').innerText=fmtT(qAudio.currentTime);
-  document.getElementById('q-dur').innerText=fmtT(qAudio.duration);
-  if(qAudio.duration) qSeek.value = Math.round(qAudio.currentTime/qAudio.duration*1000);
-});
 qSeek.addEventListener('input', ()=>{ if(qAudio.duration) qAudio.currentTime = qSeek.value/1000*qAudio.duration; });
 renderSurahList('');
 if(qCur){ qShowInfo(qCur); }
+
 
 /* ---------- ATHAN (per-prayer on/off) ---------- */
 const ATHAN_URL = 'https://archive.org/download/20230209_20230209_1744/' + encodeURIComponent('اذان نادر جدا تخشع له القلوب بصوت الشيخ محمد صديق المنشاوي من فترة الخمسينات.mp3');
@@ -1300,7 +1345,7 @@ function unlockAllSound(){
   soundUnlocked = true;
   unlockAthan();
   const aa=document.getElementById('alarm-audio'); if(aa){ aa.src='audio/beep.wav'; aa.muted=true; aa.play().then(()=>{ aa.pause(); aa.muted=false; }).catch(()=>{ aa.muted=false; }); }
-  if(qAudio.paused && qAudio.src){ qAudio.muted=true; qAudio.play().then(()=>{ qAudio.pause(); qAudio.muted=false; }).catch(()=>{ qAudio.muted=false; }); }
+  [qA,qB].forEach(el=>{ if(!el.paused) return; if(!el.src) el.src='audio/beep.wav'; el.muted=true; el.play().then(()=>{ el.pause(); el.muted=false; }).catch(()=>{ el.muted=false; }); });
   updateSoundBanner();
 }
 ['touchend','click'].forEach(ev=>document.addEventListener(ev, unlockAllSound, true));
@@ -1425,7 +1470,7 @@ function updateSaver(){
   hint.style.color = locked ? '#2E7D72' : '';
   // mini player: visible while a surah is loaded and was started
   const pl = document.getElementById('sv-player');
-  const hasP = !athanScene && qAudio.src && qAudio.currentTime > 0 && !qAudio.ended;
+  const hasP = !athanScene && qAudio.src && qAudio.src.indexOf('beep.wav')<0 && qAudio.currentTime > 0 && !qAudio.ended;
   pl.classList.toggle('on', !!hasP); saverEl.classList.toggle('has-player', !!hasP);
   if(hasP){
     const x = SURAHS[qCur-1] || ['',''];
@@ -1450,8 +1495,8 @@ document.getElementById('athan-test').onclick = startAthan;
 // controls inside the saver
 function svAct(id, fn){ document.getElementById(id).addEventListener('click', function(e){ e.stopPropagation(); fn(); updateSaver(); }); }
 svAct('sv-p-play', ()=>qPlay.onclick());
-svAct('sv-p-prev', ()=>playSurah((qCur||1)-1));
-svAct('sv-p-next', ()=>playSurah((qCur||0)+1));
+svAct('sv-p-prev', ()=>playSurah((qCur||1)-1, true, true));
+svAct('sv-p-next', ()=>playSurah((qCur||0)+1, true, true));
 svAct('sv-alarm-stop', stopAlarm);
 svAct('sv-alarm-snooze', snoozeAlarm);
 svAct('sv-athan-stop', ()=>{ athanAudio.pause(); athanAudio.dispatchEvent(new Event('ended')); athanScene=false; });
