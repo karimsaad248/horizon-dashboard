@@ -10,336 +10,465 @@
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <title>HORIZON // KARIM</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=DotGothic16&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
-/* ══════════════════════════════════════════
-   THEME: DOTS (default) — black + amber dot matrix
-══════════════════════════════════════════ */
-:root {
-  --bg:#0A0A0A; --surface:#0F1115; --raised:#171B22; --border:#22272F;
-  --red:#FF3B30; --amber:#F5A623; --green:#32D74B; --blue:#0A84FF; --purple:#BF5AF2;
-  --muted:#4A5568; --sub:#718096; --text:#E2E8F0; --dim:#A0AEC0;
-  --font:'JetBrains Mono',monospace;
-  --radius:0px;
-  --dot-color:rgba(255,255,255,0.09);
-  --dot-size:22px;
-  --dot-r:1px;
-  --bg-brightness:1;
-}
-/* DOTS theme dot matrix */
-body[data-theme="dots"]::before,body:not([data-theme])::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background-image: radial-gradient(circle, var(--dot-color) var(--dot-r), transparent var(--dot-r));
-  background-size: var(--dot-size) var(--dot-size);
-}
-
-/* ══════════════════════════════════════════
-   THEME: INK — dark parchment, sepia tones
-══════════════════════════════════════════ */
-body[data-theme="ink"] {
-  --bg:#0C0A07; --surface:#13110D; --raised:#1C1812; --border:#2D2820;
-  --red:#C0392B; --amber:#D4A843; --green:#27AE60; --blue:#2980B9; --purple:#8E44AD;
-  --muted:#5D5143; --sub:#8C7B6B; --text:#E8DFD0; --dim:#C4B49A;
-  --dot-color:rgba(212,168,67,0.07);
-  --dot-size:28px;
-}
-body[data-theme="ink"]::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  /* Ruled lines like old paper */
-  background-image:
-    linear-gradient(transparent calc(100% - 1px), rgba(212,168,67,0.08) 1px),
-    radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
-  background-size: 100% 28px, var(--dot-size) var(--dot-size);
-}
-body[data-theme="ink"] .card { border-left: 2px solid var(--amber)44; }
-body[data-theme="ink"] .card-label { font-style: italic; letter-spacing:0.1em; }
-
-/* ══════════════════════════════════════════
-   THEME: AURORA — deep space, neon gradients
-══════════════════════════════════════════ */
-body[data-theme="aurora"] {
-  --bg:#060610; --surface:#0A0A1A; --raised:#0F0F28; --border:#1A1A40;
-  --red:#FF375F; --amber:#FFD60A; --green:#30D158; --blue:#64D2FF; --purple:#BF5AF2;
-  --muted:#3A3A6A; --sub:#7070B0; --text:#E0E8FF; --dim:#A0B0E0;
-  --dot-color:rgba(100,210,255,0.06);
-  --dot-size:30px;
-}
-body[data-theme="aurora"]::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(100,210,255,0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 35% at 80% 80%, rgba(191,90,242,0.07) 0%, transparent 70%),
-    radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, var(--dot-size) var(--dot-size);
-}
-body[data-theme="aurora"] .clock-time { 
-  background: linear-gradient(135deg, var(--blue), var(--purple));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-}
-body[data-theme="aurora"] .card {
-  background: linear-gradient(135deg, var(--surface) 0%, color-mix(in srgb,var(--blue) 4%,var(--surface)) 100%);
-}
-
-/* ══════════════════════════════════════════
-   BASE STYLES
-══════════════════════════════════════════ */
+/* ═══════════════ BASE ═══════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--text);
   font-family:var(--font);font-size:13px;overflow-x:hidden;
-  transition:background 1s ease, color 0.5s ease;}
+  transition:background 0.8s ease, color 0.5s ease;}
 #app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;
-  padding-bottom:16px;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:calc(env(safe-area-inset-bottom,0px)+16px);}
+.ar{font-family:'Amiri',serif;direction:rtl;text-align:right;}
 
-/* ══ SCREENSAVER OVERLAY ══ */
-#screensaver{display:none;position:fixed;inset:0;z-index:999;
-  flex-direction:column;align-items:center;justify-content:center;
-  background:var(--bg);cursor:pointer;}
-#screensaver.active{display:flex;}
-#ss-time{font-size:120px;font-weight:300;color:var(--amber);letter-spacing:-4px;line-height:1;}
-#ss-date{font-size:20px;color:var(--sub);letter-spacing:0.15em;margin-top:8px;}
-#ss-hijri{font-size:14px;color:var(--muted);margin-top:4px;}
-#ss-prayer{font-size:13px;color:var(--red);margin-top:16px;letter-spacing:0.1em;}
-#ss-tap{font-size:10px;color:var(--muted);margin-top:40px;letter-spacing:0.2em;animation:fadeInOut 3s infinite;}
-@keyframes fadeInOut{0%,100%{opacity:0.3}50%{opacity:1}}
+/* ═══════════════ THEMES ═══════════════ */
+:root, body[data-theme="dots"]{
+  --bg:#060606; --surface:#0D0D0D; --raised:#161616; --border:#242424;
+  --red:#FF3B30; --amber:#FFB000; --green:#3BE87C; --blue:#3BB8FF; --purple:#C77DFF; --pink:#FF6B9D;
+  --muted:#4A5568; --sub:#8A8A8A; --text:#EDEDED; --dim:#B8B8B8;
+  --font:'DotGothic16','JetBrains Mono',monospace;
+  --radius:0px;
+  --glow: 0 0 8px var(--amber);
+  --dot-color:rgba(255,176,0,0.10);
+  --dot-size:22px;
+}
+body[data-theme="dots"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+  background-size: var(--dot-size) var(--dot-size);
+}
+body[data-theme="dots"] .clock-time,
+body[data-theme="dots"] #ss-time,
+body[data-theme="dots"] .gold-big{ text-shadow: 0 0 12px currentColor; }
 
-/* ══ STATUS BAR ══ */
+body[data-theme="kindle"]{
+  --bg:#EFE6D2; --surface:#F7F0DE; --raised:#E8DFC7; --border:#C9B892;
+  --red:#A0372C; --amber:#8B6914; --green:#3A6B35; --blue:#2E5C8A; --purple:#6B3FA0; --pink:#A0456B;
+  --muted:#8A7A60; --sub:#6B5D45; --text:#2A2418; --dim:#4A3F2E;
+  --font:'EB Garamond', Georgia, serif;
+  --radius:2px;
+  --glow:none;
+}
+body[data-theme="kindle"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(139,105,20,0.04) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(58,107,53,0.04) 0%, transparent 40%);
+  mix-blend-mode:multiply;
+}
+body[data-theme="kindle"] .card{border-width:1px;border-style:solid;
+  box-shadow: inset 0 0 0 1px rgba(201,184,146,0.4);}
+body[data-theme="kindle"] .card-label{font-style:italic;letter-spacing:0.08em;}
+body[data-theme="kindle"] .clock-time,
+body[data-theme="kindle"] #ss-time,
+body[data-theme="kindle"] .gold-big{ font-weight:500; letter-spacing:-1px; }
+
+body[data-theme="aurora"]{
+  --bg:#05061A; --surface:#0B0D28; --raised:#111438; --border:#1F2258;
+  --red:#FF4D8F; --amber:#FFD60A; --green:#30FFB1; --blue:#64D2FF; --purple:#BF5AF2; --pink:#FF6BD6;
+  --muted:#3A3A6A; --sub:#8A8AC8; --text:#E0E8FF; --dim:#B0C0F0;
+  --font:'JetBrains Mono',monospace;
+  --radius:6px;
+  --glow: 0 0 16px var(--blue);
+}
+body[data-theme="aurora"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 5%, rgba(100,210,255,0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 85% 95%, rgba(191,90,242,0.10) 0%, transparent 70%);
+}
+body[data-theme="aurora"] .card{
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(100,210,255,0.05) 100%);
+}
+body[data-theme="aurora"] .clock-time,
+body[data-theme="aurora"] #ss-time,
+body[data-theme="aurora"] .gold-big{
+  background: linear-gradient(135deg, #64D2FF 0%, #BF5AF2 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+body[data-theme="sunset"]{
+  --bg:#1A0F14; --surface:#24161E; --raised:#2F1D28; --border:#4A2E3C;
+  --red:#FF4D6D; --amber:#FF9A3C; --green:#7DE8A0; --blue:#7DB8FF; --purple:#C77DFF; --pink:#FF6BD6;
+  --muted:#6B4458; --sub:#B08098; --text:#F5E6EE; --dim:#D0B8C8;
+  --font:'JetBrains Mono',monospace;
+  --radius:8px;
+  --glow: 0 0 12px var(--amber);
+}
+body[data-theme="sunset"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(255,107,214,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 20% 10%, rgba(255,154,60,0.08) 0%, transparent 60%);
+}
+body[data-theme="sunset"] .clock-time,
+body[data-theme="sunset"] .gold-big{
+  background: linear-gradient(135deg, #FF9A3C 0%, #FF4D6D 50%, #C77DFF 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+/* ═══════════════ STATUS BAR ═══════════════ */
 #statusbar{display:flex;align-items:center;justify-content:space-between;
   padding:7px 14px;border-bottom:1px solid var(--border);
   background:var(--surface);font-size:11px;color:var(--muted);letter-spacing:0.07em;
   position:sticky;top:0;z-index:100;transition:background 0.5s;}
 .seg{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.live-dot-sb{width:5px;height:5px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 5px var(--green);}
+.live-dot-sb{width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
 .sep{color:var(--border);}
 #hijri-sb{color:var(--amber);}
 .icon-btn{background:none;border:1px solid var(--border);color:var(--sub);
   font-family:var(--font);font-size:10px;padding:3px 9px;cursor:pointer;
-  border-radius:var(--radius);transition:all 0.15s;}
-.icon-btn:hover{border-color:var(--amber);color:var(--amber);}
+  border-radius:var(--radius);transition:all 0.15s;letter-spacing:0.06em;}
+.icon-btn:hover{border-color:var(--amber);color:var(--amber);box-shadow:var(--glow);}
+.icon-btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
 
-/* ══ INSTALL BANNER ══ */
-#install-banner{display:none;align-items:center;justify-content:space-between;
-  padding:7px 14px;background:color-mix(in srgb,var(--blue) 12%,transparent);
-  border-bottom:1px solid var(--blue)44;font-size:11px;color:var(--dim);}
-#install-banner.show{display:flex;}
+#audio-unlock{display:none;position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;cursor:pointer;padding:20px;}
+#audio-unlock.show{display:flex;}
+.unlock-box{text-align:center;max-width:400px;}
+.unlock-icon{font-size:72px;margin-bottom:20px;animation:pulse 2s infinite;}
+.unlock-title{font-size:22px;color:var(--amber);letter-spacing:0.12em;margin-bottom:12px;}
+.unlock-sub{font-size:13px;color:var(--dim);line-height:1.6;}
 
-/* ══ GRID ══ */
+#screensaver{display:none;position:fixed;inset:0;z-index:999;
+  flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg);cursor:pointer;padding:40px;}
+#screensaver.active{display:flex;}
+#ss-content{text-align:center;max-width:720px;width:100%;}
+#ss-time{font-size:clamp(72px,17vw,190px);font-weight:300;line-height:0.9;letter-spacing:-6px;color:var(--amber);}
+#ss-date{font-size:18px;color:var(--sub);margin-top:20px;letter-spacing:0.25em;}
+#ss-hijri{font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:0.1em;}
+#ss-divider{width:60px;height:2px;background:var(--amber);margin:36px auto;opacity:0.6;}
+#ss-meta{display:flex;gap:60px;justify-content:center;margin:20px 0 0;flex-wrap:wrap;}
+.ss-meta-item{text-align:center;min-width:140px;}
+.ss-meta-icon{font-size:40px;margin-bottom:8px;line-height:1;}
+.ss-meta-label{font-size:22px;color:var(--text);font-weight:400;}
+.ss-meta-sub{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:0.15em;}
+#ss-progress{height:2px;background:var(--border);margin-top:32px;overflow:hidden;border-radius:1px;}
+#ss-progress-fill{height:100%;background:var(--amber);width:0%;transition:width 1s linear;box-shadow:var(--glow);}
+#ss-tap{font-size:10px;color:var(--muted);letter-spacing:0.4em;margin-top:32px;animation:fadeInOut 3s infinite;}
+@keyframes fadeInOut{0%,100%{opacity:0.3}50%{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.92);}}
+@keyframes slide-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px 12px 0;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 12px 0;}
 .clocks-grid{display:grid;gap:10px;}
+@media (max-width:820px){ .grid-3,.grid-2{grid-template-columns:1fr;} }
 
-/* ══ CARD ══ */
 .card{background:var(--surface);border:1px solid var(--border);
   position:relative;padding:11px 13px 13px;border-radius:var(--radius);
-  transition:background 0.5s,border-color 0.5s;}
-.card-label{font-size:9px;letter-spacing:0.17em;color:var(--muted);
-  margin-bottom:7px;display:flex;align-items:center;gap:7px;}
+  transition:background 0.4s,border-color 0.4s,box-shadow 0.3s;}
+.card-label{font-size:9px;letter-spacing:0.18em;color:var(--muted);
+  margin-bottom:8px;display:flex;align-items:center;gap:7px;}
 .card-label::after{content:'';flex:1;height:1px;background:var(--border);}
-.card-label.A{color:var(--amber);}
-.card-label.A::after{background:linear-gradient(90deg,var(--amber)55,transparent);}
-.card-label.R{color:var(--red);}
-.card-label.R::after{background:linear-gradient(90deg,var(--red)55,transparent);}
-.card-label.G{color:var(--green);}
-.card-label.G::after{background:linear-gradient(90deg,var(--green)55,transparent);}
-.card-label.B{color:var(--blue);}
-.card-label.B::after{background:linear-gradient(90deg,var(--blue)55,transparent);}
+.card-label.A{color:var(--amber);}.card-label.A::after{background:linear-gradient(90deg,var(--amber)55,transparent);}
+.card-label.R{color:var(--red);}.card-label.R::after{background:linear-gradient(90deg,var(--red)55,transparent);}
+.card-label.G{color:var(--green);}.card-label.G::after{background:linear-gradient(90deg,var(--green)55,transparent);}
+.card-label.B{color:var(--blue);}.card-label.B::after{background:linear-gradient(90deg,var(--blue)55,transparent);}
+.card-label.P{color:var(--purple);}.card-label.P::after{background:linear-gradient(90deg,var(--purple)55,transparent);}
 
-/* ══ CLOCKS ══ */
+/* CLOCKS */
 .clock-time{font-size:40px;font-weight:300;color:var(--amber);line-height:1;letter-spacing:-1px;}
-.clock-date{font-size:10px;color:var(--muted);margin-top:3px;}
-.clock-card{cursor:pointer;transition:border-color 0.15s;}
-.clock-card:hover{border-color:var(--amber)66;}
-.weather-pop{display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:300;
-  background:var(--raised);border:1px solid var(--border);padding:7px 10px;}
-.weather-pop.show{display:block;}
-.wx-row{display:flex;justify-content:space-between;padding:2px 0;
-  font-size:10px;color:var(--dim);border-bottom:1px solid var(--border)44;}
+.clock-date{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:0.1em;}
+.clock-card{cursor:pointer;transition:border-color 0.15s,box-shadow 0.2s;}
+.clock-card:hover{border-color:var(--amber);box-shadow:0 0 12px rgba(255,176,0,0.15);}
+.weather-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:300;
+  background:var(--raised);border:1px solid var(--border);padding:8px 10px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);border-radius:var(--radius);}
+.weather-pop.show{display:block;animation:slide-in 0.2s ease;}
+.wx-row{display:flex;justify-content:space-between;padding:3px 0;
+  font-size:10px;color:var(--dim);border-bottom:1px solid var(--border);}
 .wx-row:last-child{border:none;}
 .wx-row span:last-child{color:var(--amber);}
 
-/* ══ PRAYER ══ */
+/* PRAYER */
 .prayer-list{display:flex;flex-direction:column;gap:3px;}
 .prayer-row{display:flex;align-items:center;justify-content:space-between;
-  padding:5px 7px;border:1px solid transparent;font-size:11px;}
-.prayer-row.current{border-color:var(--red)44;background:rgba(255,59,48,0.07);}
+  padding:5px 8px;border:1px solid transparent;font-size:11px;border-radius:2px;transition:all 0.3s;}
+.prayer-row.current{border-color:var(--red);background:rgba(255,59,48,0.08);box-shadow:inset 3px 0 0 var(--red);}
 .prayer-row.current .pname{color:var(--red);}
-.pname{color:var(--sub);letter-spacing:0.04em;display:flex;align-items:center;gap:5px;}
+.pname{color:var(--sub);letter-spacing:0.05em;display:flex;align-items:center;gap:6px;}
 .ptime{color:var(--amber);}
 .live-pulse{width:6px;height:6px;border-radius:50%;background:var(--red);
-  box-shadow:0 0 7px var(--red);animation:pulse 1.4s infinite;flex-shrink:0;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
-.p-countdown{font-size:9px;color:var(--muted);margin-top:5px;text-align:right;}
+  box-shadow:0 0 8px var(--red);animation:pulse 1.4s infinite;flex-shrink:0;}
+.p-countdown{font-size:10px;color:var(--muted);margin-top:8px;text-align:right;letter-spacing:0.1em;}
 .p-countdown b{color:var(--green);}
-
-/* ══ ATHAN ══ */
 .athan-row{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
-  margin-top:7px;padding-top:7px;border-top:1px solid var(--border);}
-.ath-item{display:flex;flex-direction:column;align-items:center;gap:3px;
-  font-size:9px;color:var(--muted);}
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.ath-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;color:var(--muted);}
 .tog{width:28px;height:15px;border:1px solid var(--border);background:var(--bg);
-  cursor:pointer;position:relative;transition:all 0.2s;}
-.tog.on{background:rgba(255,59,48,0.15);border-color:rgba(255,59,48,0.6);}
+  cursor:pointer;position:relative;transition:all 0.25s;border-radius:2px;}
+.tog.on{background:rgba(255,59,48,0.15);border-color:var(--red);}
 .tog::after{content:'';position:absolute;top:2px;left:2px;width:9px;height:9px;
-  background:var(--muted);transition:all 0.2s;}
-.tog.on::after{left:15px;background:var(--red);}
+  background:var(--muted);transition:all 0.25s;border-radius:1px;}
+.tog.on::after{left:15px;background:var(--red);box-shadow:0 0 6px var(--red);}
 
-/* ══ QURAN ══ */
+/* QURAN */
 .qsel{width:100%;background:var(--raised);border:1px solid var(--border);
   color:var(--text);font-family:var(--font);font-size:11px;
-  padding:5px 7px;outline:none;margin-bottom:6px;}
+  padding:5px 7px;outline:none;margin-bottom:6px;border-radius:2px;}
+.qsel:focus{border-color:var(--amber);}
 .qsel option{background:var(--surface);}
-.qcontrols{display:flex;gap:5px;align-items:center;margin-bottom:7px;}
+.qcontrols{display:flex;gap:5px;align-items:center;margin-bottom:7px;flex-wrap:wrap;}
 .qbtn{background:none;border:1px solid var(--border);color:var(--sub);
-  font-family:var(--font);font-size:11px;padding:4px 8px;cursor:pointer;transition:all 0.15s;}
-.qbtn:hover,.qbtn.on{border-color:var(--green);color:var(--green);}
-.qbtn.play{border-color:rgba(50,215,75,0.5);color:var(--green);font-size:14px;padding:4px 13px;}
-.qprog-wrap{height:3px;background:var(--border);cursor:pointer;margin-bottom:3px;}
-.qprog-fill{height:100%;background:var(--green);width:0%;transition:width 0.4s linear;}
-.qtime{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);}
-.qnow{font-size:10px;color:var(--dim);margin-bottom:5px;}
+  font-family:var(--font);font-size:11px;padding:4px 8px;cursor:pointer;transition:all 0.15s;border-radius:2px;}
+.qbtn:hover,.qbtn.on{border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(50,215,75,0.25);}
+.qbtn.play{border-color:rgba(50,215,75,0.6);color:var(--green);font-size:14px;padding:4px 14px;}
+.qprog-wrap{height:4px;background:var(--border);cursor:pointer;margin-bottom:5px;border-radius:2px;overflow:hidden;}
+.qprog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));width:0%;transition:width 0.4s linear;}
+.qtime{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);letter-spacing:0.1em;}
+.qnow{font-size:10px;color:var(--dim);margin-bottom:6px;}
 .qnow b{color:var(--green);}
+.q-offline-badge{display:inline-block;font-size:8px;padding:1px 5px;background:rgba(50,215,75,0.15);
+  color:var(--green);border:1px solid rgba(50,215,75,0.4);border-radius:2px;margin-left:6px;letter-spacing:0.1em;}
 
-/* ══ CURRENCY ══ */
-.ccy-row{display:flex;gap:5px;align-items:center;margin-bottom:7px;}
+/* CURRENCY / GOLD */
+.ccy-row{display:flex;gap:5px;align-items:center;margin-bottom:8px;}
 .ccy-inp{flex:1;background:var(--raised);border:1px solid var(--border);
-  color:var(--text);font-family:var(--font);font-size:12px;padding:5px 7px;outline:none;}
-.ccy-inp:focus{border-color:rgba(245,166,35,0.6);}
+  color:var(--text);font-family:var(--font);font-size:12px;padding:6px 8px;outline:none;border-radius:2px;}
+.ccy-inp:focus{border-color:var(--amber);box-shadow:0 0 8px rgba(255,176,0,0.2);}
 .ccy-sel{background:var(--raised);border:1px solid var(--border);color:var(--amber);
-  font-family:var(--font);font-size:11px;padding:5px 5px;outline:none;}
-.ccy-res-row{display:flex;justify-content:space-between;padding:4px 0;
-  font-size:11px;border-bottom:1px solid var(--border)44;}
+  font-family:var(--font);font-size:11px;padding:5px 6px;outline:none;border-radius:2px;}
+.ccy-res-row{display:flex;justify-content:space-between;padding:5px 0;
+  font-size:11px;border-bottom:1px solid var(--border);}
 .ccy-res-row:last-child{border:none;}
-.ccy-res-row .v{color:var(--amber);}
-
-/* ══ GOLD ══ */
+.ccy-res-row .v{color:var(--amber);font-weight:500;}
 .gold-big{font-size:36px;font-weight:300;color:var(--amber);letter-spacing:-1px;}
-.gold-karats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:7px;}
-.gk{background:var(--raised);border:1px solid var(--border);padding:5px 7px;}
-.gk-lbl{font-size:9px;color:var(--muted);}
+.gold-karats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;}
+.gk{background:var(--raised);border:1px solid var(--border);padding:6px 8px;border-radius:2px;}
+.gk-lbl{font-size:9px;color:var(--muted);letter-spacing:0.1em;}
 .gk-val{font-size:12px;color:var(--dim);}
 
-/* ══ WEATHER WIDGET ══ */
-.wx-widget{display:flex;flex-direction:column;gap:4px;}
+/* WEATHER */
+.wx-widget{display:flex;flex-direction:column;gap:5px;}
 .wx-city-row{display:flex;align-items:center;justify-content:space-between;
-  padding:5px 7px;border:1px solid var(--border);}
-.wx-city-name{font-size:11px;color:var(--sub);letter-spacing:0.08em;}
+  padding:6px 9px;border:1px solid var(--border);border-radius:2px;transition:border-color 0.2s;}
+.wx-city-row:hover{border-color:var(--blue);}
+.wx-city-name{font-size:11px;color:var(--sub);letter-spacing:0.1em;}
 .wx-city-temp{font-size:20px;color:var(--amber);font-weight:300;}
 .wx-city-desc{font-size:10px;color:var(--muted);}
 .wx-city-extra{font-size:10px;color:var(--dim);text-align:right;}
 
-/* ══ HOLIDAYS ══ */
+/* AQI */
+.aqi-badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;
+  letter-spacing:0.1em;font-weight:600;}
+.aqi-good{background:rgba(50,215,75,0.18);color:#32D74B;border:1px solid rgba(50,215,75,0.5);}
+.aqi-moderate{background:rgba(255,214,10,0.18);color:#FFD60A;border:1px solid rgba(255,214,10,0.5);}
+.aqi-unhealthy-s{background:rgba(255,149,0,0.18);color:#FF9500;border:1px solid rgba(255,149,0,0.5);}
+.aqi-unhealthy{background:rgba(255,59,48,0.18);color:#FF3B30;border:1px solid rgba(255,59,48,0.5);}
+.aqi-very{background:rgba(191,90,242,0.18);color:#BF5AF2;border:1px solid rgba(191,90,242,0.5);}
+.aqi-hazard{background:rgba(120,30,30,0.3);color:#FF6B6B;border:1px solid #FF6B6B;}
+.aqi-row{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;
+  border-bottom:1px solid var(--border);}
+.aqi-row:last-child{border:none;}
+.aqi-row .v{color:var(--amber);}
+
+/* HOLIDAYS */
+.hol-select{background:var(--raised);border:1px solid var(--border);color:var(--amber);
+  font-family:var(--font);font-size:10px;padding:3px 6px;outline:none;border-radius:2px;
+  letter-spacing:0.05em;}
 .htable{width:100%;border-collapse:collapse;font-size:11px;}
-.htable th{text-align:left;padding:4px 7px;color:var(--muted);
-  border-bottom:1px solid var(--border);font-size:9px;font-weight:400;letter-spacing:0.07em;}
-.htable td{padding:4px 7px;border-bottom:1px solid var(--border)33;color:var(--dim);}
+.htable th{text-align:left;padding:5px 7px;color:var(--muted);
+  border-bottom:1px solid var(--border);font-size:9px;font-weight:400;letter-spacing:0.1em;}
+.htable td{padding:5px 7px;border-bottom:1px solid var(--border);color:var(--dim);}
 .htable tr:last-child td{border:none;}
-.htable td.lbl{color:var(--sub);font-size:10px;width:68px;}
-.htable td.today{color:var(--green);}
+.htable td.lbl{color:var(--sub);font-size:10px;width:76px;letter-spacing:0.05em;}
+.htable td.today{color:var(--green);font-weight:600;}
 .htable td.soon{color:var(--amber);}
 
-/* ══ AGENDA ══ */
-.agenda-wrap{max-height:170px;overflow-y:auto;}
-.agenda-wrap::-webkit-scrollbar{width:3px;}
-.agenda-wrap::-webkit-scrollbar-thumb{background:var(--border);}
-.ag-day{font-size:9px;color:var(--muted);letter-spacing:0.1em;
-  margin:5px 0 3px;padding-top:3px;border-top:1px solid var(--border)44;}
-.ag-day:first-child{margin-top:0;border:none;}
-.ag-ev{display:flex;align-items:center;gap:5px;padding:2px 0;font-size:11px;color:var(--dim);}
-.ag-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-.ag-t{color:var(--muted);font-size:10px;min-width:34px;}
-
-/* ══ ALARM ══ */
-.alarm-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+/* ALARMS */
+.alarm-list{display:flex;flex-direction:column;gap:5px;margin-bottom:9px;}
 .alarm-row{display:flex;align-items:center;justify-content:space-between;
-  padding:5px 8px;border:1px solid var(--border);font-size:11px;}
-.alarm-row.active-alarm{border-color:var(--amber)55;background:rgba(245,166,35,0.07);}
-.alarm-time-disp{color:var(--amber);font-size:16px;}
-.alarm-label-disp{color:var(--sub);font-size:10px;}
+  padding:6px 9px;border:1px solid var(--border);font-size:11px;border-radius:2px;transition:all 0.3s;}
+.alarm-row.active-alarm{border-color:var(--amber);background:rgba(255,176,0,0.07);}
+.alarm-time-disp{color:var(--amber);font-size:17px;letter-spacing:-0.5px;}
+.alarm-label-disp{color:var(--sub);font-size:10px;margin-top:2px;}
 .alarm-tog{cursor:pointer;}
 .add-alarm-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
 .alarm-inp{background:var(--raised);border:1px solid var(--border);
   color:var(--text);font-family:var(--font);font-size:11px;
-  padding:4px 7px;outline:none;flex:1;min-width:80px;}
-.alarm-inp:focus{border-color:rgba(245,166,35,0.6);}
+  padding:5px 7px;outline:none;flex:1;min-width:80px;border-radius:2px;}
+.alarm-inp:focus{border-color:var(--amber);}
 .sm-btn{background:none;border:1px solid var(--border);color:var(--sub);
-  font-family:var(--font);font-size:10px;padding:4px 9px;cursor:pointer;transition:all 0.15s;}
+  font-family:var(--font);font-size:10px;padding:5px 10px;cursor:pointer;transition:all 0.15s;
+  border-radius:2px;letter-spacing:0.05em;}
 .sm-btn:hover{border-color:var(--amber);color:var(--amber);}
+.sm-btn:disabled{opacity:0.5;cursor:not-allowed;}
 .sm-btn.danger:hover{border-color:var(--red);color:var(--red);}
 .alarm-sound-sel{background:var(--raised);border:1px solid var(--border);
-  color:var(--sub);font-family:var(--font);font-size:10px;padding:4px 5px;outline:none;}
+  color:var(--sub);font-family:var(--font);font-size:10px;padding:4px 5px;outline:none;border-radius:2px;}
 
-/* ══ SETTINGS OVERLAY ══ */
+/* AGENDA */
+.agenda-wrap{max-height:180px;overflow-y:auto;}
+.ag-day{font-size:9px;color:var(--muted);letter-spacing:0.12em;
+  margin:7px 0 4px;padding-top:4px;border-top:1px solid var(--border);}
+.ag-day:first-child{margin-top:0;border:none;padding-top:0;}
+.ag-ev{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;color:var(--dim);}
+.ag-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.ag-t{color:var(--muted);font-size:10px;min-width:38px;}
+
+/* ═══════════════ NEW: VERSE / HADITH / RAMADAN ═══════════════ */
+.verse-arabic{
+  font-family:'Amiri',serif;direction:rtl;text-align:right;
+  font-size:18px;line-height:1.9;color:var(--amber);
+  margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.verse-english{
+  font-size:12px;line-height:1.6;color:var(--dim);font-style:italic;
+  margin-bottom:6px;
+}
+.verse-source{
+  font-size:9px;color:var(--muted);letter-spacing:0.15em;
+  text-align:right;margin-top:4px;
+}
+.hadith-arabic{
+  font-family:'Amiri',serif;direction:rtl;text-align:right;
+  font-size:15px;line-height:1.9;color:var(--green);
+  margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.hadith-english{
+  font-size:12px;line-height:1.6;color:var(--dim);
+  margin-bottom:6px;
+}
+.hadith-source{
+  font-size:9px;color:var(--muted);letter-spacing:0.15em;
+  text-align:right;font-style:italic;
+}
+#row-verse-hadith{margin-top:10px;padding:0 12px;}
+.verse-hadith-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media (max-width:820px){ .verse-hadith-grid{grid-template-columns:1fr;} }
+
+.ramadan-card{
+  background:linear-gradient(135deg, var(--surface) 0%, rgba(191,90,242,0.08) 100%);
+  border:1px solid var(--purple);
+  margin:10px 12px 0;padding:16px 18px;
+  display:none;align-items:center;justify-content:space-between;gap:16px;
+  border-radius:var(--radius);
+  box-shadow:0 0 30px rgba(191,90,242,0.15);
+}
+.ramadan-card.show{display:flex;}
+.ramadan-label{font-size:10px;letter-spacing:0.2em;color:var(--purple);
+  margin-bottom:6px;text-transform:uppercase;}
+.ramadan-big{font-size:42px;font-weight:300;color:var(--amber);letter-spacing:-1.5px;line-height:1;}
+.ramadan-sub{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:0.1em;}
+.ramadan-icon{font-size:52px;filter:drop-shadow(0 0 12px var(--amber));}
+@media (max-width:820px){ .ramadan-card{flex-direction:column;text-align:center;} }
+
+/* SETTINGS */
 #settings-overlay{display:none;position:fixed;inset:0;z-index:900;
   background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);overflow-y:auto;padding:20px;}
 #settings-overlay.show{display:block;}
 #settings-panel{background:var(--surface);border:1px solid var(--border);
-  max-width:760px;margin:0 auto;padding:20px;}
+  max-width:820px;margin:0 auto;padding:22px;border-radius:var(--radius);}
 .s-title{font-size:13px;color:var(--text);letter-spacing:0.1em;
-  margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--border);
+  margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;}
-.s-close{cursor:pointer;color:var(--muted);font-size:18px;padding:0 4px;}
+.s-close{cursor:pointer;color:var(--muted);font-size:20px;padding:0 6px;line-height:1;}
 .s-close:hover{color:var(--red);}
-.s-section{margin-bottom:18px;}
-.s-sec-title{font-size:9px;letter-spacing:0.17em;color:var(--amber);
-  margin-bottom:9px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.s-section{margin-bottom:22px;}
+.s-sec-title{font-size:10px;letter-spacing:0.2em;color:var(--amber);
+  margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border);}
 .s-row{display:flex;align-items:center;justify-content:space-between;
-  padding:4px 0;font-size:12px;color:var(--dim);}
-.s-row label{cursor:pointer;display:flex;align-items:center;gap:7px;}
-input[type=checkbox]{accent-color:var(--amber);width:13px;height:13px;cursor:pointer;}
-.s-grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:5px;}
-.s-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:5px;}
+  padding:5px 0;font-size:12px;color:var(--dim);gap:10px;}
+.s-row label{cursor:pointer;display:flex;align-items:center;gap:8px;}
+input[type=checkbox]{accent-color:var(--amber);width:14px;height:14px;cursor:pointer;}
+.s-grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px;}
+.s-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;}
+@media (max-width:600px){.s-grid3,.s-grid2{grid-template-columns:1fr;}}
 
-/* THEME CARDS */
-.theme-card{border:2px solid var(--border);padding:9px;cursor:pointer;
-  display:flex;flex-direction:column;gap:4px;transition:border-color 0.15s;}
-.theme-card:hover,.theme-card.active{border-color:var(--amber);}
-.theme-swatch{height:36px;border-radius:2px;margin-bottom:3px;position:relative;overflow:hidden;}
-.theme-name{font-size:10px;color:var(--sub);letter-spacing:0.1em;}
-.theme-desc{font-size:9px;color:var(--muted);}
+.theme-card{border:2px solid var(--border);padding:10px;cursor:pointer;
+  display:flex;flex-direction:column;gap:5px;transition:border-color 0.15s,transform 0.15s;
+  border-radius:var(--radius);}
+.theme-card:hover,.theme-card.active{border-color:var(--amber);transform:translateY(-2px);}
+.theme-swatch{height:42px;border-radius:2px;margin-bottom:4px;position:relative;overflow:hidden;}
+.theme-name{font-size:10px;color:var(--sub);letter-spacing:0.12em;font-weight:600;}
+.theme-desc{font-size:9px;color:var(--muted);line-height:1.4;}
 
-/* CLOCK EDITOR */
-.clk-edit-row{display:flex;gap:5px;align-items:center;margin-bottom:5px;}
+.clk-edit-row{display:flex;gap:6px;align-items:center;margin-bottom:5px;}
 .clk-edit-row input,.clk-edit-row select{
   flex:1;background:var(--raised);border:1px solid var(--border);
-  color:var(--text);font-family:var(--font);font-size:11px;padding:4px 7px;outline:none;}
-.clk-edit-row input:focus,.clk-edit-row select:focus{border-color:rgba(245,166,35,0.6);}
+  color:var(--text);font-family:var(--font);font-size:11px;padding:5px 8px;outline:none;border-radius:2px;}
+.clk-edit-row input:focus,.clk-edit-row select:focus{border-color:var(--amber);}
 .rm-btn{background:none;border:1px solid var(--border);color:var(--muted);
-  font-family:var(--font);font-size:11px;padding:3px 7px;cursor:pointer;}
+  font-family:var(--font);font-size:11px;padding:4px 8px;cursor:pointer;border-radius:2px;}
 .rm-btn:hover{border-color:var(--red);color:var(--red);}
 .add-btn{background:none;border:1px dashed var(--border);color:var(--sub);
-  font-family:var(--font);font-size:11px;padding:5px;cursor:pointer;width:100%;margin-top:3px;}
+  font-family:var(--font);font-size:11px;padding:6px;cursor:pointer;width:100%;margin-top:4px;border-radius:2px;}
 .add-btn:hover{border-color:var(--green);color:var(--green);}
-.save-btn{background:rgba(245,166,35,0.12);border:1px solid var(--amber);color:var(--amber);
-  font-family:var(--font);font-size:11px;padding:7px;cursor:pointer;
-  margin-top:12px;width:100%;letter-spacing:0.1em;}
-.save-btn:hover{background:rgba(245,166,35,0.22);}
+.save-btn{background:rgba(255,176,0,0.12);border:1px solid var(--amber);color:var(--amber);
+  font-family:var(--font);font-size:12px;padding:9px;cursor:pointer;
+  margin-top:16px;width:100%;letter-spacing:0.12em;border-radius:2px;}
+.save-btn:hover{background:rgba(255,176,0,0.22);}
 
-/* ALARM MODAL */
+#surah-download-list{max-height:220px;overflow-y:auto;width:100%;
+  border:1px solid var(--border);padding:8px;border-radius:2px;}
+.surah-dl-row{display:flex;align-items:center;justify-content:space-between;
+  padding:4px 0;font-size:11px;border-bottom:1px solid var(--border);}
+.surah-dl-row:last-child{border:none;}
+.surah-dl-row.downloaded{color:var(--green);}
+.surah-dl-name{flex:1;}
+.surah-dl-status{font-size:9px;letter-spacing:0.1em;color:var(--muted);margin-right:6px;}
+.surah-dl-status.dl{color:var(--green);}
+.surah-dl-status.pending{color:var(--amber);}
+.surah-dl-btn{background:none;border:1px solid var(--border);color:var(--sub);
+  font-family:var(--font);font-size:9px;padding:2px 7px;cursor:pointer;border-radius:2px;}
+.surah-dl-btn:hover{border-color:var(--green);color:var(--green);}
+#storage-bar{height:6px;background:var(--border);margin:8px 0;overflow:hidden;border-radius:3px;}
+#storage-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--amber),var(--red));width:0%;transition:width 0.5s;}
+
 #alarm-modal{display:none;position:fixed;inset:0;z-index:950;
-  background:rgba(0,0,0,0.9);align-items:center;justify-content:center;}
+  background:rgba(0,0,0,0.92);align-items:center;justify-content:center;}
 #alarm-modal.show{display:flex;}
-#alarm-modal-box{background:var(--surface);border:1px solid var(--amber);
-  padding:24px;min-width:300px;text-align:center;}
-#alarm-modal-time{font-size:60px;font-weight:300;color:var(--amber);letter-spacing:-2px;}
-#alarm-modal-label{font-size:14px;color:var(--sub);margin:6px 0 20px;}
+#alarm-modal-box{background:var(--surface);border:2px solid var(--amber);
+  padding:28px;min-width:320px;text-align:center;border-radius:var(--radius);
+  box-shadow:0 0 60px rgba(255,176,0,0.3);}
+#alarm-modal-time{font-size:64px;font-weight:300;color:var(--amber);letter-spacing:-2px;line-height:1;}
+#alarm-modal-label{font-size:15px;color:var(--sub);margin:10px 0 24px;letter-spacing:0.12em;}
 #alarm-dismiss{background:rgba(255,59,48,0.15);border:1px solid var(--red);color:var(--red);
-  font-family:var(--font);font-size:12px;padding:8px 24px;cursor:pointer;letter-spacing:0.1em;}
+  font-family:var(--font);font-size:13px;padding:10px 28px;cursor:pointer;
+  letter-spacing:0.12em;border-radius:2px;}
 
-::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--border);}
-.flex-b{display:flex;justify-content:space-between;align-items:flex-start;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.flex-b{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
 </style>
 </head>
 <body data-theme="dots">
+
+<div id="audio-unlock" onclick="unlockAudio()">
+  <div class="unlock-box">
+    <div class="unlock-icon">🔊</div>
+    <div class="unlock-title">ENABLE AUDIO</div>
+    <div class="unlock-sub">Tap anywhere to enable<br/>Athan · Alarms · Quran playback</div>
+  </div>
+</div>
+
 <div id="screensaver" onclick="dismissScreensaver()">
-  <div id="ss-time">--:--</div>
-  <div id="ss-date">—</div>
-  <div id="ss-hijri">—</div>
-  <div id="ss-prayer">—</div>
-  <div id="ss-tap">TAP TO WAKE</div>
+  <div id="ss-content">
+    <div id="ss-time">--:--</div>
+    <div id="ss-date">—</div>
+    <div id="ss-hijri">—</div>
+    <div id="ss-divider"></div>
+    <div id="ss-meta">
+      <div class="ss-meta-item">
+        <div class="ss-meta-icon" id="ss-wx-icon">☀️</div>
+        <div class="ss-meta-label" id="ss-wx-temp">—°</div>
+        <div class="ss-meta-sub" id="ss-wx-city">—</div>
+      </div>
+      <div class="ss-meta-item">
+        <div class="ss-meta-icon">🕌</div>
+        <div class="ss-meta-label" id="ss-p-name">—</div>
+        <div class="ss-meta-sub" id="ss-p-cd">—</div>
+      </div>
+    </div>
+    <div id="ss-progress"><div id="ss-progress-fill"></div></div>
+    <div id="ss-tap">TAP ANYWHERE TO WAKE</div>
+  </div>
 </div>
 
 <div id="alarm-modal">
@@ -351,18 +480,18 @@ input[type=checkbox]{accent-color:var(--amber);width:13px;height:13px;cursor:poi
 </div>
 
 <div id="app">
-<div id="install-banner">
+<div id="install-banner" style="display:none;align-items:center;justify-content:space-between;padding:7px 14px;background:rgba(59,184,255,0.12);border-bottom:1px solid rgba(59,184,255,0.3);font-size:11px;color:var(--dim);">
   <span>📱 Install HORIZON — tap for offline kiosk mode</span>
   <div style="display:flex;gap:6px;">
     <button id="install-btn" class="icon-btn">INSTALL</button>
-    <button class="icon-btn" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
+    <button class="icon-btn" onclick="document.getElementById('install-banner').style.display='none'">✕</button>
   </div>
 </div>
 
 <div id="statusbar">
   <div class="seg">
     <span class="live-dot-sb"></span>
-    <span style="color:var(--text);letter-spacing:0.12em;">HORIZON</span>
+    <span style="color:var(--text);letter-spacing:0.15em;">HORIZON</span>
     <span class="sep">|</span>
     <span id="hijri-sb">—</span>
   </div>
@@ -371,65 +500,66 @@ input[type=checkbox]{accent-color:var(--amber);width:13px;height:13px;cursor:poi
     <span class="sep">|</span>
     <span id="sb-loc" style="color:var(--sub);">—</span>
     <span class="sep">|</span>
-    <button class="icon-btn" onclick="openSettings()">⚙ SETTINGS</button>
-    <button class="icon-btn" onclick="toggleScreensaver()">◉ SLEEP</button>
+    <button class="icon-btn" onclick="openSettings()" aria-label="Open Settings">⚙ SETTINGS</button>
+    <button class="icon-btn" onclick="toggleScreensaver()" aria-label="Sleep Mode">◉ SLEEP</button>
   </div>
 </div>
 
-<!-- ROW 1: CLOCKS | PRAYER | QURAN -->
+<!-- ═══ RAMADAN COUNTDOWN ═══ -->
+<div class="ramadan-card" id="ramadan-card">
+  <div>
+    <div class="ramadan-label" id="ramadan-label">RAMADAN</div>
+    <div class="ramadan-big" id="ramadan-big">—</div>
+    <div class="ramadan-sub" id="ramadan-sub">—</div>
+  </div>
+  <div class="ramadan-icon">🌙</div>
+</div>
+
+<!-- ═══ ROW 1 ═══ -->
 <div class="grid-3">
-
-  <!-- CLOCKS -->
   <div class="clocks-grid" id="clocks-grid"></div>
-
-  <!-- PRAYER -->
   <div class="card">
-    <div class="card-label R">PRAYER TIMES // CAIRO</div>
+    <div class="card-label R">PRAYER // CAIRO</div>
     <div class="prayer-list" id="prayer-list"></div>
-    <div class="p-countdown">Next: <b id="next-p-name">—</b> in <b id="next-p-cd">—</b></div>
+    <div class="p-countdown">NEXT: <b id="next-p-name">—</b> in <b id="next-p-cd">—</b></div>
     <div class="athan-row" id="athan-row"></div>
   </div>
-
-  <!-- QURAN -->
   <div class="card">
     <div class="card-label G">QURAN PLAYER</div>
-    <div class="qnow">NOW: <b id="q-surah-name">Select surah</b></div>
-    <select class="qsel" id="q-reciter" onchange="changeReciter(this.value)">
-      <!-- reciters injected by JS -->
-    </select>
+    <div class="qnow">NOW: <b id="q-surah-name">Select surah</b><span id="q-offline-badge" class="q-offline-badge" style="display:none;">OFFLINE</span></div>
+    <select class="qsel" id="q-reciter" onchange="changeReciter(this.value)"></select>
     <select class="qsel" id="q-surah" onchange="loadSurah(this.value)">
       <option value="">— SELECT SURAH —</option>
     </select>
     <div class="qcontrols">
-      <button class="qbtn play" id="q-play-btn" onclick="togglePlay()">▶</button>
+      <button class="qbtn play" id="q-play-btn" onclick="togglePlay()" aria-label="Play/Pause">▶</button>
       <button class="qbtn" onclick="seekRel(-10)">-10</button>
       <button class="qbtn" onclick="seekRel(10)">+10</button>
-      <button class="qbtn" id="q-prev-btn" onclick="prevSurah()">⏮</button>
-      <button class="qbtn" id="q-next-btn" onclick="nextSurah()">⏭</button>
+      <button class="qbtn" onclick="prevSurah()">⏮</button>
+      <button class="qbtn" onclick="nextSurah()">⏭</button>
       <button class="qbtn" id="q-rpt-btn" onclick="toggleRepeat()">↩</button>
     </div>
-    <div class="qprog-wrap" onclick="seekClick(event)">
-      <div class="qprog-fill" id="q-prog"></div>
-    </div>
-    <div class="qtime">
-      <span id="q-cur">0:00</span>
-      <span id="q-dur">0:00</span>
-    </div>
+    <div class="qprog-wrap" onclick="seekClick(event)"><div class="qprog-fill" id="q-prog"></div></div>
+    <div class="qtime"><span id="q-cur">0:00</span><span id="q-dur">0:00</span></div>
   </div>
 </div>
 
-<!-- ROW 2: WEATHER + ALARM -->
+<!-- ═══ ROW 2: WEATHER + AQI + ALARMS ═══ -->
 <div class="grid-2">
   <div class="card">
-    <div class="card-label B">WEATHER</div>
+    <div class="card-label B">WEATHER + AIR QUALITY</div>
     <div class="wx-widget" id="wx-widget"></div>
+    <div id="aqi-widget" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px;">AIR QUALITY</div>
+      <div id="aqi-content"><span style="font-size:10px;color:var(--muted);">loading…</span></div>
+    </div>
   </div>
   <div class="card">
     <div class="card-label A">ALARMS</div>
     <div class="alarm-list" id="alarm-list"></div>
     <div class="add-alarm-row">
       <input class="alarm-inp" type="time" id="alarm-time-inp"/>
-      <input class="alarm-inp" type="text" id="alarm-label-inp" placeholder="Label" maxlength="20" style="max-width:100px;"/>
+      <input class="alarm-inp" type="text" id="alarm-label-inp" placeholder="Label" maxlength="20" style="max-width:110px;"/>
       <select class="alarm-sound-sel" id="alarm-sound-inp">
         <option value="beep">Beep</option>
         <option value="chime">Chime</option>
@@ -442,7 +572,21 @@ input[type=checkbox]{accent-color:var(--amber);width:13px;height:13px;cursor:poi
   </div>
 </div>
 
-<!-- ROW 3: CURRENCY + GOLD (hideable) -->
+<!-- ═══ ROW 3: VERSE + HADITH OF THE DAY ═══ -->
+<div id="row-verse-hadith">
+  <div class="verse-hadith-grid">
+    <div class="card">
+      <div class="card-label P">VERSE OF THE DAY / آية اليوم</div>
+      <div id="verse-content"><span style="font-size:10px;color:var(--muted);">loading…</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label G">HADITH OF THE DAY / حديث اليوم</div>
+      <div id="hadith-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ROW 4: CURRENCY + GOLD ═══ -->
 <div class="grid-2" id="row-finance">
   <div class="card">
     <div class="card-label A">CURRENCY</div>
@@ -460,9 +604,9 @@ input[type=checkbox]{accent-color:var(--amber);width:13px;height:13px;cursor:poi
     <div class="card-label A">GOLD // EGP</div>
     <div class="flex-b">
       <div>
-        <div style="font-size:9px;color:var(--muted);">24K / gram</div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:0.1em;">24K / GRAM</div>
         <div class="gold-big" id="gold-24k">—</div>
-        <div id="gold-chg" style="font-size:10px;color:var(--muted);margin-top:2px;">—</div>
+        <div id="gold-chg" style="font-size:10px;color:var(--muted);margin-top:3px;">—</div>
       </div>
       <div style="text-align:right;font-size:9px;color:var(--muted);" id="gold-upd">—</div>
     </div>
@@ -470,116 +614,131 @@ input[type=checkbox]{accent-color:var(--amber);width:13px;height:13px;cursor:poi
   </div>
 </div>
 
-<!-- ROW 4: HOLIDAYS + CALENDAR -->
+<!-- ═══ ROW 5: HOLIDAYS + AGENDA ═══ -->
 <div class="grid-2" id="row-bottom">
   <div class="card" id="row-holidays">
-    <div class="card-label">HOLIDAYS</div>
+    <div class="card-label" style="justify-content:flex-start;">
+      <span>HOLIDAYS</span>
+      <select class="hol-select" id="hol-country-sel" onchange="onHolCountryChange(this.value)" style="margin-left:auto;"></select>
+    </div>
     <table class="htable"><thead id="hol-head"></thead><tbody id="hol-body"></tbody></table>
   </div>
   <div class="card">
     <div class="card-label B">AGENDA + TASKS</div>
     <div id="cal-signin">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:7px;">Google Calendar not connected.</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Google Calendar not connected.</div>
       <button class="sm-btn" onclick="initGoogleAuth()">CONNECT CALENDAR</button>
     </div>
     <div id="cal-content" style="display:none;">
       <div class="agenda-wrap" id="agenda-list"></div>
-      <div id="tasks-list" style="margin-top:7px;"></div>
+      <div id="tasks-list" style="margin-top:8px;"></div>
     </div>
   </div>
 </div>
 </div><!-- /app -->
 
-<!-- ══ SETTINGS OVERLAY ══ -->
+<!-- SETTINGS -->
 <div id="settings-overlay">
 <div id="settings-panel">
   <div class="s-title"><span>⚙ HORIZON SETTINGS</span><span class="s-close" onclick="closeSettings()">✕</span></div>
 
-  <!-- THEMES -->
   <div class="s-section">
     <div class="s-sec-title">THEME</div>
-    <div class="s-grid3">
-      <div class="theme-card active" id="tc-dots" onclick="setTheme('dots')">
-        <div class="theme-swatch" style="background:#0A0A0A;border:1px solid #22272F;">
-          <svg width="100%" height="100%"><defs><pattern id="dp" x="0" y="0" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1" fill="rgba(255,255,255,0.18)"/></pattern></defs><rect width="100%" height="100%" fill="url(#dp)"/><text x="8" y="22" fill="#F5A623" font-size="14" font-family="monospace" font-weight="300">22:47</text></svg>
+    <div class="s-grid2">
+      <div class="theme-card" id="tc-dots" onclick="setTheme('dots')">
+        <div class="theme-swatch" style="background:#060606;border:1px solid #242424;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'DotGothic16',monospace;color:#FFB000;font-size:22px;text-shadow:0 0 10px #FFB000;">22:47</span>
         </div>
-        <div class="theme-name">DOTS</div>
-        <div class="theme-desc">Black + amber. Dot matrix grid. Classic.</div>
+        <div class="theme-name">DOTS</div><div class="theme-desc">Dot-matrix. Amber glow.</div>
       </div>
-      <div class="theme-card" id="tc-ink" onclick="setTheme('ink')">
-        <div class="theme-swatch" style="background:#0C0A07;border:1px solid #2D2820;">
-          <svg width="100%" height="100%"><line x1="0" y1="9" x2="100%" y2="9" stroke="rgba(212,168,67,0.12)" stroke-width="1"/><line x1="0" y1="18" x2="100%" y2="18" stroke="rgba(212,168,67,0.12)" stroke-width="1"/><line x1="0" y1="27" x2="100%" y2="27" stroke="rgba(212,168,67,0.12)" stroke-width="1"/><text x="8" y="22" fill="#D4A843" font-size="14" font-family="serif" font-style="italic">22:47</text></svg>
+      <div class="theme-card" id="tc-kindle" onclick="setTheme('kindle')">
+        <div class="theme-swatch" style="background:#EFE6D2;border:1px solid #C9B892;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'EB Garamond',serif;color:#2A2418;font-size:24px;font-weight:500;">22:47</span>
         </div>
-        <div class="theme-name">INK</div>
-        <div class="theme-desc">Sepia parchment. Ruled lines. Warm.</div>
+        <div class="theme-name">KINDLE</div><div class="theme-desc">Paper cream. Serif. E-ink.</div>
       </div>
       <div class="theme-card" id="tc-aurora" onclick="setTheme('aurora')">
-        <div class="theme-swatch" style="background:#060610;border:1px solid #1A1A40;">
-          <svg width="100%" height="100%"><defs><radialGradient id="ag1" cx="30%" cy="30%"><stop offset="0%" stop-color="rgba(100,210,255,0.3)"/><stop offset="100%" stop-color="transparent"/></radialGradient><radialGradient id="ag2" cx="70%" cy="70%"><stop offset="0%" stop-color="rgba(191,90,242,0.3)"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#ag1)"/><rect width="100%" height="100%" fill="url(#ag2)"/><text x="8" y="22" fill="#64D2FF" font-size="14" font-family="monospace" font-weight="300">22:47</text></svg>
+        <div class="theme-swatch" style="background:#05061A;border:1px solid #1F2258;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'JetBrains Mono',monospace;background:linear-gradient(135deg,#64D2FF,#BF5AF2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:22px;font-weight:500;">22:47</span>
         </div>
-        <div class="theme-name">AURORA</div>
-        <div class="theme-desc">Deep space. Neon cyan + purple glow.</div>
+        <div class="theme-name">AURORA</div><div class="theme-desc">Deep space. Neon cyan + purple.</div>
+      </div>
+      <div class="theme-card" id="tc-sunset" onclick="setTheme('sunset')">
+        <div class="theme-swatch" style="background:#1A0F14;border:1px solid #4A2E3C;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'JetBrains Mono',monospace;background:linear-gradient(135deg,#FF9A3C,#FF4D6D,#C77DFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:22px;font-weight:500;">22:47</span>
+        </div>
+        <div class="theme-name">SUNSET</div><div class="theme-desc">Warm dusk. Orange → pink → purple.</div>
       </div>
     </div>
   </div>
 
-  <!-- SCREENSAVER -->
   <div class="s-section">
-    <div class="s-sec-title">SCREENSAVER / BRIGHTNESS</div>
+    <div class="s-sec-title">SCREEN / KIOSK</div>
     <div class="s-row"><label>Auto-sleep after (minutes)</label>
       <select class="ccy-sel" id="ss-timeout" style="color:var(--text);">
         <option value="1">1 min</option><option value="3">3 min</option>
-        <option value="5" selected>5 min</option><option value="10">10 min</option>
+        <option value="5">5 min</option><option value="10">10 min</option>
         <option value="0">Never</option>
       </select>
     </div>
-    <div class="s-row"><label>Auto-brightness (day bright, night dim)</label>
+    <div class="s-row"><label>Auto-brightness (day/night)</label>
       <input type="checkbox" id="tog-autobright" checked/></div>
+    <div class="s-row"><label>Keep screen awake (wake lock)</label>
+      <input type="checkbox" id="tog-wakelock" checked/></div>
   </div>
 
-  <!-- WORLD CLOCKS -->
   <div class="s-section">
-    <div class="s-sec-title">WORLD CLOCKS (up to 4)</div>
+    <div class="s-sec-title">WORLD CLOCKS (max 4)</div>
     <div id="clock-editor"></div>
     <button class="add-btn" onclick="addClockSlot()">+ ADD CLOCK</button>
   </div>
 
-  <!-- WEATHER CITIES -->
   <div class="s-section">
-    <div class="s-sec-title">WEATHER CITIES (up to 4)</div>
+    <div class="s-sec-title">WEATHER CITIES (max 4)</div>
     <div id="wx-editor"></div>
     <button class="add-btn" onclick="addWxSlot()">+ ADD CITY</button>
   </div>
 
-  <!-- HOLIDAY COUNTRIES -->
   <div class="s-section">
-    <div class="s-sec-title">HOLIDAY COUNTRIES (up to 3)</div>
-    <div class="s-grid3" id="hol-picker"></div>
+    <div class="s-sec-title">MEDIA / OFFLINE QURAN</div>
+    <div class="s-row" style="justify-content:space-between;">
+      <label>Storage used</label>
+      <span id="storage-info" style="font-size:11px;color:var(--amber);">checking…</span>
+    </div>
+    <div id="storage-bar"><div id="storage-bar-fill"></div></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;">
+      <button class="sm-btn" id="test-reciter-btn" onclick="testReciter()">🔊 TEST RECITER</button>
+      <button class="sm-btn" onclick="downloadAllSurahs()">⬇ DOWNLOAD ALL (current reciter)</button>
+      <button class="sm-btn danger" onclick="clearAllMedia()">🗑 CLEAR ALL MEDIA</button>
+    </div>
+    <div class="s-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
+      <div style="font-size:11px;color:var(--dim);">Per-surah download (saved in IndexedDB for offline):</div>
+      <div id="surah-download-list"></div>
+    </div>
   </div>
 
-  <!-- SHOW/HIDE -->
   <div class="s-section">
     <div class="s-sec-title">SHOW / HIDE WIDGETS</div>
-    <div class="s-row"><label><input type="checkbox" id="tog-finance" onchange="toggleFinance(this.checked)" checked/> Currency &amp; Gold</label></div>
-    <div class="s-row"><label><input type="checkbox" id="tog-holidays" onchange="toggleHolidays(this.checked)" checked/> Holidays Panel</label></div>
+    <div class="s-row"><label><input type="checkbox" id="tog-verse-hadith" onchange="toggleVerseHadith(this.checked)"/> Verse + Hadith of the Day</label></div>
+    <div class="s-row"><label><input type="checkbox" id="tog-finance" onchange="toggleFinance(this.checked)"/> Currency & Gold</label></div>
+    <div class="s-row"><label><input type="checkbox" id="tog-holidays" onchange="toggleHolidays(this.checked)"/> Holidays Panel</label></div>
   </div>
 
-  <!-- OFFLINE -->
   <div class="s-section">
-    <div class="s-sec-title">OFFLINE / PWA INSTALL</div>
-    <div class="s-row" style="flex-direction:column;align-items:flex-start;gap:7px;">
-      <div style="font-size:11px;color:var(--dim);line-height:1.6;">
+    <div class="s-sec-title">OFFLINE / PWA</div>
+    <div class="s-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+      <div style="font-size:11px;color:var(--dim);line-height:1.7;">
         iPad: Safari → Share → <b style="color:var(--amber)">Add to Home Screen</b> → fullscreen kiosk.<br/>
-        Settings → Accessibility → <b style="color:var(--amber)">Guided Access</b> to lock screen to this app.
+        Settings → Accessibility → <b style="color:var(--amber)">Guided Access</b> to lock to app.
       </div>
-      <div style="display:flex;gap:7px;flex-wrap:wrap;">
-        <button class="sm-btn" onclick="cacheOffline()">💾 CACHE OFFLINE</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="sm-btn" onclick="cacheOffline()">💾 CACHE APP SHELL</button>
         <span class="sm-btn" id="offline-status" style="cursor:default;border-color:var(--muted);color:var(--muted);">CHECKING…</span>
       </div>
     </div>
   </div>
 
-  <button class="save-btn" onclick="saveSettings()">✓ SAVE &amp; CLOSE</button>
+  <button class="save-btn" onclick="saveSettings()">✓ SAVE & CLOSE</button>
 </div>
 </div>
 
@@ -587,9 +746,7 @@ input[type=checkbox]{accent-color:var(--amber);width:13px;height:13px;cursor:poi
 <audio id="alarm-audio" preload="none" loop></audio>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ STATE ═══════════════════ */
 const DEFAULT_CLOCKS=[
   {label:'ISTANBUL',tz:'Europe/Istanbul',lat:41.01,lon:28.98},
   {label:'CAIRO',   tz:'Africa/Cairo',   lat:30.06,lon:31.25},
@@ -597,93 +754,144 @@ const DEFAULT_CLOCKS=[
   {label:'LOCAL',   tz:'LOCAL',          lat:null, lon:null},
 ];
 const DEFAULT_WX=[
-  {label:'CAIRO',  lat:30.06,lon:31.25},
-  {label:'ISTANBUL',lat:41.01,lon:28.98},
+  {label:'Cairo',  lat:30.06,lon:31.25},
+  {label:'Istanbul',lat:41.01,lon:28.98},
 ];
 let ST;
 function loadST(){
   try{
-    const s=JSON.parse(localStorage.getItem('horizon_v3')||'{}');
+    const s=JSON.parse(localStorage.getItem('horizon_v5')||localStorage.getItem('horizon_v4')||localStorage.getItem('horizon_v3')||localStorage.getItem('horizon_state')||'{}');
     ST={
       theme:          s.theme          ||'dots',
       clocks:         s.clocks         ||JSON.parse(JSON.stringify(DEFAULT_CLOCKS)),
       wxCities:       s.wxCities       ||JSON.parse(JSON.stringify(DEFAULT_WX)),
-      showFinance:    s.showFinance     !==false,
-      showHolidays:   s.showHolidays    !==false,
-      holCountries:   s.holCountries   ||['EG','TR','UK'],
+      showFinance:    s.showFinance    !==false,
+      showHolidays:   s.showHolidays   !==false,
+      showVerseHadith:s.showVerseHadith!==false,
+      holCountry:     s.holCountry     ||'EG',
       athanState:     s.athanState     ||{Fajr:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true},
       reciterId:      s.reciterId      ||'husary',
       alarms:         s.alarms         ||[],
       ssTimeout:      s.ssTimeout      !==undefined?s.ssTimeout:5,
       autoBright:     s.autoBright     !==false,
+      wakeLock:       s.wakeLock       !==false,
+      audioUnlocked:  s.audioUnlocked  ||false,
     };
   }catch(e){
     ST={theme:'dots',clocks:JSON.parse(JSON.stringify(DEFAULT_CLOCKS)),
       wxCities:JSON.parse(JSON.stringify(DEFAULT_WX)),
-      showFinance:true,showHolidays:true,holCountries:['EG','TR','UK'],
+      showFinance:true,showHolidays:true,showVerseHadith:true,holCountry:'EG',
       athanState:{Fajr:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true},
-      reciterId:'husary',alarms:[],ssTimeout:5,autoBright:true};
+      reciterId:'husary',alarms:[],ssTimeout:5,autoBright:true,wakeLock:true,audioUnlocked:false};
   }
 }
-function saveST(){ localStorage.setItem('horizon_v3',JSON.stringify(ST)); }
+function saveST(){ try{ localStorage.setItem('horizon_v5',JSON.stringify(ST)); }catch(e){ console.warn('Settings could not be saved',e); } }
 loadST();
 
-// ═══════════════════════════════════════════════════════
-// THEME
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ THEME ═══════════════════ */
 function applyTheme(t){
   document.body.setAttribute('data-theme',t);
   document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'));
   const el=document.getElementById('tc-'+t);
   if(el) el.classList.add('active');
-  ST.theme=t; saveST();
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta){
+    const bg=getComputedStyle(document.body).getPropertyValue('--bg').trim();
+    if(bg) meta.setAttribute('content',bg);
+  }
 }
-function setTheme(t){ applyTheme(t); }
-applyTheme(ST.theme);
+function setTheme(t){ ST.theme=t; saveST(); applyTheme(t); }
 
-// ═══════════════════════════════════════════════════════
-// AUTO-BRIGHTNESS (screensaver brightness)
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ AUDIO UNLOCK ═══════════════════ */
+let audioUnlocked=false;
+async function unlockAudio(){
+  if(audioUnlocked) return;
+  audioUnlocked=true;
+  ST.audioUnlocked=true; saveST();
+  document.getElementById('audio-unlock').classList.remove('show');
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    await ctx.resume();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    gain.gain.value=0.0001;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime+0.05);
+    window.__alarmCtx = ctx;
+  }catch(e){}
+  try{
+    const q=document.getElementById('q-audio');
+    const a=document.getElementById('alarm-audio');
+    [q,a].forEach(el=>{
+      el.muted=true;
+      const p=el.play();
+      if(p&&p.catch) p.catch(()=>{});
+      setTimeout(()=>{try{el.pause();el.currentTime=0;el.muted=false;}catch(e){}},100);
+    });
+  }catch(e){}
+  requestWakeLock();
+}
+if(!ST.audioUnlocked){
+  setTimeout(()=>document.getElementById('audio-unlock').classList.add('show'),400);
+}
+
+/* ═══════════════════ WAKE LOCK ═══════════════════ */
+let wakeLock=null;
+async function requestWakeLock(){
+  if(!ST.wakeLock) return;
+  if(!('wakeLock' in navigator)) return;
+  if(wakeLock) return;
+  try{
+    wakeLock=await navigator.wakeLock.request('screen');
+    wakeLock.addEventListener('release',()=>{ wakeLock=null; });
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible' && ST.wakeLock) requestWakeLock();
+});
+
+/* ═══════════════════ AUTO-BRIGHTNESS ═══════════════════ */
 function applyBrightness(){
-  if(!ST.autoBright){ document.body.style.filter=''; return; }
+  const ss=document.getElementById('screensaver');
+  if(!ss) return;
+  if(!ST.autoBright){ ss.style.filter=''; return; }
   const h=new Date().getHours();
-  // 06-18 full bright, fade down to 0.4 at midnight
-  let brightness;
-  if(h>=6&&h<18) brightness=1;
-  else if(h>=18&&h<22) brightness=1-((h-18)/4)*0.4;
-  else if(h>=22||h<2) brightness=0.5;
-  else brightness=0.5+((h-2)/4)*0.5;
-  document.getElementById('screensaver').style.filter=`brightness(${Math.max(0.3,brightness)})`;
+  let b;
+  if(h>=6&&h<18) b=1;
+  else if(h>=18&&h<22) b=1-((h-18)/4)*0.4;
+  else if(h>=22||h<2) b=0.5;
+  else b=0.5+((h-2)/4)*0.5;
+  ss.style.filter=`brightness(${Math.max(0.3,b)})`;
 }
 setInterval(applyBrightness,60000); applyBrightness();
 
-// ═══════════════════════════════════════════════════════
-// SCREENSAVER
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ SCREENSAVER ═══════════════════ */
 let ssTimer=null, ssActive=false;
 function resetSsTimer(){
   clearTimeout(ssTimer);
   if(ssActive) dismissScreensaver();
-  if(ST.ssTimeout>0)
-    ssTimer=setTimeout(activateScreensaver, ST.ssTimeout*60000);
+  if(ST.ssTimeout>0) ssTimer=setTimeout(activateScreensaver, ST.ssTimeout*60000);
 }
 function activateScreensaver(){
   ssActive=true;
   document.getElementById('screensaver').classList.add('active');
+  tickSS();
 }
 function dismissScreensaver(){
   ssActive=false;
   document.getElementById('screensaver').classList.remove('active');
   resetSsTimer();
+  requestWakeLock();
 }
-function toggleScreensaver(){
-  ssActive?dismissScreensaver():activateScreensaver();
-}
+function toggleScreensaver(){ ssActive?dismissScreensaver():activateScreensaver(); }
 document.addEventListener('touchstart',resetSsTimer,{passive:true});
 document.addEventListener('click',e=>{
-  if(!e.target.closest('#screensaver')) resetSsTimer();
+  if(!e.target.closest('#screensaver') && !e.target.closest('#audio-unlock')) resetSsTimer();
 });
 resetSsTimer();
+
+const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const DAYS=['SUN','MON','TUE','WED','THU','FRI','SAT'];
 
 function tickSS(){
   if(!ssActive) return;
@@ -696,16 +904,49 @@ function tickSS(){
     document.getElementById('ss-hijri').textContent=
       new Intl.DateTimeFormat('en-TN-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(now);
   }catch(e){}
-  const nextP=document.getElementById('next-p-name').textContent;
-  const nextPcd=document.getElementById('next-p-cd').textContent;
-  if(nextP&&nextP!=='—')
-    document.getElementById('ss-prayer').textContent=`${nextP} in ${nextPcd}`;
+  const wc=wxWidgetCache[0];
+  if(wc&&wc.current){
+    document.getElementById('ss-wx-icon').textContent=wxIcon(wc.code);
+    document.getElementById('ss-wx-temp').textContent=`${wc.temp}°`;
+    document.getElementById('ss-wx-city').textContent=(wc.label||'').toUpperCase();
+  }
+  if(prayerTimes&&prayerTimes.Fajr){
+    const info=computeNextPrayer(prayerTimes,now);
+    if(info){
+      document.getElementById('ss-p-name').textContent=info.name.toUpperCase();
+      const h=Math.floor(info.minutesLeft/60), m=info.minutesLeft%60;
+      document.getElementById('ss-p-cd').textContent=`IN ${h}h ${m.toString().padStart(2,'0')}m`;
+      document.getElementById('ss-progress-fill').style.width=(info.progress*100).toFixed(1)+'%';
+    }
+  }
 }
 setInterval(tickSS,1000);
 
-// ═══════════════════════════════════════════════════════
-// TIMEZONES LIST
-// ═══════════════════════════════════════════════════════
+function computeNextPrayer(times, now){
+  const order=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+  if(!order.every(n=>typeof times[n]==='string' && /^\d{1,2}:\d{2}/.test(times[n]))) return null;
+  const cairo=now.toLocaleTimeString('en-GB',{timeZone:'Africa/Cairo',hour12:false}).split(':');
+  const nowM=(Number(cairo[0])%24)*60+Number(cairo[1])+Number(cairo[2]||0)/60;
+  const toM=t=>{const p=(t||'00:00').split(':');return parseInt(p[0])*60+parseInt(p[1]);};
+  let prevM=null, nextName=null, nextM=null;
+  for(const n of order){
+    const m=toM(times[n]);
+    if(m>nowM){ nextName=n; nextM=m; break; }
+    prevM=m;
+  }
+  if(!nextName){
+    nextName='Fajr';
+    nextM=toM(times.Fajr)+24*60;
+    prevM=toM(times.Isha);
+  }
+  if(prevM===null) prevM=nextM-90;
+  const minutesLeft=Math.max(0,nextM-nowM);
+  const total=nextM-prevM;
+  const progress=total>0?Math.min(1,Math.max(0,(nowM-prevM)/total)):0;
+  return {name:nextName, minutesLeft:Math.round(minutesLeft), progress};
+}
+
+/* ═══════════════════ TIMEZONES ═══════════════════ */
 const TZLIST=[
   {tz:'LOCAL',              label:'Local Device'},
   {tz:'Africa/Cairo',       label:'Cairo, Egypt',           lat:30.06, lon:31.25},
@@ -715,7 +956,7 @@ const TZLIST=[
   {tz:'Europe/Berlin',      label:'Berlin, Germany',         lat:52.52, lon:13.40},
   {tz:'Europe/Madrid',      label:'Madrid, Spain',           lat:40.42, lon:-3.70},
   {tz:'Europe/Rome',        label:'Rome, Italy',             lat:41.90, lon:12.49},
-  {tz:'Europe/Amsterdam',   label:'Amsterdam, Netherlands',  lat:52.37, lon:4.90},
+  {tz:'Europe/Amsterdam',   label:'Amsterdam, NL',           lat:52.37, lon:4.90},
   {tz:'Europe/Stockholm',   label:'Stockholm, Sweden',       lat:59.33, lon:18.07},
   {tz:'Europe/Moscow',      label:'Moscow, Russia',          lat:55.76, lon:37.62},
   {tz:'Europe/Warsaw',      label:'Warsaw, Poland',          lat:52.23, lon:21.01},
@@ -762,38 +1003,21 @@ const TZLIST=[
   {tz:'Africa/Tripoli',     label:'Tripoli, Libya',          lat:32.90, lon:13.18},
   {tz:'Africa/Khartoum',    label:'Khartoum, Sudan',         lat:15.56, lon:32.53},
 ];
-
-// WEATHER CITY LIST (for settings)
 const WX_CITIES=[
-  {label:'Cairo',    lat:30.06, lon:31.25},
-  {label:'Istanbul', lat:41.01, lon:28.98},
-  {label:'London',   lat:51.51, lon:-0.13},
-  {label:'Dubai',    lat:25.20, lon:55.27},
-  {label:'Riyadh',   lat:24.69, lon:46.72},
-  {label:'New York', lat:40.71, lon:-74.00},
-  {label:'Paris',    lat:48.85, lon:2.35},
-  {label:'Tokyo',    lat:35.68, lon:139.69},
-  {label:'Singapore',lat:1.35,  lon:103.82},
-  {label:'Sydney',   lat:-33.87,lon:151.21},
-  {label:'Ankara',   lat:39.93, lon:32.86},
-  {label:'Jeddah',   lat:21.49, lon:39.19},
-  {label:'Amman',    lat:31.95, lon:35.93},
-  {label:'Beirut',   lat:33.89, lon:35.50},
-  {label:'Baghdad',  lat:33.34, lon:44.40},
-  {label:'Tehran',   lat:35.69, lon:51.42},
-  {label:'Karachi',  lat:24.86, lon:67.01},
-  {label:'Jakarta',  lat:-6.21, lon:106.85},
-  {label:'Lagos',    lat:6.52,  lon:3.38},
-  {label:'Nairobi',  lat:-1.29, lon:36.82},
+  {label:'Cairo',    lat:30.06, lon:31.25},{label:'Istanbul', lat:41.01, lon:28.98},
+  {label:'London',   lat:51.51, lon:-0.13},{label:'Dubai',    lat:25.20, lon:55.27},
+  {label:'Riyadh',   lat:24.69, lon:46.72},{label:'New York', lat:40.71, lon:-74.00},
+  {label:'Paris',    lat:48.85, lon:2.35}, {label:'Tokyo',    lat:35.68, lon:139.69},
+  {label:'Singapore',lat:1.35,  lon:103.82},{label:'Sydney',   lat:-33.87,lon:151.21},
+  {label:'Ankara',   lat:39.93, lon:32.86}, {label:'Jeddah',   lat:21.49, lon:39.19},
+  {label:'Amman',    lat:31.95, lon:35.93}, {label:'Beirut',   lat:33.89, lon:35.50},
+  {label:'Baghdad',  lat:33.34, lon:44.40}, {label:'Tehran',   lat:35.69, lon:51.42},
+  {label:'Karachi',  lat:24.86, lon:67.01}, {label:'Jakarta',  lat:-6.21, lon:106.85},
+  {label:'Lagos',    lat:6.52,  lon:3.38},  {label:'Nairobi',  lat:-1.29, lon:36.82},
 ];
 
-// ═══════════════════════════════════════════════════════
-// CLOCKS
-// ═══════════════════════════════════════════════════════
-const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-const DAYS=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+/* ═══════════════════ CLOCKS ═══════════════════ */
 const wxCache={};
-
 function fmtTime(d,tz){
   if(tz==='LOCAL') return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
   return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz,hour12:false});
@@ -802,7 +1026,6 @@ function fmtDate(d,tz){
   let l=tz==='LOCAL'?d:new Date(d.toLocaleString('en-US',{timeZone:tz}));
   return `${DAYS[l.getDay()]} ${l.getDate()} ${MONTHS[l.getMonth()]}`;
 }
-
 function renderClocksGrid(){
   const g=document.getElementById('clocks-grid');
   const cols=ST.clocks.length<=2?1:2;
@@ -816,7 +1039,6 @@ function renderClocksGrid(){
     </div>`).join('');
   ST.clocks.forEach((c,i)=>{ if(c.lat&&c.lon) fetchWxHourly(c.lat,c.lon,i); });
 }
-
 function tickClocks(){
   const now=new Date();
   ST.clocks.forEach((c,i)=>{
@@ -827,16 +1049,11 @@ function tickClocks(){
   });
   document.getElementById('sb-greg').textContent=
     `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-  updateHijri(now);
-}
-
-function updateHijri(d){
   try{
-    const h=new Intl.DateTimeFormat('en-TN-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(d);
-    document.getElementById('hijri-sb').textContent=h;
+    document.getElementById('hijri-sb').textContent=
+      new Intl.DateTimeFormat('en-TN-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(now);
   }catch(e){}
 }
-
 async function fetchWxHourly(lat,lon,idx){
   try{
     const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&forecast_days=1&timezone=auto`);
@@ -844,7 +1061,6 @@ async function fetchWxHourly(lat,lon,idx){
     wxCache[idx]={times:d.hourly.time,temps:d.hourly.temperature_2m,codes:d.hourly.weathercode};
   }catch(e){}
 }
-
 function toggleWxPop(idx){
   const pop=document.getElementById('wxp-'+idx);
   const open=pop.classList.contains('show');
@@ -854,7 +1070,7 @@ function toggleWxPop(idx){
     pop.innerHTML='<div style="font-size:10px;color:var(--muted)">fetching weather…</div>';
     const c=ST.clocks[idx];
     if(c.lat&&c.lon) fetchWxHourly(c.lat,c.lon,idx).then(()=>renderWxPop(idx));
-  } else { renderWxPop(idx); }
+  } else renderWxPop(idx);
   pop.classList.add('show');
 }
 function renderWxPop(idx){
@@ -864,13 +1080,12 @@ function renderWxPop(idx){
   const h=new Date().getHours(); let html='';
   for(let i=h;i<Math.min(h+8,data.times.length);i++){
     const t=data.times[i].split('T')[1].substring(0,5);
-    const ico=wxIcon(data.codes[i]);
-    html+=`<div class="wx-row"><span>${t}</span><span>${ico} ${Math.round(data.temps[i])}°C</span></div>`;
+    html+=`<div class="wx-row"><span>${t}</span><span>${wxIcon(data.codes[i])} ${Math.round(data.temps[i])}°C</span></div>`;
   }
   pop.innerHTML=html||'<div style="font-size:10px;color:var(--muted)">no data</div>';
 }
 function wxIcon(code){
-  if(!code) return '—';
+  if(code===undefined||code===null) return '—';
   if(code===0) return '☀️';
   if(code<=2) return '⛅';
   if(code<=3) return '☁️';
@@ -883,9 +1098,9 @@ function wxIcon(code){
   if(code<=99) return '⛈️';
   return '—';
 }
-document.addEventListener('click',e=>{ if(!e.target.closest('.clock-card')) document.querySelectorAll('.weather-pop').forEach(p=>p.classList.remove('show')); });
-
-// IP geolocation → LOCAL clock
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.clock-card')) document.querySelectorAll('.weather-pop').forEach(p=>p.classList.remove('show'));
+});
 fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
   document.getElementById('sb-loc').textContent=(d.city||d.country_name||'—').toUpperCase();
   const li=ST.clocks.findIndex(c=>c.tz==='LOCAL');
@@ -894,22 +1109,17 @@ fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
     ST.clocks[li].label=(d.city||'LOCAL').toUpperCase().substring(0,8);
     fetchWxHourly(d.latitude,d.longitude,li);
     const lbl=document.querySelector(`#clk-${li} .card-label`);
-    if(lbl) lbl.firstChild.textContent=ST.clocks[li].label;
+    if(lbl) lbl.textContent=ST.clocks[li].label;
   }
 }).catch(()=>{});
-
 renderClocksGrid();
 setInterval(tickClocks,1000); tickClocks();
 
-// ═══════════════════════════════════════════════════════
-// WEATHER WIDGET (dedicated row)
-// ═══════════════════════════════════════════════════════
-const wxWidgetCache={};
-
+/* ═══════════════════ WEATHER WIDGET ═══════════════════ */
+const wxWidgetCache=[];
 async function loadWxWidget(){
   const wrap=document.getElementById('wx-widget');
-  wrap.innerHTML='<div style="font-size:10px;color:var(--muted)">loading…</div>';
-  const results=await Promise.all(ST.wxCities.slice(0,4).map(async (c,i)=>{
+  const results=await Promise.all(ST.wxCities.slice(0,4).map(async c=>{
     try{
       const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto`);
       return await r.json();
@@ -917,40 +1127,83 @@ async function loadWxWidget(){
   }));
   wrap.innerHTML=ST.wxCities.slice(0,4).map((c,i)=>{
     const d=results[i];
-    if(!d||!d.current_weather) return `<div class="wx-city-row"><span class="wx-city-name">${c.label}</span><span class="wx-city-temp">—</span></div>`;
+    if(!d||!d.current_weather){
+      return `<div class="wx-city-row"><span class="wx-city-name">${c.label.toUpperCase()}</span><span class="wx-city-temp">—</span></div>`;
+    }
     const temp=Math.round(d.current_weather.temperature);
     const ico=wxIcon(d.current_weather.weathercode);
     const mx=d.daily?.temperature_2m_max?Math.round(d.daily.temperature_2m_max[0]):'—';
     const mn=d.daily?.temperature_2m_min?Math.round(d.daily.temperature_2m_min[0]):'—';
+    wxWidgetCache[i]={label:c.label,temp,code:d.current_weather.weathercode,current:true};
     return `<div class="wx-city-row">
       <div><div class="wx-city-name">${c.label.toUpperCase()}</div><div class="wx-city-desc">${ico} ${wxDesc(d.current_weather.weathercode)}</div></div>
       <div style="text-align:right"><div class="wx-city-temp">${temp}°</div><div class="wx-city-extra">${mx}° / ${mn}°</div></div>
     </div>`;
   }).join('');
+  // Load AQI for first city
+  loadAQI(ST.wxCities[0]);
 }
-
 function wxDesc(code){
-  if(!code) return '—';
-  if(code===0) return 'Clear sky';
+  if(code===undefined||code===null) return '—';
+  if(code===0) return 'Clear';
   if(code<=2) return 'Partly cloudy';
   if(code<=3) return 'Overcast';
   if(code<=48) return 'Foggy';
   if(code<=57) return 'Drizzle';
   if(code<=67) return 'Rainy';
   if(code<=77) return 'Snowy';
-  if(code<=82) return 'Rain showers';
+  if(code<=82) return 'Showers';
   if(code<=86) return 'Snow showers';
   if(code<=99) return 'Thunderstorm';
   return '—';
 }
 loadWxWidget(); setInterval(loadWxWidget,600000);
 
-// ═══════════════════════════════════════════════════════
-// PRAYER TIMES
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ AIR QUALITY (NEW) ═══════════════════ */
+const AQI_LEVELS=[
+  {max:50,  label:'GOOD',          cls:'aqi-good'},
+  {max:100, label:'MODERATE',      cls:'aqi-moderate'},
+  {max:150, label:'UNHEALTHY (S)', cls:'aqi-unhealthy-s'},
+  {max:200, label:'UNHEALTHY',     cls:'aqi-unhealthy'},
+  {max:300, label:'VERY UNHEALTHY',cls:'aqi-very'},
+  {max:9999,label:'HAZARDOUS',     cls:'aqi-hazard'},
+];
+function aqiLevel(v){
+  for(const L of AQI_LEVELS){ if(v<=L.max) return L; }
+  return AQI_LEVELS[AQI_LEVELS.length-1];
+}
+async function loadAQI(city){
+  const wrap=document.getElementById('aqi-content');
+  if(!city){ wrap.innerHTML='<span style="font-size:10px;color:var(--muted);">no city</span>'; return; }
+  try{
+    const r=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=us_aqi,pm2_5,pm10,european_aqi&timezone=auto`);
+    const d=await r.json();
+    const c=d.current||{};
+    if(c.us_aqi===undefined){ wrap.innerHTML='<span style="font-size:10px;color:var(--muted);">AQI unavailable</span>'; return; }
+    const us=c.us_aqi, eu=c.european_aqi;
+    const level=aqiLevel(us);
+    const pm25=c.pm2_5!==undefined?c.pm2_5.toFixed(1):'—';
+    const pm10=c.pm10!==undefined?c.pm10.toFixed(1):'—';
+    wrap.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div>
+          <div style="font-size:24px;color:var(--amber);font-weight:300;line-height:1;">${us}</div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-top:3px;">US AQI · ${city.label.toUpperCase()}</div>
+        </div>
+        <span class="aqi-badge ${level.cls}">${level.label}</span>
+      </div>
+      <div class="aqi-row"><span>PM2.5</span><span class="v">${pm25} µg/m³</span></div>
+      <div class="aqi-row"><span>PM10</span><span class="v">${pm10} µg/m³</span></div>
+      <div class="aqi-row"><span>EU AQI</span><span class="v">${eu!==undefined?eu:'—'}</span></div>
+    `;
+  }catch(e){
+    wrap.innerHTML='<span style="font-size:10px;color:var(--muted);">AQI unavailable</span>';
+  }
+}
+
+/* ═══════════════════ PRAYER TIMES ═══════════════════ */
 let prayerTimes={};
 const PNAMES=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
-
 async function loadPrayers(){
   try{
     const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5');
@@ -958,17 +1211,13 @@ async function loadPrayers(){
     if(d.code===200){ prayerTimes=d.data.timings; renderPrayers(); }
   }catch(e){ renderPrayers(); }
 }
-
 function renderPrayers(){
   const now=new Date();
   const hm=t=>{const p=(t||'00:00').split(':');return parseInt(p[0])*60+parseInt(p[1]);};
-  const nowM=now.getHours()*60+now.getMinutes();
-  let cur=null,nextP=null,nextM=Infinity;
-  PNAMES.forEach(n=>{
-    const m=hm(prayerTimes[n]||'00:00');
-    if(m<=nowM) cur=n;
-    if(m>nowM&&m<nextM){nextM=m;nextP=n;}
-  });
+  const cairo=now.toLocaleTimeString('en-GB',{timeZone:'Africa/Cairo',hour12:false,hour:'2-digit',minute:'2-digit'}).split(':');
+  const nowM=Number(cairo[0])%24*60+Number(cairo[1]);
+  let cur=null;
+  PNAMES.forEach(n=>{ if(hm(prayerTimes[n]||'00:00')<=nowM) cur=n; });
   document.getElementById('prayer-list').innerHTML=PNAMES.map(n=>{
     const t=prayerTimes[n]||'--:--';
     const isCur=n===cur;
@@ -977,34 +1226,33 @@ function renderPrayers(){
       <span class="ptime">${t}</span>
     </div>`;
   }).join('');
-  if(nextP){
-    const diff=nextM-nowM;
-    document.getElementById('next-p-name').textContent=nextP;
-    document.getElementById('next-p-cd').textContent=diff>=60?`${Math.floor(diff/60)}h ${diff%60}m`:`${diff}m`;
+  const info=computeNextPrayer(prayerTimes, now);
+  if(info){
+    document.getElementById('next-p-name').textContent=info.name;
+    const h=Math.floor(info.minutesLeft/60), m=info.minutesLeft%60;
+    document.getElementById('next-p-cd').textContent=h>0?`${h}h ${m.toString().padStart(2,'0')}m`:`${m}m`;
   }
   renderAthan();
   checkAthanFire(prayerTimes, nowM);
 }
-
 function renderAthan(){
   const prayers=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
   document.getElementById('athan-row').innerHTML=prayers.map(p=>`
     <div class="ath-item">
-      <div class="tog ${ST.athanState[p]?'on':''}" onclick="toggleAthan('${p}')"></div>
+      <div class="tog ${ST.athanState[p]?'on':''}" onclick="toggleAthan('${p}')" role="switch" aria-label="Athan ${p}"></div>
       <span>${p.substring(0,3).toUpperCase()}</span>
     </div>`).join('');
 }
 function toggleAthan(p){ ST.athanState[p]=!ST.athanState[p]; saveST(); renderAthan(); }
-
-// Auto-fire athan
 let lastAthanFired='';
 function checkAthanFire(times,nowM){
   const hm=t=>{const p=(t||'00:00').split(':');return parseInt(p[0])*60+parseInt(p[1]);};
   const now=new Date();
   ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p=>{
-    const m=hm(times[p]||'00:00');
-    const key=`${p}-${now.toDateString()}`;
-    if(Math.abs(m-nowM)<=1&&lastAthanFired!==key&&ST.athanState[p]){
+    if(!times[p]) return;
+    const m=hm(times[p]);
+    const key=`${p}-${now.toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'})}`;
+    if(nowM>=m&&nowM-m<=1&&lastAthanFired!==key&&ST.athanState[p]){
       lastAthanFired=key;
       playAthanSound();
     }
@@ -1016,27 +1264,27 @@ function playAthanSound(){
   aa.play().catch(()=>{});
   setTimeout(()=>aa.pause(),30000);
 }
-
 setInterval(renderPrayers,30000); loadPrayers();
+let timetableDate=new Date().toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
+setInterval(()=>{
+  const date=new Date().toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
+  if(date!==timetableDate){timetableDate=date;loadPrayers();loadHolidays();}
+},60000);
 
-// ═══════════════════════════════════════════════════════
-// QURAN PLAYER
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ QURAN + RECITERS (VERIFIED) ═══════════════════ */
 const RECITERS=[
-  {id:'husary',       name:'Al-Husary (Murattal)',    base:'https://download.quranicaudio.com/quran/mahmood_khalil_al-hussaree/'},
-  {id:'husary_muj',   name:'Al-Husary (Mujawwad)',   base:'https://download.quranicaudio.com/quran/mahmood_khalil_al-hussaree_mujawwad/'},
-  {id:'minshawi',     name:'Al-Minshawi',              base:'https://download.quranicaudio.com/quran/muhammad_siddeeq_al-minshaawee/'},
-  {id:'sudais',       name:'Al-Sudais',               base:'https://download.quranicaudio.com/quran/abdurrahmaan_as-sudais/'},
-  {id:'shuraim',      name:'Al-Shuraim',              base:'https://download.quranicaudio.com/quran/saud_ash-shuraym/'},
-  {id:'afasy',        name:'Mishary Al-Afasy',        base:'https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/'},
-  {id:'ghamdi',       name:'Al-Ghamdi',               base:'https://download.quranicaudio.com/quran/saad_el-ghamidi/'},
-  {id:'ajamy',        name:'Ahmad Al-Ajamy',          base:'https://download.quranicaudio.com/quran/ahmad_ibn_3ali_al-3ajamy/'},
-  {id:'dossary',      name:'Yasser Al-Dossary',       base:'https://download.quranicaudio.com/quran/yasser_ad-duwsari/'},
-  {id:'shatri',       name:'Abu Bakr Al-Shatri',      base:'https://download.quranicaudio.com/quran/abu_bakr_ash-shaatree/'},
-  {id:'tablawi',      name:'Al-Tablawi',               base:'https://download.quranicaudio.com/quran/muhammad_al-tablaawy/'},
-  {id:'basfar',       name:'Ali Al-Basfar',            base:'https://download.quranicaudio.com/quran/ali_bin_abdurrahman_al-huthaify/'},
+  {id:'husary',     name:'Mahmoud Khalil Al-Husary (Murattal)', base:'https://download.quranicaudio.com/quran/mahmood_khalil_al-hussaree/'},
+  {id:'husary_muj', name:'Mahmoud Khalil Al-Husary (Mujawwad)', base:'https://download.quranicaudio.com/quran/mahmood_khalil_al-hussaree_mujawwad/'},
+  {id:'minshawi',   name:'Mohamed Siddiq Al-Minshawi',          base:'https://download.quranicaudio.com/quran/muhammad_siddeeq_al-minshaawee/'},
+  {id:'abdulbasit', name:'Abdul Basit Abdul Samad (Murattal)',  base:'https://download.quranicaudio.com/quran/abdul_basit_abdus_samad/'},
+  {id:'sudais',     name:'Abdurrahman Al-Sudais',               base:'https://download.quranicaudio.com/quran/abdurrahmaan_as-sudais/'},
+  {id:'shuraim',    name:'Saud Al-Shuraim',                     base:'https://download.quranicaudio.com/quran/saud_ash-shuraym/'},
+  {id:'afasy',      name:'Mishary Rashid Al-Afasy',             base:'https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/'},
+  {id:'ghamdi',     name:'Saad Al-Ghamdi',                      base:'https://download.quranicaudio.com/quran/saad_el-ghamidi/'},
+  {id:'ajamy',      name:'Ahmad Ibn Ali Al-Ajamy',              base:'https://download.quranicaudio.com/quran/ahmad_ibn_3ali_al-3ajamy/'},
+  {id:'dossary',    name:'Yasser Al-Dossary',                   base:'https://download.quranicaudio.com/quran/yasser_ad-duwsari/'},
+  {id:'shatri',     name:'Abu Bakr Al-Shatri',                  base:'https://download.quranicaudio.com/quran/abu_bakr_ash-shaatree/'},
 ];
-
 const SURAHS=[
   'Al-Fatihah','Al-Baqarah','Aali Imran','An-Nisa','Al-Maidah','Al-Anam','Al-Araf','Al-Anfal',
   'At-Tawbah','Yunus','Hud','Yusuf','Ar-Rad','Ibrahim','Al-Hijr','An-Nahl','Al-Isra','Al-Kahf',
@@ -1054,11 +1302,86 @@ const SURAHS=[
   'Al-Masad','Al-Ikhlas','Al-Falaq','An-Nas'
 ];
 
+/* IndexedDB */
+let mediaDB=null;
+function openMediaDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open('horizon_media',1);
+    req.onerror=()=>rej(req.error);
+    req.onsuccess=()=>{ mediaDB=req.result; res(mediaDB); };
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('surahs')) d.createObjectStore('surahs',{keyPath:'id'});
+      if(!d.objectStoreNames.contains('cache')) d.createObjectStore('cache',{keyPath:'id'});
+    };
+  });
+}
+function idbGet(id, store='surahs'){
+  return new Promise(res=>{
+    if(!mediaDB) return res(null);
+    try{
+      const tx=mediaDB.transaction(store,'readonly');
+      const req=tx.objectStore(store).get(id);
+      req.onsuccess=()=>res(req.result||null);
+      req.onerror=()=>res(null);
+    }catch(e){ res(null); }
+  });
+}
+function idbPut(obj, store='surahs'){
+  return new Promise((res,rej)=>{
+    if(!mediaDB) return rej('no db');
+    try{
+      const tx=mediaDB.transaction(store,'readwrite');
+      tx.objectStore(store).put(obj);
+      tx.oncomplete=()=>res(true);
+      tx.onerror=()=>rej(tx.error);
+    }catch(e){ rej(e); }
+  });
+}
+function idbDelete(id, store='surahs'){
+  return new Promise(res=>{
+    if(!mediaDB) return res(false);
+    try{
+      const tx=mediaDB.transaction(store,'readwrite');
+      tx.objectStore(store).delete(id);
+      tx.oncomplete=()=>res(true);
+      tx.onerror=()=>res(false);
+    }catch(e){ res(false); }
+  });
+}
+function idbAllKeys(store='surahs'){
+  return new Promise(res=>{
+    if(!mediaDB) return res([]);
+    try{
+      const tx=mediaDB.transaction(store,'readonly');
+      const req=tx.objectStore(store).getAllKeys();
+      req.onsuccess=()=>res(req.result||[]);
+      req.onerror=()=>res([]);
+    }catch(e){ res([]); }
+  });
+}
+async function updateStorageInfo(){
+  try{
+    const keys=await idbAllKeys('surahs');
+    let totalBytes=0;
+    for(const k of keys){
+      const r=await idbGet(k);
+      if(r&&r.size) totalBytes+=r.size;
+    }
+    const mb=(totalBytes/1024/1024).toFixed(1);
+    document.getElementById('storage-info').textContent=`${mb} MB · ${keys.length} file(s)`;
+    if(navigator.storage&&navigator.storage.estimate){
+      const est=await navigator.storage.estimate();
+      const pct=est.quota>0?Math.min(100,(est.usage/est.quota)*100):0;
+      document.getElementById('storage-bar-fill').style.width=pct.toFixed(1)+'%';
+    }
+  }catch(e){}
+}
+
 const qAudio=document.getElementById('q-audio');
-let qPlaying=false,qRepeat=false,qCurNum=null;
+let qPlaying=false,qRepeat=false,qCurNum=null,qCurrentBlobUrl=null;
 let qReciterBase=RECITERS.find(r=>r.id===ST.reciterId)?.base||RECITERS[0].base;
 
-// Build reciter dropdown
 (()=>{
   const sel=document.getElementById('q-reciter');
   RECITERS.forEach(r=>{
@@ -1067,8 +1390,6 @@ let qReciterBase=RECITERS.find(r=>r.id===ST.reciterId)?.base||RECITERS[0].base;
     sel.appendChild(o);
   });
 })();
-
-// Build surah dropdown
 (()=>{
   const sel=document.getElementById('q-surah');
   SURAHS.forEach((name,i)=>{
@@ -1079,41 +1400,44 @@ let qReciterBase=RECITERS.find(r=>r.id===ST.reciterId)?.base||RECITERS[0].base;
   });
 })();
 
+async function loadSurah(num, autoPlay=false){
+  if(!num) return;
+  qCurNum=num;
+  const key=`${ST.reciterId}_${parseInt(num,10)}`;
+  const cached=await idbGet(key);
+  if(qCurrentBlobUrl){ URL.revokeObjectURL(qCurrentBlobUrl); qCurrentBlobUrl=null; }
+  const offlineBadge=document.getElementById('q-offline-badge');
+  if(cached&&cached.blob){
+    qCurrentBlobUrl=URL.createObjectURL(cached.blob);
+    qAudio.src=qCurrentBlobUrl;
+    offlineBadge.style.display='inline-block';
+  }else{
+    qAudio.src=`${qReciterBase}${String(num).padStart(3,'0')}.mp3`;
+    offlineBadge.style.display='none';
+  }
+  document.getElementById('q-surah-name').textContent=SURAHS[parseInt(num,10)-1];
+  document.getElementById('q-surah').value=num;
+  if(autoPlay||qPlaying){
+    qAudio.play().then(()=>{qPlaying=true;updPlayBtn();}).catch(()=>{});
+  }
+}
 function changeReciter(id){
   const rec=RECITERS.find(r=>r.id===id);
   if(!rec) return;
   qReciterBase=rec.base; ST.reciterId=id; saveST();
+  buildSurahDownloadList();
   if(qCurNum){ const wasPlaying=qPlaying; qAudio.pause(); loadSurah(qCurNum,wasPlaying); }
 }
-
-function loadSurah(num, autoPlay=false){
-  if(!num) return;
-  qCurNum=num;
-  qAudio.src=`${qReciterBase}${num}.mp3`;
-  document.getElementById('q-surah-name').textContent=SURAHS[parseInt(num)-1];
-  document.getElementById('q-surah').value=num;
-  if(autoPlay||qPlaying){ qAudio.play().then(()=>{qPlaying=true;updPlayBtn();}).catch(()=>{}); }
-}
-
 function togglePlay(){
-  if(qAudio.paused){ qAudio.play().then(()=>{qPlaying=true;updPlayBtn();}).catch(e=>{
-    console.warn('Audio blocked:',e);
-  }); }
-  else{ qAudio.pause(); qPlaying=false; updPlayBtn(); }
+  if(qAudio.paused){
+    qAudio.play().then(()=>{qPlaying=true;updPlayBtn();}).catch(e=>console.warn('Audio blocked:',e));
+  }else{ qAudio.pause(); qPlaying=false; updPlayBtn(); }
 }
 function updPlayBtn(){ document.getElementById('q-play-btn').textContent=qPlaying?'⏸':'▶'; }
 function seekRel(s){ qAudio.currentTime=Math.max(0,qAudio.currentTime+s); }
 function toggleRepeat(){ qRepeat=!qRepeat; document.getElementById('q-rpt-btn').classList.toggle('on',qRepeat); }
-function prevSurah(){
-  if(!qCurNum) return;
-  const n=Math.max(1,parseInt(qCurNum)-1);
-  loadSurah(String(n).padStart(3,'0'),qPlaying);
-}
-function nextSurah(){
-  if(!qCurNum) return;
-  const n=Math.min(114,parseInt(qCurNum)+1);
-  loadSurah(String(n).padStart(3,'0'),qPlaying);
-}
+function prevSurah(){ if(!qCurNum) return; loadSurah(String(Math.max(1,parseInt(qCurNum)-1)).padStart(3,'0'),qPlaying); }
+function nextSurah(){ if(!qCurNum) return; loadSurah(String(Math.min(114,parseInt(qCurNum)+1)).padStart(3,'0'),qPlaying); }
 function seekClick(e){
   const r=e.currentTarget.getBoundingClientRect();
   if(qAudio.duration) qAudio.currentTime=((e.clientX-r.left)/r.width)*qAudio.duration;
@@ -1127,19 +1451,251 @@ qAudio.addEventListener('timeupdate',()=>{
 });
 qAudio.addEventListener('play',()=>{qPlaying=true;updPlayBtn();});
 qAudio.addEventListener('pause',()=>{qPlaying=false;updPlayBtn();});
-qAudio.addEventListener('ended',()=>{
-  if(qRepeat) qAudio.play();
-  else{ nextSurah(); }
-});
-qAudio.addEventListener('error',()=>{ console.warn('Audio error — try different reciter or surah.'); });
+qAudio.addEventListener('ended',()=>{ if(qRepeat) qAudio.play(); else nextSurah(); });
+qAudio.addEventListener('error',()=>{ console.warn('Audio error — trying next.'); });
 
-// ═══════════════════════════════════════════════════════
-// ALARMS
-// ═══════════════════════════════════════════════════════
-// Web Audio API for alarm sounds
-let alarmAudioCtx=null;
-function getAudioCtx(){ if(!alarmAudioCtx) alarmAudioCtx=new(window.AudioContext||window.webkitAudioContext)(); return alarmAudioCtx; }
+/* Reciter test */
+async function testReciter(){
+  const btn=document.getElementById('test-reciter-btn');
+  const rec=RECITERS.find(r=>r.id===ST.reciterId);
+  if(!rec) return;
+  btn.disabled=true; btn.textContent='▶ TESTING…';
+  const url=`${rec.base}001.mp3`;
+  const testAudio=new Audio(url);
+  testAudio.volume=0.6;
+  let ok=false;
+  testAudio.addEventListener('playing',()=>{ ok=true; });
+  testAudio.addEventListener('error',()=>{ ok=false; });
+  try{
+    await testAudio.play();
+    setTimeout(()=>{ testAudio.pause(); testAudio.currentTime=0; },3000);
+    btn.textContent='✓ RECITER OK';
+  }catch(e){
+    btn.textContent='✗ FAILED — try another';
+  }
+  setTimeout(()=>{ btn.disabled=false; btn.textContent='🔊 TEST RECITER'; },4000);
+}
 
+/* Media downloads */
+async function downloadSurah(num, reciterId){
+  const rec=RECITERS.find(r=>r.id===(reciterId||ST.reciterId));
+  if(!rec) return;
+  const padded=String(num).padStart(3,'0');
+  const key=`${rec.id}_${num}`;
+  if(await idbGet(key)) return 'exists';
+  try{
+    const res=await fetch(`${rec.base}${padded}.mp3`);
+    if(!res.ok) throw new Error('fetch failed '+res.status);
+    const blob=await res.blob();
+    await idbPut({id:key, surahNum:num, reciterId:rec.id, blob, size:blob.size, downloadedAt:Date.now()});
+    return 'ok';
+  }catch(e){ console.warn('DL fail', num, e); return 'error'; }
+}
+async function downloadAllSurahs(){
+  const btn=event?.target;
+  if(btn) btn.disabled=true;
+  let done=0, fail=0;
+  for(let i=1;i<=114;i++){
+    const r=await downloadSurah(i);
+    if(r==='ok') done++; else if(r==='error') fail++;
+    if(btn) btn.textContent=`⬇ ${done}${fail?`, ${fail} fail`:''}/114…`;
+    buildSurahDownloadList();
+  }
+  if(btn){ btn.disabled=false; btn.textContent='⬇ DOWNLOAD ALL (current reciter)'; }
+  updateStorageInfo();
+  alert(`Downloaded ${done} surahs${fail?`, ${fail} failed`:''}.`);
+}
+async function clearAllMedia(){
+  if(!confirm('Delete ALL downloaded surahs?')) return;
+  const keys=await idbAllKeys('surahs');
+  for(const k of keys) await idbDelete(k);
+  updateStorageInfo();
+  buildSurahDownloadList();
+}
+async function buildSurahDownloadList(){
+  const wrap=document.getElementById('surah-download-list');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  const allKeys=await idbAllKeys('surahs');
+  const currentReciterKeys=new Set(allKeys.filter(k=>k.startsWith(ST.reciterId+'_')));
+  SURAHS.forEach((name,i)=>{
+    const num=i+1;
+    const key=`${ST.reciterId}_${num}`;
+    const isDl=currentReciterKeys.has(key);
+    const row=document.createElement('div');
+    row.className='surah-dl-row'+(isDl?' downloaded':'');
+    row.innerHTML=`<span class="surah-dl-name">${num}. ${name}</span>
+      <span class="surah-dl-status ${isDl?'dl':''}">${isDl?'✓ OFFLINE':''}</span>
+      ${isDl?
+        `<button class="surah-dl-btn" onclick="removeSurah(${num})">✕</button>`:
+        `<button class="surah-dl-btn" onclick="dlOne(${num}, this)">⬇</button>`}
+    `;
+    wrap.appendChild(row);
+  });
+  updateStorageInfo();
+}
+async function dlOne(num, btn){
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  await downloadSurah(num);
+  buildSurahDownloadList();
+}
+async function removeSurah(num){
+  await idbDelete(`${ST.reciterId}_${num}`);
+  buildSurahDownloadList();
+}
+
+/* ═══════════════════ VERSE OF THE DAY (NEW) ═══════════════════ */
+const VERSE_CACHE_KEY='verse_' + new Date().toISOString().slice(0,10);
+async function loadVerseOfDay(){
+  const wrap=document.getElementById('verse-content');
+  // Try IDB cache first
+  const cached=await idbGet(VERSE_CACHE_KEY,'cache');
+  if(cached&&cached.data){
+    renderVerse(cached.data);
+    return;
+  }
+  try{
+    // Deterministic random: day-of-year based so same verse all day
+    const now=new Date();
+    const start=new Date(now.getFullYear(),0,0);
+    const dayOfYear=Math.floor((now-start)/86400000);
+    // Pick a random surah:ayah, seeded by day of year
+    // Bias toward shorter meaningful surahs for daily reading
+    const DAILY_AYAHS=[
+      {s:2,a:152},{s:2,a:186},{s:2,a:255},{s:2,a:286},
+      {s:3,a:8},{s:3,a:139},{s:3,a:173},{s:3,a:200},
+      {s:13,a:28},{s:14,a:7},{s:16,a:97},{s:17,a:80},
+      {s:18,a:10},{s:24,a:35},{s:25,a:63},{s:29,a:69},
+      {s:33,a:41},{s:33,a:56},{s:39,a:53},{s:40,a:60},
+      {s:49,a:13},{s:55,a:13},{s:57,a:4},{s:59,a:22},
+      {s:64,a:11},{s:65,a:2},{s:65,a:3},{s:67,a:2},
+      {s:93,a:5},{s:94,a:5},{s:94,a:6},{s:103,a:3},
+    ];
+    const pick=DAILY_AYAHS[dayOfYear % DAILY_AYAHS.length];
+    const [arRes, enRes]=await Promise.all([
+      fetch(`https://api.alquran.cloud/v1/ayah/${pick.s}:${pick.a}/quran-uthmani`),
+      fetch(`https://api.alquran.cloud/v1/ayah/${pick.s}:${pick.a}/en.sahih`),
+    ]);
+    const arData=await arRes.json();
+    const enData=await enRes.json();
+    const payload={
+      arabic: arData.data?.text || '',
+      english: enData.data?.text || '',
+      surahNameAr: arData.data?.surah?.name || '',
+      surahNameEn: arData.data?.surah?.englishName || '',
+      surahNum: pick.s,
+      ayahNum: pick.a,
+    };
+    await idbPut({id:VERSE_CACHE_KEY, data:payload}, 'cache');
+    renderVerse(payload);
+  }catch(e){
+    wrap.innerHTML='<span style="font-size:10px;color:var(--muted);">Verse unavailable offline</span>';
+  }
+}
+function renderVerse(v){
+  const wrap=document.getElementById('verse-content');
+  wrap.innerHTML=`
+    <div class="verse-arabic">${v.arabic}</div>
+    <div class="verse-english">"${v.english}"</div>
+    <div class="verse-source">${v.surahNameEn || ''} ${v.surahNameAr?'· '+v.surahNameAr:''} · ${v.surahNum}:${v.ayahNum}</div>
+  `;
+}
+
+/* ═══════════════════ HADITH OF THE DAY (NEW) ═══════════════════ */
+const HADITHS=[
+  {ar:'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى', en:'Actions are judged by intentions, and every person will have only what they intended.', src:'Bukhari 1 · Muslim 1907'},
+  {ar:'الدِّينُ النَّصِيحَةُ', en:'Religion is sincere advice.', src:'Muslim 55'},
+  {ar:'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ', en:'Whoever believes in Allah and the Last Day, let him speak good or remain silent.', src:'Bukhari 6018 · Muslim 47'},
+  {ar:'لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', en:'None of you truly believes until he loves for his brother what he loves for himself.', src:'Bukhari 13 · Muslim 45'},
+  {ar:'اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا، وَخَالِقِ النَّاسَ بِخُلُقٍ حَسَنٍ', en:'Fear Allah wherever you are, follow a bad deed with a good one to erase it, and treat people with good character.', src:'Tirmidhi 1987'},
+  {ar:'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ', en:'Whoever treads a path seeking knowledge, Allah will make easy for him the path to Paradise.', src:'Muslim 2699'},
+  {ar:'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', en:'The Muslim is the one from whose tongue and hand the Muslims are safe.', src:'Bukhari 10 · Muslim 40'},
+  {ar:'الطُّهُورُ شَطْرُ الإِيمَانِ', en:'Cleanliness is half of faith.', src:'Muslim 223'},
+  {ar:'مَنْ لاَ يَرْحَمُ لاَ يُرْحَمُ', en:'Whoever does not show mercy will not be shown mercy.', src:'Bukhari 5997 · Muslim 2318'},
+  {ar:'الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ', en:'A good word is charity.', src:'Bukhari 2989 · Muslim 1009'},
+  {ar:'لاَ تَغْضَبْ', en:'Do not become angry.', src:'Bukhari 6116'},
+  {ar:'إِنَّ اللَّهَ جَمِيلٌ يُحِبُّ الْجَمَالَ', en:'Indeed Allah is Beautiful and loves beauty.', src:'Muslim 91'},
+  {ar:'مَنْ صَلَّى عَلَيَّ صَلاَةً صَلَّى اللَّهُ عَلَيْهِ بِهَا عَشْرًا', en:'Whoever sends one blessing upon me, Allah will send ten blessings upon him.', src:'Muslim 408'},
+  {ar:'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', en:'The best of you are those who learn the Quran and teach it.', src:'Bukhari 5027'},
+  {ar:'إِنَّ الرِّفْقَ لاَ يَكُونُ فِي شَيْءٍ إِلاَّ زَانَهُ، وَلاَ يُنْزَعُ مِنْ شَيْءٍ إِلاَّ شَانَهُ', en:'Gentleness is not in anything except that it beautifies it, and it is not removed from anything except that it disfigures it.', src:'Muslim 2594'},
+  {ar:'الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا', en:'The believer to the believer is like a building, each part strengthening the other.', src:'Bukhari 481 · Muslim 2585'},
+  {ar:'مَنْ حُسْنِ إِسْلاَمِ الْمَرْءِ تَرْكُهُ مَا لاَ يَعْنِيهِ', en:'Part of the perfection of a person\'s Islam is leaving that which does not concern him.', src:'Tirmidhi 2317'},
+  {ar:'صَلُوا صَلاَةَ الْمُسَافِرِ', en:'(The Prophet ﷺ) said: Pray the prayer of the traveler.', src:'Nasa\'i 500'},
+  {ar:'أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ', en:'The most beloved deeds to Allah are those that are most consistent, even if small.', src:'Bukhari 6464 · Muslim 783'},
+  {ar:'اتَّقُوا النَّارَ وَلَوْ بِشِقِّ تَمْرَةٍ', en:'Protect yourselves from the Fire, even with half a date (in charity).', src:'Bukhari 1417 · Muslim 1016'},
+  {ar:'إِذَا مَاتَ الإِنْسَانُ انْقَطَعَ عَمَلُهُ إِلاَّ مِنْ ثَلاَثٍ', en:'When a person dies, his deeds come to an end except for three: ongoing charity, beneficial knowledge, or a righteous child who prays for him.', src:'Muslim 1631'},
+  {ar:'لَيْسَ الْغِنَى عَنْ كَثْرَةِ الْعَرَضِ، وَلَكِنَّ الْغِنَى غِنَى النَّفْسِ', en:'Wealth is not in having many possessions; rather, true wealth is the richness of the soul.', src:'Bukhari 6446 · Muslim 1051'},
+  {ar:'مَنْ أَصْبَحَ مِنْكُمْ آمِنًا فِي سِرْبِهِ، مُعَافًى فِي جَسَدِهِ، عِنْدَهُ قُوتُ يَوْمِهِ، فَكَأَنَّمَا حِيزَتْ لَهُ الدُّنْيَا', en:'Whoever among you wakes up safe in his home, healthy in his body, and has food for the day, it is as if the whole world has been given to him.', src:'Tirmidhi 2346'},
+  {ar:'رَأْسُ الأَمْرِ الإِسْلاَمُ، وَعَمُودُهُ الصَّلاَةُ، وَذِرْوَةُ سَنَامِهِ الْجِهَادُ', en:'The head of the matter is Islam, its pillar is prayer, and its peak is jihad in the way of Allah.', src:'Tirmidhi 2616'},
+  {ar:'مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ', en:'Whoever fasts Ramadan out of faith and seeking reward, his previous sins will be forgiven.', src:'Bukhari 38 · Muslim 760'},
+  {ar:'الصَّلاَةُ نُورٌ', en:'Prayer is light.', src:'Muslim 223'},
+  {ar:'إِنَّ اللَّهَ كَتَبَ الإِحْسَانَ عَلَى كُلِّ شَيْءٍ', en:'Indeed Allah has prescribed excellence in all things.', src:'Muslim 1955'},
+  {ar:'الدُّعَاءُ هُوَ الْعِبَادَةُ', en:'Supplication is worship.', src:'Tirmidhi 2969'},
+  {ar:'كُلُّ مَعْرُوفٍ صَدَقَةٌ', en:'Every act of kindness is charity.', src:'Bukhari 6021'},
+  {ar:'إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلاً أَنْ يُتْقِنَهُ', en:'Allah loves that when one of you does a deed, he does it with excellence.', src:'Tabarani'},
+];
+function loadHadithOfDay(){
+  const wrap=document.getElementById('hadith-content');
+  const now=new Date();
+  const start=new Date(now.getFullYear(),0,0);
+  const dayOfYear=Math.floor((now-start)/86400000);
+  const h=HADITHS[dayOfYear % HADITHS.length];
+  wrap.innerHTML=`
+    <div class="hadith-arabic">«${h.ar}»</div>
+    <div class="hadith-english">${h.en}</div>
+    <div class="hadith-source">${h.src}</div>
+  `;
+}
+
+/* ═══════════════════ RAMADAN COUNTDOWN (NEW) ═══════════════════ */
+// Approximate Ramadan start dates (local timezone Saudi-based estimate)
+const RAMADAN_STARTS=[
+  '2025-03-01','2026-02-18','2027-02-08','2028-01-28',
+  '2029-01-16','2030-01-06','2031-12-26','2032-12-14',
+];
+function getRamadanInfo(){
+  const now=new Date();
+  now.setHours(0,0,0,0);
+  // Find next Ramadan
+  let nextStart=null, activeEnd=null;
+  for(const ds of RAMADAN_STARTS){
+    const dt=new Date(ds);
+    const end=new Date(dt); end.setDate(end.getDate()+29);
+    if(now>=dt&&now<=end){ activeEnd=end; nextStart=dt; break; }
+    if(dt>now&&!nextStart){ nextStart=dt; }
+  }
+  if(!nextStart) return null;
+  // Currently in Ramadan?
+  if(activeEnd){
+    const dayOfRamadan=Math.floor((now-nextStart)/86400000)+1;
+    return {mode:'active', day:dayOfRamadan};
+  }
+  const days=Math.ceil((nextStart-now)/86400000);
+  if(days<=30) return {mode:'upcoming', days};
+  return null;
+}
+function renderRamadan(){
+  const card=document.getElementById('ramadan-card');
+  const info=getRamadanInfo();
+  if(!info||!ST.showVerseHadith===undefined){ /* always show if in window */ }
+  if(!info){ card.classList.remove('show'); return; }
+  card.classList.add('show');
+  if(info.mode==='active'){
+    document.getElementById('ramadan-label').textContent='RAMADAN MUBARAK';
+    document.getElementById('ramadan-big').textContent=`DAY ${info.day}`;
+    document.getElementById('ramadan-sub').textContent='OF THE BLESSED MONTH';
+  }else{
+    document.getElementById('ramadan-label').textContent='RAMADAN COUNTDOWN';
+    document.getElementById('ramadan-big').textContent=`${info.days} DAYS`;
+    document.getElementById('ramadan-sub').textContent='UNTIL THE HOLY MONTH';
+  }
+}
+
+/* ═══════════════════ ALARMS ═══════════════════ */
+function getAudioCtx(){
+  if(!window.__alarmCtx) window.__alarmCtx=new (window.AudioContext||window.webkitAudioContext)();
+  return window.__alarmCtx;
+}
 function playAlarmSound(type){
   try{
     const ctx=getAudioCtx();
@@ -1149,9 +1705,8 @@ function playAlarmSound(type){
       a.loop=false; a.play().catch(()=>{});
       return;
     }
-    function beepTone(freq,dur,vol,start){
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
+    function tone(freq,dur,vol,start){
+      const osc=ctx.createOscillator(); const gain=ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
       osc.frequency.value=freq;
       gain.gain.setValueAtTime(0,ctx.currentTime+start);
@@ -1160,18 +1715,12 @@ function playAlarmSound(type){
       osc.start(ctx.currentTime+start);
       osc.stop(ctx.currentTime+start+dur);
     }
-    if(type==='beep'){
-      for(let i=0;i<4;i++) beepTone(880,0.15,0.4,i*0.3);
-    } else if(type==='chime'){
-      [523,659,784,1047].forEach((f,i)=>beepTone(f,0.4,0.3,i*0.4));
-    } else if(type==='alert'){
-      for(let i=0;i<6;i++) beepTone(i%2?1200:800,0.1,0.5,i*0.15);
-    } else if(type==='gentle'){
-      beepTone(440,1.0,0.2,0); beepTone(554,1.0,0.2,0.5); beepTone(659,1.5,0.2,1.0);
-    }
+    if(type==='beep')      for(let i=0;i<4;i++) tone(880,0.15,0.4,i*0.3);
+    else if(type==='chime') [523,659,784,1047].forEach((f,i)=>tone(f,0.4,0.3,i*0.4));
+    else if(type==='alert') for(let i=0;i<6;i++) tone(i%2?1200:800,0.1,0.5,i*0.15);
+    else if(type==='gentle'){ tone(440,1.0,0.2,0);tone(554,1.0,0.2,0.5);tone(659,1.5,0.2,1.0); }
   }catch(e){ console.warn('Alarm sound error',e); }
 }
-
 function renderAlarms(){
   const wrap=document.getElementById('alarm-list');
   if(!ST.alarms.length){ wrap.innerHTML='<div style="font-size:10px;color:var(--muted);">No alarms set.</div>'; return; }
@@ -1181,13 +1730,12 @@ function renderAlarms(){
         <div class="alarm-time-disp">${a.time}</div>
         <div class="alarm-label-disp">${a.label||'Alarm'} · ${a.sound||'beep'}</div>
       </div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <div class="tog alarm-tog ${a.enabled?'on':''}" onclick="toggleAlarmEnabled(${i})"></div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div class="tog alarm-tog ${a.enabled?'on':''}" onclick="toggleAlarmEnabled(${i})" role="switch"></div>
         <button class="sm-btn danger" onclick="deleteAlarm(${i})">✕</button>
       </div>
     </div>`).join('');
 }
-
 function addAlarm(){
   const t=document.getElementById('alarm-time-inp').value;
   const l=document.getElementById('alarm-label-inp').value||'Alarm';
@@ -1200,8 +1748,6 @@ function addAlarm(){
 }
 function deleteAlarm(i){ ST.alarms.splice(i,1); saveST(); renderAlarms(); }
 function toggleAlarmEnabled(i){ ST.alarms[i].enabled=!ST.alarms[i].enabled; saveST(); renderAlarms(); }
-
-let firingAlarm=null;
 function checkAlarms(){
   const now=new Date();
   const hhmm=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
@@ -1209,7 +1755,6 @@ function checkAlarms(){
     const key=`${a.time}-${now.toDateString()}`;
     if(a.enabled&&a.time===hhmm&&a.fired!==key){
       ST.alarms[i].fired=key; saveST();
-      firingAlarm=a;
       showAlarmModal(a);
       playAlarmSound(a.sound||'beep');
     }
@@ -1227,13 +1772,10 @@ function dismissAlarm(){
 }
 setInterval(checkAlarms,10000); renderAlarms();
 
-// ═══════════════════════════════════════════════════════
-// CURRENCY
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ CURRENCY ═══════════════════ */
 let ratesCache=null;
 const FLAGS={USD:'🇺🇸',EGP:'🇪🇬',GBP:'🇬🇧',TRY:'🇹🇷',SAR:'🇸🇦',EUR:'🇪🇺',AED:'🇦🇪',JPY:'🇯🇵',CNY:'🇨🇳'};
 const CCY_TARGETS=['USD','EGP','GBP','TRY','SAR','EUR','AED','JPY','CNY'];
-
 async function loadRates(){
   try{
     const r=await fetch('https://open.er-api.com/v6/latest/USD');
@@ -1254,9 +1796,7 @@ function convertCurrency(){
 }
 loadRates();
 
-// ═══════════════════════════════════════════════════════
-// GOLD
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ GOLD ═══════════════════ */
 async function loadGold(){
   try{
     const r=await fetch('https://open.er-api.com/v6/latest/XAU');
@@ -1275,64 +1815,103 @@ async function loadGold(){
 }
 loadGold(); setInterval(loadGold,300000);
 
-// ═══════════════════════════════════════════════════════
-// HOLIDAYS — worldwide
-// ═══════════════════════════════════════════════════════
-const HOL_DATA={
-  EG:[{d:'2025-01-07',n:'Coptic Christmas'},{d:'2025-01-25',n:'Revolution Day'},{d:'2025-04-25',n:'Sinai Liberation'},{d:'2025-05-01',n:'Labor Day'},{d:'2025-06-30',n:'June Revolution'},{d:'2025-07-23',n:'July Revolution'},{d:'2025-10-06',n:'Armed Forces Day'}],
-  TR:[{d:'2025-01-01',n:'New Year'},{d:'2025-04-23',n:'National Sovereignty'},{d:'2025-05-01',n:'Labor Day'},{d:'2025-05-19',n:'Youth & Sports'},{d:'2025-07-15',n:'Democracy Day'},{d:'2025-08-30',n:'Victory Day'},{d:'2025-10-29',n:'Republic Day'}],
-  UK:[{d:'2025-01-01',n:'New Year'},{d:'2025-04-18',n:'Good Friday'},{d:'2025-04-21',n:'Easter Monday'},{d:'2025-05-05',n:'Early May BH'},{d:'2025-05-26',n:'Spring BH'},{d:'2025-08-25',n:'Summer BH'},{d:'2025-12-25',n:'Christmas'},{d:'2025-12-26',n:'Boxing Day'}],
-  SA:[{d:'2025-02-22',n:'Founding Day'},{d:'2025-09-23',n:'National Day'}],
-  US:[{d:'2025-01-01',n:'New Year'},{d:'2025-01-20',n:'MLK Day'},{d:'2025-07-04',n:'Independence Day'},{d:'2025-11-27',n:'Thanksgiving'},{d:'2025-12-25',n:'Christmas'}],
-  DE:[{d:'2025-01-01',n:'New Year'},{d:'2025-04-18',n:'Good Friday'},{d:'2025-04-21',n:'Easter Monday'},{d:'2025-05-01',n:'Labor Day'},{d:'2025-10-03',n:'Reunification'},{d:'2025-12-25',n:'Christmas'}],
-  FR:[{d:'2025-01-01',n:'New Year'},{d:'2025-04-21',n:'Easter Monday'},{d:'2025-05-01',n:'Labor Day'},{d:'2025-07-14',n:'Bastille Day'},{d:'2025-11-11',n:'Armistice Day'},{d:'2025-12-25',n:'Christmas'}],
-  AE:[{d:'2025-01-01',n:'New Year'},{d:'2025-11-18',n:'National Day'},{d:'2025-12-02',n:'UAE National Day'}],
-  JP:[{d:'2025-01-01',n:'New Year'},{d:'2025-02-11',n:'Foundation Day'},{d:'2025-04-29',n:'Showa Day'},{d:'2025-08-11',n:'Mountain Day'},{d:'2025-11-03',n:'Culture Day'},{d:'2025-12-23',n:'Emperor\'s Birthday'}],
-  MA:[{d:'2025-01-01',n:'New Year'},{d:'2025-01-11',n:'Manifesto Day'},{d:'2025-05-01',n:'Labor Day'},{d:'2025-07-30',n:'Throne Day'},{d:'2025-11-18',n:'Independence Day'}],
-  LY:[{d:'2025-02-17',n:'Revolution Day'},{d:'2025-09-01',n:'Republic Day'}],
-  TN:[{d:'2025-01-01',n:'New Year'},{d:'2025-03-20',n:'Independence Day'},{d:'2025-07-25',n:'Republic Day'},{d:'2025-08-13',n:'Women\'s Day'}],
-  IQ:[{d:'2025-01-01',n:'New Year'},{d:'2025-07-14',n:'Republic Day'},{d:'2025-10-03',n:'National Day'}],
-  JO:[{d:'2025-01-01',n:'New Year'},{d:'2025-05-25',n:'Independence Day'},{d:'2025-06-10',n:'Army Day'},{d:'2025-11-14',n:'King\'s Birthday'}],
+/* ═══════════════════ HOLIDAYS ═══════════════════ */
+const HOL_COUNTRIES=[
+  {code:'EG',name:'🇪🇬 Egypt'},{code:'TR',name:'🇹🇷 Turkey'},{code:'GB',name:'🇬🇧 UK'},
+  {code:'SA',name:'🇸🇦 Saudi Arabia'},{code:'AE',name:'🇦🇪 UAE'},{code:'QA',name:'🇶🇦 Qatar'},
+  {code:'KW',name:'🇰🇼 Kuwait'},{code:'BH',name:'🇧🇭 Bahrain'},{code:'OM',name:'🇴🇲 Oman'},
+  {code:'JO',name:'🇯🇴 Jordan'},{code:'LB',name:'🇱🇧 Lebanon'},{code:'IQ',name:'🇮🇶 Iraq'},
+  {code:'MA',name:'🇲🇦 Morocco'},{code:'TN',name:'🇹🇳 Tunisia'},{code:'LY',name:'🇱🇾 Libya'},
+  {code:'DZ',name:'🇩🇿 Algeria'},{code:'US',name:'🇺🇸 USA'},{code:'CA',name:'🇨🇦 Canada'},
+  {code:'DE',name:'🇩🇪 Germany'},{code:'FR',name:'🇫🇷 France'},{code:'ES',name:'🇪🇸 Spain'},
+  {code:'IT',name:'🇮🇹 Italy'},{code:'NL',name:'🇳🇱 Netherlands'},{code:'JP',name:'🇯🇵 Japan'},
+  {code:'CN',name:'🇨🇳 China'},{code:'IN',name:'🇮🇳 India'},{code:'PK',name:'🇵🇰 Pakistan'},
+  {code:'ID',name:'🇮🇩 Indonesia'},{code:'MY',name:'🇲🇾 Malaysia'},{code:'AU',name:'🇦🇺 Australia'},
+];
+const ISLAMIC_HOLIDAYS={
+  2024:[{d:'2024-04-10',n:'Eid al-Fitr'},{d:'2024-06-17',n:'Eid al-Adha'},{d:'2024-07-07',n:'Islamic New Year'},{d:'2024-09-15',n:'Mawlid an-Nabi'}],
+  2025:[{d:'2025-03-30',n:'Eid al-Fitr'},{d:'2025-06-07',n:'Eid al-Adha'},{d:'2025-06-26',n:'Islamic New Year'},{d:'2025-09-05',n:'Mawlid an-Nabi'}],
+  2026:[{d:'2026-03-20',n:'Eid al-Fitr'},{d:'2026-05-27',n:'Eid al-Adha'},{d:'2026-06-16',n:'Islamic New Year'},{d:'2026-08-25',n:'Mawlid an-Nabi'}],
+  2027:[{d:'2027-03-09',n:'Eid al-Fitr'},{d:'2027-05-16',n:'Eid al-Adha'},{d:'2027-06-06',n:'Islamic New Year'},{d:'2027-08-14',n:'Mawlid an-Nabi'}],
 };
-const HOL_META={
-  EG:{flag:'🇪🇬',name:'EGYPT'},TR:{flag:'🇹🇷',name:'TURKEY'},UK:{flag:'🇬🇧',name:'UK'},
-  SA:{flag:'🇸🇦',name:'SAUDI'},US:{flag:'🇺🇸',name:'USA'},DE:{flag:'🇩🇪',name:'GERMANY'},
-  FR:{flag:'🇫🇷',name:'FRANCE'},AE:{flag:'🇦🇪',name:'UAE'},JP:{flag:'🇯🇵',name:'JAPAN'},
-  MA:{flag:'🇲🇦',name:'MOROCCO'},LY:{flag:'🇱🇾',name:'LIBYA'},TN:{flag:'🇹🇳',name:'TUNISIA'},
-  IQ:{flag:'🇮🇶',name:'IRAQ'},JO:{flag:'🇯🇴',name:'JORDAN'},
-};
-
-function renderHolidays(){
-  const countries=ST.holCountries.slice(0,3);
-  const now=new Date(); now.setHours(0,0,0,0);
-  let all=[];
-  countries.forEach(c=>(HOL_DATA[c]||[]).forEach(h=>all.push({...h,c,dt:new Date(h.d)})));
-  all=all.filter(h=>h.dt>=now).sort((a,b)=>a.dt-b.dt);
-  const dates=[...new Set(all.map(h=>h.d))].slice(0,7);
-  document.getElementById('hol-head').innerHTML=`<tr><th></th>${countries.map(c=>`<th>${HOL_META[c]?.flag||''} ${HOL_META[c]?.name||c}</th>`).join('')}</tr>`;
-  document.getElementById('hol-body').innerHTML=dates.map(ds=>{
-    const dt=new Date(ds);
-    const diff=Math.round((dt-now)/86400000);
-    const cls=diff===0?'today':diff<=30?'soon':'';
-    const lbl=diff===0?'TODAY':diff===1?'TOMORROW':`IN ${diff}D`;
-    return `<tr>
-      <td class="lbl ${cls}">${lbl}</td>
-      ${countries.map(c=>{
-        const h=all.find(x=>x.c===c&&x.d===ds);
-        return `<td class="${cls}">${h?h.n:'—'}</td>`;
-      }).join('')}
-    </tr>`;
-  }).join('');
+const holidaysCache={};
+let holidayRequestId=0;
+function escapeText(value){
+  return String(value == null ? '' : value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-renderHolidays();
+function buildHolidayDropdown(){
+  if(!HOL_COUNTRIES.some(c=>c.code===ST.holCountry)) ST.holCountry='EG';
+  const sel=document.getElementById('hol-country-sel');
+  sel.innerHTML=HOL_COUNTRIES.map(c=>`<option value="${c.code}" ${c.code===ST.holCountry?'selected':''}>${c.name}</option>`).join('');
+}
+async function onHolCountryChange(code){
+  ST.holCountry=code; saveST();
+  await loadHolidays();
+}
+async function fetchHolidayYear(code,year){
+  const key=`${code}_${year}`;
+  if(holidaysCache[key]) return holidaysCache[key];
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),10000);
+  try{
+    const response=await fetch(`https://nagerholidays.com/api/v4/Holidays/${code}/${year}`,{signal:controller.signal});
+    if(!response.ok) throw new Error(`Holiday service: ${response.status}`);
+    const data=await response.json();
+    if(!Array.isArray(data)) throw new Error('Invalid holiday response');
+    const mapped=data.filter(h=>h && /^\d{4}-\d{2}-\d{2}$/.test(h.date) && (h.localName||h.name))
+      .map(h=>({d:h.date,n:h.localName||h.name,regional:h.nationalHoliday===false}));
+    holidaysCache[key]=mapped;
+    try{ localStorage.setItem('horizon_holidays_'+key,JSON.stringify(mapped)); }catch(e){}
+    return mapped;
+  }finally{clearTimeout(timer);}
+}
+async function loadHolidays(){
+  const requestId=++holidayRequestId;
+  const code=ST.holCountry||'EG';
+  const year=new Date().getFullYear();
+  document.getElementById('hol-body').innerHTML='<tr><td colspan="2">Loading holidays…</td></tr>';
+  let all=[], failed=0, saved=false;
+  await Promise.all([year,year+1].map(async y=>{
+    try{ all=all.concat(await fetchHolidayYear(code,y)); }
+    catch(e){
+      failed++;
+      try{
+        const cached=JSON.parse(localStorage.getItem('horizon_holidays_'+code+'_'+y)||'null');
+        if(Array.isArray(cached)){all=all.concat(cached);saved=true;}
+      }catch(ignore){}
+    }
+  }));
+  // These are observances, not a claim that each is a public holiday in the selected country.
+  [year,year+1].forEach(y=>{
+    all=all.concat((ISLAMIC_HOLIDAYS[y]||[]).map(h=>({...h,estimated:true})));
+  });
+  if(requestId!==holidayRequestId) return;
+  renderHolidays(all,failed ? (saved ? 'Using saved data; some dates could not be refreshed.' : 'Public holiday data unavailable; Islamic estimates shown where available.') : '');
+}
+function renderHolidays(list,notice=''){
+  const now=new Date();
+  const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  const dayNumber=value=>{const [y,m,d]=value.split('-').map(Number);return Date.UTC(y,m-1,d)/86400000;};
+  const seen=new Set();
+  const all=list.filter(h=>h && typeof h.d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(h.d) && typeof h.n==='string' && h.d>=today)
+    .sort((a,b)=>a.d.localeCompare(b.d)||Number(!!a.estimated)-Number(!!b.estimated))
+    .filter(h=>{const key=h.d+'|'+h.n.trim().toLowerCase();if(seen.has(key))return false;seen.add(key);return true;}).slice(0,7);
+  document.getElementById('hol-head').innerHTML='<tr><th>WHEN</th><th>HOLIDAY / OBSERVANCE</th></tr>';
+  document.getElementById('hol-body').innerHTML=all.map(h=>{
+    const [y,m,d]=h.d.split('-').map(Number);
+    const diff=dayNumber(h.d)-dayNumber(today);
+    const cls=diff===0?'today':diff<=14?'soon':'';
+    const lbl=diff===0?'TODAY':diff===1?'TOMORROW':`IN ${diff}D`;
+    const note=h.estimated?' · Islamic observance · estimated':h.regional?' · regional':'';
+    return `<tr><td class="lbl ${cls}">${lbl}</td><td class="${cls}">${escapeText(h.n)} <span style="color:var(--muted);font-size:9px;">${d} ${MONTHS[m-1]}${note}</span></td></tr>`;
+  }).join('')||'<tr><td colspan="2">No upcoming holidays available.</td></tr>';
+  if(notice) document.getElementById('hol-body').innerHTML+=`<tr><td colspan="2" style="color:var(--muted);font-size:10px;">${escapeText(notice)}</td></tr>`;
+}
 
-// ═══════════════════════════════════════════════════════
-// GOOGLE CALENDAR
-// ═══════════════════════════════════════════════════════
-const CLIENT_ID=''; // ← your OAuth client ID
-const API_KEY='';   // ← your API key
+/* ═══════════════════ GOOGLE CALENDAR ═══════════════════ */
+const CLIENT_ID='';
+const API_KEY='';
 const EVT_COLORS=['#FF3B30','#F5A623','#32D74B','#0A84FF','#BF5AF2','#FF9500'];
-
 function initGoogleAuth(){
   if(!CLIENT_ID){ document.getElementById('cal-signin').innerHTML='<span style="font-size:11px;color:var(--muted);">Set CLIENT_ID in script.</span>'; return; }
   if(typeof gapi==='undefined'){
@@ -1370,7 +1949,7 @@ function renderAgenda(events){
     const dk=s.toDateString();
     if(dk!==last){html+=`<div class="ag-day">${DAYS[s.getDay()]} ${s.getDate()} ${MONTHS[s.getMonth()]}</div>`;last=dk;}
     const t=ev.start.dateTime?s.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false}):'All day';
-    html+=`<div class="ag-ev"><div class="ag-dot" style="background:${EVT_COLORS[i%EVT_COLORS.length]}"></div><span class="ag-t">${t}</span><span>${ev.summary||'—'}</span></div>`;
+    html+=`<div class="ag-ev"><div class="ag-dot" style="background:${EVT_COLORS[i%EVT_COLORS.length]}"></div><span class="ag-t">${t}</span><span>${escapeText(ev.summary||'—')}</span></div>`;
   });
   document.getElementById('agenda-list').innerHTML=html;
 }
@@ -1378,33 +1957,31 @@ function renderTasks(tasks){
   if(!tasks.length) return;
   document.getElementById('tasks-list').innerHTML=
     '<div style="font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-bottom:4px;">TASKS</div>'+
-    tasks.map(t=>`<div style="display:flex;gap:5px;font-size:11px;color:var(--dim);padding:2px 0;"><span style="color:var(--muted);">□</span><span>${t.title||'—'}</span>${t.due?`<span style="color:var(--muted);font-size:10px;margin-left:auto;">${new Date(t.due).getDate()} ${MONTHS[new Date(t.due).getMonth()]}</span>`:''}</div>`).join('');
+    tasks.map(t=>`<div style="display:flex;gap:5px;font-size:11px;color:var(--dim);padding:2px 0;"><span style="color:var(--muted);">□</span><span>${escapeText(t.title||'—')}</span>${t.due?`<span style="color:var(--muted);font-size:10px;margin-left:auto;">${new Date(t.due).getDate()} ${MONTHS[new Date(t.due).getMonth()]}</span>`:''}</div>`).join('');
 }
 
-// ═══════════════════════════════════════════════════════
-// WIDGET VISIBILITY
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ VISIBILITY ═══════════════════ */
 function applyVisibility(){
   document.getElementById('row-finance').style.display=ST.showFinance?'':'none';
   document.getElementById('row-holidays').style.display=ST.showHolidays?'':'none';
+  document.getElementById('row-verse-hadith').style.display=ST.showVerseHadith?'':'none';
 }
 function toggleFinance(v){ST.showFinance=v;saveST();applyVisibility();}
 function toggleHolidays(v){ST.showHolidays=v;saveST();applyVisibility();}
-applyVisibility();
+function toggleVerseHadith(v){ST.showVerseHadith=v;saveST();applyVisibility();}
 
-// ═══════════════════════════════════════════════════════
-// SETTINGS
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ SETTINGS ═══════════════════ */
 function openSettings(){
-  buildClockEditor(); buildWxEditor(); buildHolPicker();
+  buildClockEditor(); buildWxEditor(); buildSurahDownloadList();
   document.getElementById('tog-finance').checked=ST.showFinance;
   document.getElementById('tog-holidays').checked=ST.showHolidays;
+  document.getElementById('tog-verse-hadith').checked=ST.showVerseHadith;
   document.getElementById('ss-timeout').value=ST.ssTimeout;
   document.getElementById('tog-autobright').checked=ST.autoBright;
+  document.getElementById('tog-wakelock').checked=ST.wakeLock;
   document.getElementById('settings-overlay').classList.add('show');
 }
 function closeSettings(){ document.getElementById('settings-overlay').classList.remove('show'); }
-
 function buildClockEditor(){
   document.getElementById('clock-editor').innerHTML=ST.clocks.map((c,i)=>{
     const opts=TZLIST.map(t=>`<option value="${t.tz}" ${t.tz===c.tz?'selected':''}>${t.label}</option>`).join('');
@@ -1417,73 +1994,52 @@ function buildClockEditor(){
 }
 function addClockSlot(){ if(ST.clocks.length>=4) return; ST.clocks.push({label:'CITY',tz:'UTC',lat:null,lon:null}); buildClockEditor(); }
 function removeClock(i){ ST.clocks.splice(i,1); buildClockEditor(); }
-
 function buildWxEditor(){
   document.getElementById('wx-editor').innerHTML=ST.wxCities.map((c,i)=>{
     const opts=WX_CITIES.map(w=>`<option value="${w.label}" data-lat="${w.lat}" data-lon="${w.lon}" ${w.label===c.label?'selected':''}>${w.label}</option>`).join('');
     return `<div class="clk-edit-row">
-      <select id="wx-s-${i}" style="flex:1;background:var(--raised);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:11px;padding:4px 7px;outline:none;">${opts}</select>
+      <select id="wx-s-${i}" style="flex:1;background:var(--raised);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:11px;padding:5px 8px;outline:none;border-radius:2px;">${opts}</select>
       ${ST.wxCities.length>1?`<button class="rm-btn" onclick="removeWx(${i})">✕</button>`:''}
     </div>`;
   }).join('');
 }
 function addWxSlot(){ if(ST.wxCities.length>=4) return; ST.wxCities.push(JSON.parse(JSON.stringify(WX_CITIES[0]))); buildWxEditor(); }
 function removeWx(i){ ST.wxCities.splice(i,1); buildWxEditor(); }
-
-function buildHolPicker(){
-  document.getElementById('hol-picker').innerHTML=Object.entries(HOL_META).map(([code,m])=>`
-    <label class="s-row" style="cursor:pointer;">
-      <input type="checkbox" id="hc-${code}" ${ST.holCountries.includes(code)?'checked':''} onchange="toggleHolCountry('${code}',this.checked)"/>
-      ${m.flag} ${m.name}
-    </label>`).join('');
-}
-function toggleHolCountry(code,checked){
-  if(checked){
-    if(ST.holCountries.length<3) ST.holCountries.push(code);
-    else{ document.getElementById('hc-'+code).checked=false; }
-  } else ST.holCountries=ST.holCountries.filter(c=>c!==code);
-}
-
 function saveSettings(){
-  // Clocks
   ST.clocks=ST.clocks.map((c,i)=>({
     ...c,
     label:(document.getElementById('clk-l-'+i)?.value||c.label).toUpperCase(),
     tz:   document.getElementById('clk-t-'+i)?.value||c.tz,
   }));
-  // Set lat/lon from TZLIST
   ST.clocks.forEach((c,i)=>{
     if(c.tz!=='LOCAL'){
       const tz=TZLIST.find(t=>t.tz===c.tz);
       if(tz?.lat){ ST.clocks[i].lat=tz.lat; ST.clocks[i].lon=tz.lon; }
     }
   });
-  // Weather cities
   ST.wxCities=ST.wxCities.map((c,i)=>{
     const sel=document.getElementById('wx-s-'+i);
     if(!sel) return c;
     const opt=sel.options[sel.selectedIndex];
     return {label:sel.value,lat:parseFloat(opt.dataset.lat)||c.lat,lon:parseFloat(opt.dataset.lon)||c.lon};
   });
-  // Screensaver
-  ST.ssTimeout=parseInt(document.getElementById('ss-timeout').value)||5;
+  ST.ssTimeout=parseInt(document.getElementById('ss-timeout').value)||0;
   ST.autoBright=document.getElementById('tog-autobright').checked;
+  ST.wakeLock=document.getElementById('tog-wakelock').checked;
   saveST();
-  renderClocksGrid(); renderHolidays(); applyVisibility(); loadWxWidget();
-  resetSsTimer();
+  renderClocksGrid(); loadWxWidget(); applyVisibility(); resetSsTimer();
+  if(ST.wakeLock) requestWakeLock();
   closeSettings();
 }
 
-// ═══════════════════════════════════════════════════════
-// PWA / OFFLINE
-// ═══════════════════════════════════════════════════════
+/* ═══════════════════ PWA ═══════════════════ */
 let dip=null;
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault(); dip=e;
-  document.getElementById('install-banner').classList.add('show');
+  document.getElementById('install-banner').style.display='flex';
 });
 document.getElementById('install-btn').addEventListener('click',()=>{
-  if(dip){ dip.prompt(); dip.userChoice.then(()=>{ dip=null; document.getElementById('install-banner').classList.remove('show'); }); }
+  if(dip){ dip.prompt(); dip.userChoice.then(()=>{ dip=null; document.getElementById('install-banner').style.display='none'; }); }
 });
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js')
@@ -1495,9 +2051,23 @@ if('serviceWorker' in navigator){
 function cacheOffline(){
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistration().then(r=>r&&r.update());
-    alert('Cached! On iPad: Safari → Share → Add to Home Screen → fullscreen app.\nSettings → Accessibility → Guided Access → lock to this app.');
+    alert('App shell cached!\n\nOn iPad:\n1. Safari → Share → Add to Home Screen\n2. Settings → Accessibility → Guided Access → lock to HORIZON');
   } else alert('Service workers not supported on this browser.');
 }
+
+/* ═══════════════════ BOOT ═══════════════════ */
+(async()=>{
+  applyTheme(ST.theme);
+  applyVisibility();
+  buildHolidayDropdown();
+  loadHolidays();
+  loadHadithOfDay();
+  try{ await openMediaDB(); await updateStorageInfo(); }
+  catch(e){ console.warn('Offline media storage unavailable',e); }
+  await loadVerseOfDay();
+  renderRamadan();
+  setInterval(renderRamadan, 3600000); // refresh hourly
+})();
 </script>
 </body>
 </html>
