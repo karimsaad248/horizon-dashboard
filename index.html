@@ -1,1516 +1,1158 @@
 <!DOCTYPE html>
-<html lang="en" manifest="horizon.appcache">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Horizon">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180.png">
-<title>Horizon Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,380;0,9..144,560;0,9..144,680;1,9..144,500&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="HORIZON"/>
+<meta name="theme-color" content="#0A0A0A"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>HORIZON // KARIM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --bg-0:#121a2e; --bg-1:#182544; --bg-2:#1e2f54;
-  --glass: rgba(255,255,255,0.055); --glass-border: rgba(255,255,255,0.10);
-  --emerald:#2FB8A6; --gold:#FFC857; --coral:#FF8A5C; --text-hi:#FBF4E8; --text-mid:#B9C3DE; --text-low:#7F8CAE;
-  --danger:#FF7A6B; --radius:22px; --radius-sm:16px;
-  --shadow: 0 24px 48px -22px rgba(10,15,30,.55);
+/* ═══════════════════════════════════
+   THEME SYSTEM
+═══════════════════════════════════ */
+:root {
+  --bg:#0A0A0A; --surface:#111318; --raised:#1A1E26; --border:#252932;
+  --red:#FF3B30; --amber:#F5A623; --green:#39D353; --blue:#0A84FF;
+  --muted:#5A5F72; --sub:#8B8FA8; --text:#E0E0E8; --dim:#C0C4D0;
+  --font:'JetBrains Mono',monospace;
+  --dot-opacity:0.07; --dot-size:20px;
+  --radius:0px;
 }
-body.light{
-  --bg-0:#FFF8EC; --bg-1:#FFFDF8; --bg-2:#FBEFDA;
-  --glass: rgba(255,255,255,0.72); --glass-border: rgba(27,42,74,0.08);
-  --text-hi:#1B2A4A; --text-mid:#5C5042; --text-low:#9A8E7C;
-  --shadow: 0 20px 40px -20px rgba(120,90,40,.25);
+[data-theme="cockpit"] {
+  --bg:#060A0E; --surface:#0D1219; --raised:#151D26; --border:#1E2A36;
+  --red:#FF453A; --amber:#FFB340; --green:#30D158; --blue:#0A84FF;
+  --muted:#3A4A5A; --sub:#6A8A9A; --text:#D0E0E8; --dim:#A0C0CC;
+  --dot-opacity:0.05; --dot-size:24px;
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif;}
-body{
-  background-color: var(--bg-0);
-  background-image: radial-gradient(ellipse 900px 500px at 12% -5%, rgba(255,138,92,.20), rgba(255,138,92,0)),
-                    radial-gradient(ellipse 800px 600px at 100% 10%, rgba(47,184,166,.16), rgba(47,184,166,0));
-  color:var(--text-hi); min-height:100vh; padding:28px; transition:background .4s;
+[data-theme="minimal"] {
+  --bg:#0F0F0F; --surface:#1A1A1A; --raised:#222222; --border:#2E2E2E;
+  --red:#FF5F57; --amber:#FEBC2E; --green:#28C840; --blue:#2563EB;
+  --muted:#555555; --sub:#888888; --text:#F0F0F0; --dim:#CCCCCC;
+  --dot-opacity:0.03; --dot-size:28px; --radius:4px;
 }
-.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
-.brand h1{font-family:'Fraunces',Georgia,serif;font-size:2.4rem;font-weight:560;letter-spacing:-.01em; color:var(--text-hi);}
-.brand .sub{color:var(--text-mid);font-size:.9rem;margin-top:3px;}
-.top-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.pill{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(14px);
-  padding:8px 16px;border-radius:30px;font-size:.85rem;color:var(--text-mid);display:flex;align-items:center;gap:8px;}
-.toggle-btn{background:var(--glass);border:1px solid var(--glass-border);color:var(--text-hi);
-  width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
-.toggle-btn:hover{border-color:var(--coral);}
 
-.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;align-items:start;width:100%;max-width:100%;}
-.tile,.card{min-width:0;max-width:100%;}
-.hourly,.clocks-row,.al-form,.fx-grid,.q-list,.week-strip{max-width:100%;min-width:0;}
-html,body{overflow-x:hidden;max-width:100%;}
-.tile{grid-column:span 12;}
-.card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(18px);
-  border-radius:var(--radius-sm);padding:20px;box-shadow:var(--shadow);
-  transition:transform .2s, box-shadow .2s, border-color .2s; position:relative;}
-.tile.dragging .card{opacity:.4;}
-.tile.drag-over .card{border-color:var(--coral); box-shadow:0 0 0 2px var(--coral), var(--shadow);}
-.drag-handle{position:absolute;top:14px;right:16px;cursor:grab;color:var(--text-low);font-size:.95rem;
-  opacity:0;transition:opacity .2s;padding:4px;line-height:1;user-select:none;touch-action:none;}
-.card:hover .drag-handle{opacity:.7;} .drag-handle:hover{opacity:1 !important;color:var(--coral);}
-.drag-handle:active{cursor:grabbing;}
-.c-cal .tile, .c-cal{grid-column:span 12;}
-.c-clocks{grid-column:span 12;} .c-prayer{grid-column:span 6;} .c-fx{grid-column:span 12;} .c-holiday{grid-column:span 6;}
-.c-radio{grid-column:span 12;}
-.tile.hero .card{border-radius:28px;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;overflow-x:hidden}
 
-h2{font-size:.78rem;color:var(--text-mid);margin-bottom:14px;font-weight:700;letter-spacing:.01em;}
-.stamp{position:absolute;top:18px;right:48px;font-size:.65rem;color:var(--text-low);}
+body::before{content:'';position:fixed;inset:0;
+  background-image:radial-gradient(circle,rgba(255,255,255,var(--dot-opacity)) 1px,transparent 1px);
+  background-size:var(--dot-size) var(--dot-size);pointer-events:none;z-index:0}
 
-/* Clocks */
-.clocks-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
-.clock-item{padding:12px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);}
-.clock-name{font-size:.8rem;color:var(--text-mid);font-weight:600;}
-.clock-time{font-size:1.6rem;font-weight:700;margin:2px 0;font-variant-numeric:tabular-nums;}
-.clock-wx{font-size:.78rem;color:var(--text-low);display:flex;align-items:center;gap:5px;}
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;
+  padding:0 0 16px;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
 
-/* Agenda */
-.agenda-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;}
-.agenda-item{display:flex;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);align-items:center;}
-.agenda-time{font-weight:700;font-size:.85rem;color:var(--gold);min-width:64px;}
-.agenda-title{font-size:.9rem;color:var(--text-hi);}
-.agenda-tag{font-size:.65rem;padding:2px 8px;border-radius:8px;font-weight:700;text-transform:uppercase;margin-left:auto;}
-.agenda-tag.event{background:rgba(14,165,233,.18);color:#7fd4f5;}
-.agenda-tag.task{background:rgba(16,185,129,.18);color:#7fe0bb;}
-.agenda-tag.overdue{background:rgba(224,83,83,.22);color:#f39a9a;}
-.overdue-block{margin-bottom:14px;}
-.week-day{cursor:pointer;transition:border-color .2s,background .2s;}
-.week-day:hover{border-color:var(--emerald);}
-.week-day.selected{border-color:var(--gold);background:rgba(224,165,60,.12);}
-.agenda-empty{color:var(--text-low);font-size:.85rem;padding:10px;}
-.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
-.week-day{padding:10px 6px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);text-align:center;}
-.week-day .wd-name{font-size:.7rem;color:var(--text-mid);font-weight:700;}
-.week-day .wd-count{font-size:1.1rem;font-weight:800;margin:4px 0;}
-.week-day .wd-first{font-size:.65rem;color:var(--text-low);}
+/* ═══ STATUS BAR ═══ */
+#statusbar{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px;border-bottom:1px solid var(--border);
+  background:var(--surface);font-size:11px;color:var(--muted);letter-spacing:0.08em;
+  position:sticky;top:0;z-index:100}
+#statusbar .seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live-indicator{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0}
+.sep{color:var(--border);margin:0 2px}
+#hijri-date{color:var(--amber)}
+.icon-btn{background:none;border:1px solid var(--border);color:var(--sub);
+  font-family:var(--font);font-size:11px;padding:3px 10px;cursor:pointer;
+  border-radius:var(--radius);transition:border-color 0.15s,color 0.15s}
+.icon-btn:hover{border-color:var(--amber);color:var(--amber)}
 
-/* Prayer */
-.prayer-count{font-family:'Fraunces',Georgia,serif;font-size:2.6rem;font-weight:560;color:var(--coral);margin-bottom:14px;line-height:1;}
-.p-list{display:flex;flex-direction:column;gap:8px;}
-.p-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,0.03);font-size:.88rem;}
-.p-row.active{background:linear-gradient(120deg,rgba(16,185,129,.25),rgba(224,165,60,.2));border:1px solid var(--emerald);}
-.p-name{color:var(--text-mid);flex:1;} .p-time{font-variant-numeric:tabular-nums;}
-.p-bell{background:none;border:1px solid var(--glass-border);border-radius:14px;padding:2px 9px;cursor:pointer;font-size:.72rem;color:var(--text-low);}
-.p-bell.on{border-color:var(--emerald);color:var(--emerald);background:rgba(16,185,129,.12);}
-.athan-note{font-size:.68rem;color:var(--text-low);margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.mini-btn{background:var(--glass);border:1px solid var(--glass-border);color:var(--text-hi);border-radius:14px;padding:3px 11px;cursor:pointer;font-size:.72rem;}
-.mini-btn:hover{border-color:var(--emerald);} .p-row.active .p-name{color:var(--text-hi);}
+/* ═══ GRID LAYOUTS ═══ */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px 12px 0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 12px 0}
+.grid-1{padding:10px 12px 0}
+.clocks-grid{display:grid;gap:10px}
 
-/* FX */
-.fx-input-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
-.fx-input-row select, .fx-input-row input{background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);
-  color:var(--text-hi);border-radius:10px;padding:9px 12px;font-size:.9rem;}
-.fx-input-row input{width:110px;font-weight:700;}
-.fx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;}
-.fx-box{padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);}
-.fx-box.gold{border-color:var(--gold);}
-.fx-label{font-size:.72rem;color:var(--text-mid);font-weight:700;text-transform:uppercase;}
-.fx-val{font-size:1.15rem;font-weight:700;margin-top:3px;}
-.fx-note{font-size:.68rem;color:var(--text-low);margin-top:12px;}
+/* ═══ CARD ═══ */
+.card{background:var(--surface);border:1px solid var(--border);
+  position:relative;padding:12px 14px 14px;border-radius:var(--radius)}
+.card-label{font-size:9px;letter-spacing:0.18em;color:var(--muted);
+  margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.card-label.amber{color:var(--amber)}
+.card-label.amber::after{background:linear-gradient(90deg,var(--amber)44,transparent)}
+.card-label.red{color:var(--red)}
+.card-label.red::after{background:linear-gradient(90deg,var(--red)44,transparent)}
+.card-label.green{color:var(--green)}
+.card-label.green::after{background:linear-gradient(90deg,var(--green)44,transparent)}
+.card-label.blue{color:var(--blue)}
+.card-label.blue::after{background:linear-gradient(90deg,var(--blue)44,transparent)}
 
-/* Holidays */
-.h-country{margin-bottom:14px;} .h-country:last-child{margin-bottom:0;}
-.h-head{display:flex;justify-content:space-between;font-size:.85rem;font-weight:700;margin-bottom:5px;}
-.h-tag{font-size:.68rem;padding:2px 9px;border-radius:9px;font-weight:700;}
-.h-tag.weekend{background:rgba(224,83,83,.18);color:#f39a9a;}
-.h-tag.workday{background:rgba(16,185,129,.15);color:#7fe0bb;}
-.h-alert{font-size:.8rem;color:var(--text-mid);}
-.h-alert.today{color:var(--gold);font-weight:700;}
+/* ═══ CLOCKS ═══ */
+.clock-time{font-size:42px;font-weight:300;color:var(--amber);line-height:1;letter-spacing:-1px}
+.clock-date{font-size:10px;color:var(--muted);margin-top:3px}
+.clock-card{cursor:pointer;transition:border-color 0.15s}
+.clock-card:hover{border-color:var(--amber)55}
+.clock-extra{font-size:9px;color:var(--muted);margin-top:2px}
 
-/* Radio */
-.radio-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.play-btn{background:var(--emerald);border:none;width:42px;height:42px;border-radius:50%;color:#04150e;
-  font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;}
-.play-btn:hover{filter:brightness(1.1);}
-.radio-meta{font-size:.85rem;color:var(--text-mid);}
-.radio-status{font-size:.72rem;color:var(--text-low);}
+/* ═══ WEATHER POP ═══ */
+.weather-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:200;
+  background:var(--raised);border:1px solid var(--border);padding:8px 10px;border-radius:var(--radius)}
+.weather-pop.show{display:block}
+.weather-row{display:flex;justify-content:space-between;padding:3px 0;
+  font-size:10px;color:var(--dim);border-bottom:1px solid var(--border)55}
+.weather-row:last-child{border:none}
+.weather-row span:last-child{color:var(--amber)}
 
-.err{color:var(--danger);font-size:.72rem;}
+/* ═══ PRAYER ═══ */
+.prayer-list{display:flex;flex-direction:column;gap:3px}
+.prayer-row{display:flex;align-items:center;justify-content:space-between;
+  padding:5px 8px;border:1px solid transparent;border-radius:var(--radius);font-size:12px}
+.prayer-row.current{border-color:var(--red)55;background:color-mix(in srgb,var(--red) 8%,transparent)}
+.prayer-row.current .prayer-name{color:var(--red)}
+.prayer-name{color:var(--sub);letter-spacing:0.05em;display:flex;align-items:center;gap:6px}
+.prayer-time-val{color:var(--amber);font-size:12px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);
+  box-shadow:0 0 8px var(--red);animation:pulse 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.75)}}
+.prayer-countdown{font-size:10px;color:var(--muted);margin-top:6px;text-align:right}
+.prayer-countdown b{color:var(--green)}
 
-.clock-item{cursor:pointer;} .clock-item.sel{border-color:var(--gold);background:rgba(224,165,60,.1);}
-.hourly-wrap{margin-top:16px;}
-.hourly-title{font-size:.78rem;color:var(--text-mid);margin-bottom:8px;font-weight:600;}
-.hourly{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;}
-.hr-cell{min-width:62px;text-align:center;padding:10px 6px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);font-size:.78rem;}
-.hr-cell.now{border-color:var(--emerald);}
-.hr-t{color:var(--text-mid);font-variant-numeric:tabular-nums;} .hr-i{font-size:1.2rem;margin:4px 0;} .hr-d{font-weight:700;} .hr-r{color:#7fd4f5;font-size:.68rem;margin-top:2px;}
-.quran{display:grid;grid-template-columns:minmax(260px,1fr) 2fr;gap:20px;}
-.q-now{font-family:'Fraunces',Georgia,serif;font-size:1.7rem;direction:rtl;color:var(--coral);margin-bottom:2px;}
-.q-sub{font-size:.8rem;color:var(--text-mid);margin-bottom:14px;}
-.q-ctl{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-.q-ctl .mini-btn.on{border-color:var(--emerald);color:var(--emerald);}
-.q-seek{width:100%;accent-color:var(--emerald);} .q-times{display:flex;justify-content:space-between;font-size:.7rem;color:var(--text-low);}
-.q-search{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:10px;padding:8px 12px;color:var(--text-hi);margin-bottom:10px;}
-.q-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;max-height:300px;overflow-y:auto;padding-right:4px;}
-.q-item{display:flex;gap:8px;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid transparent;cursor:pointer;font-size:.8rem;text-align:left;color:var(--text-hi);}
-.q-item:hover{border-color:var(--glass-border);} .q-item.cur{border-color:var(--emerald);background:rgba(16,185,129,.12);}
-.q-off{color:var(--emerald);font-size:.75rem;margin-left:4px;}
-.q-num{color:var(--text-low);min-width:26px;font-size:.7rem;} .q-ar{margin-left:auto;direction:rtl;font-family:Georgia,serif;color:var(--text-mid);}
-@media(max-width:1100px){.c-prayer,.c-holiday{grid-column:span 12;} .quran{grid-template-columns:1fr;}}
+/* ═══ ATHAN TOGGLES ═══ */
+.athan-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.athan-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:9px;color:var(--muted);letter-spacing:0.06em}
+.toggle{width:30px;height:16px;border:1px solid var(--border);background:var(--bg);
+  cursor:pointer;position:relative;transition:all 0.2s;border-radius:var(--radius)}
+.toggle.on{background:color-mix(in srgb,var(--red) 15%,transparent);border-color:var(--red)88}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;
+  background:var(--muted);transition:all 0.2s}
+.toggle.on::after{left:16px;background:var(--red)}
 
+/* ═══ QURAN PLAYER ═══ */
+.quran-row{display:flex;gap:8px;margin-bottom:8px}
+.quran-select{flex:1;background:var(--raised);border:1px solid var(--border);
+  color:var(--text);font-family:var(--font);font-size:11px;padding:5px 8px;
+  outline:none;border-radius:var(--radius)}
+.quran-select option{background:var(--surface);color:var(--text)}
+.quran-controls{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.qbtn{background:none;border:1px solid var(--border);color:var(--sub);
+  font-family:var(--font);font-size:11px;padding:4px 9px;cursor:pointer;
+  transition:all 0.15s;border-radius:var(--radius)}
+.qbtn:hover,.qbtn.active{border-color:var(--green);color:var(--green)}
+.qbtn.play-btn{border-color:color-mix(in srgb,var(--green) 50%,transparent);
+  color:var(--green);font-size:15px;padding:4px 14px}
+.quran-progress-wrap{position:relative;height:3px;background:var(--border);cursor:pointer;margin-bottom:4px}
+.quran-progress-fill{height:100%;background:var(--green);width:0%;transition:width 0.4s linear}
+.quran-time{display:flex;justify-content:space-between;font-size:9px;color:var(--muted)}
+.quran-nowplaying{font-size:10px;color:var(--dim);margin-bottom:6px}
+.quran-nowplaying b{color:var(--green)}
 
-/* ===== PAPER (Kindle-style) THEME — default ===== */
-html.paper-root{font-size:18px;} /* ~12% larger text in paper look */
-body.paper{
-  --bg-0:#F4F1EA; --glass:#FBFAF6; --glass-border:#D9D4C7;
-  --text-hi:#1A1A1A; --text-mid:#4A4740; --text-low:#7A766C;
-  --emerald:#2E7D72; --gold:#1A1A1A; --coral:#1A1A1A; --danger:#9B2C2C;
-  --shadow:none;
-  background:#F4F1EA !important; background-image:none !important; color:#1A1A1A; transition:none;
-}
-body.paper .tile.hero .card{border-radius:6px;}
-body.paper *{font-family:Georgia,'Times New Roman',serif;}
-body.paper .card{background:#FBFAF6 !important;border:1px solid #D9D4C7;box-shadow:none !important;
-  -webkit-backdrop-filter:none;backdrop-filter:none;border-radius:6px;transition:none;}
-body.paper .card:hover{transform:none;}
-body.paper .pill, body.paper .toggle-btn, body.paper .mini-btn{background:#FBFAF6;border:1px solid #BDB7A8;color:#1A1A1A;-webkit-backdrop-filter:none;backdrop-filter:none;}
-body.paper .brand h1{font-size:2.3rem;font-weight:400;color:#1A1A1A;}
-body.paper h2{font-size:.85rem;color:#4A4740;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #D9D4C7;padding-bottom:8px;}
-body.paper .stamp{font-size:.72rem;}
-/* inner boxes: flat, hairline */
-body.paper .clock-item, body.paper .agenda-item, body.paper .week-day, body.paper .p-row,
-body.paper .fx-box, body.paper .hr-cell, body.paper .q-item{background:transparent;border:1px solid #E2DDD0;border-radius:4px;}
-body.paper .clock-time{font-size:2.1rem;font-weight:400;}
-body.paper .clock-name, body.paper .clock-wx{font-size:.85rem;}
-body.paper .clock-item.sel, body.paper .week-day.selected{border:2px solid #1A1A1A;background:transparent;}
-/* prayers: next prayer = solid black block */
-body.paper .prayer-count{font-size:2.6rem;font-weight:400;color:#1A1A1A;}
-body.paper .p-row{font-size:1rem;padding:10px 12px;}
-body.paper .p-row.active{background:#1A1A1A;border-color:#1A1A1A;}
-body.paper .p-row.active .p-name, body.paper .p-row.active .p-time{color:#F4F1EA;}
-body.paper .p-bell{font-size:.8rem;border-color:#BDB7A8;color:#7A766C;background:transparent;}
-body.paper .p-row.active .p-bell{border-color:#7A766C;color:#D9D4C7;}
-body.paper .p-bell.on{border-color:#2E7D72;color:#2E7D72;background:transparent;}
-body.paper .p-row.active .p-bell.on{color:#9ED2C9;border-color:#9ED2C9;}
-body.paper .athan-note, body.paper .fx-note{font-size:.78rem;}
-/* tags: ink only, no colour */
-body.paper .agenda-tag, body.paper .h-tag{background:transparent !important;color:#4A4740 !important;border:1px solid #BDB7A8;}
-body.paper .agenda-tag.overdue{color:#F4F1EA !important;background:#1A1A1A !important;border-color:#1A1A1A;}
-body.paper .h-tag.weekend{color:#F4F1EA !important;background:#4A4740 !important;border-color:#4A4740;}
-body.paper .agenda-time{color:#1A1A1A;font-size:.95rem;}
-body.paper .agenda-title{font-size:1rem;}
-body.paper .h-head{font-size:.95rem;} body.paper .h-alert{font-size:.9rem;}
-body.paper .h-alert.today{color:#1A1A1A;text-decoration:underline;}
-/* FX */
-body.paper .fx-label{font-size:.78rem;} body.paper .fx-val{font-size:1.3rem;font-weight:400;}
-body.paper .fx-box.gold{border:2px solid #1A1A1A;}
-body.paper .fx-input-row select, body.paper .fx-input-row input, body.paper .q-search{background:#FFF;border:1px solid #BDB7A8;color:#1A1A1A;}
-/* weather */
-body.paper .hr-cell{font-size:.85rem;} body.paper .hr-cell.now{border:2px solid #1A1A1A;}
-body.paper .hr-r{color:#4A4740;font-size:.75rem;}
-body.paper .hourly-title{font-size:.85rem;}
-/* Quran: the only colour is on actions */
-body.paper .q-now{color:#1A1A1A;font-size:2rem;}
-body.paper .q-sub, body.paper .radio-status{font-size:.85rem;}
-body.paper .q-item{font-size:.9rem;color:#1A1A1A;}
-body.paper .q-item.cur{border:2px solid #2E7D72;background:transparent;}
-body.paper .play-btn{background:#2E7D72;color:#FBFAF6;width:52px;height:52px;font-size:1.15rem;}
-body.paper .q-ctl .mini-btn.on{border-color:#2E7D72;color:#2E7D72;}
-body.paper .q-seek{accent-color:#2E7D72;}
-body.paper .q-times{font-size:.8rem;}
-body.paper .err{color:#9B2C2C;font-size:.8rem;}
-body.paper #sound-banner{background:#2E7D72 !important;color:#FBFAF6 !important;}
-body.paper .drag-handle{color:#9A958A;}
+/* ═══ CURRENCY ═══ */
+.currency-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.curr-input{flex:1;background:var(--raised);border:1px solid var(--border);
+  color:var(--text);font-family:var(--font);font-size:12px;
+  padding:5px 8px;outline:none;border-radius:var(--radius)}
+.curr-input:focus{border-color:var(--amber)88}
+.curr-select{background:var(--raised);border:1px solid var(--border);
+  color:var(--amber);font-family:var(--font);font-size:11px;
+  padding:5px 6px;outline:none;border-radius:var(--radius)}
+.curr-result-row{display:flex;justify-content:space-between;padding:4px 0;
+  font-size:12px;border-bottom:1px solid var(--border)55}
+.curr-result-row:last-child{border:none}
+.curr-result-row .val{color:var(--amber)}
+.curr-loading{font-size:10px;color:var(--muted)}
 
-/* Alarms */
-.al-row{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--glass-border);border-radius:6px;margin-bottom:8px;}
-.al-row + .al-row{margin-top:0;}
-.al-t{font-size:1.5rem;min-width:84px;font-variant-numeric:tabular-nums;}
-.al-meta{-webkit-flex:1;flex:1;font-size:.85rem;color:var(--text-mid);}
-.al-row.off .al-t,.al-row.off .al-meta{opacity:.4;}
-.al-form > *{margin:0 8px 8px 0;}
-.al-days .al-day{margin-right:4px;}
-.al-form{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:8px;-webkit-align-items:center;align-items:center;margin-top:12px;}
-.al-form input,.al-form select{max-width:100%;background:#FFF;border:1px solid var(--glass-border);color:var(--text-hi);border-radius:6px;padding:8px 10px;font-size:1rem;}
-body:not(.paper) .al-form input,body:not(.paper) .al-form select{background:rgba(255,255,255,.06);}
-.al-days{display:-webkit-flex;display:flex;gap:4px;}
-.al-day{width:34px;height:34px;border-radius:50%;border:1px solid var(--glass-border);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:.8rem;cursor:pointer;}
-.al-day.on{background:var(--emerald);border-color:var(--emerald);color:#fff;}
-.al-add{font-size:.95rem;padding:8px 14px;}
-.al-tog.on{border-color:var(--emerald);color:var(--emerald);}
-/* Alarm scene on the saver */
-.sv-alarm{display:none;}
-#saver.alarm{background:#0b0b0b;color:#EDEDED;}
-#saver.alarm .sv-sun,#saver.alarm .sv-moon,#saver.alarm .sv-stars,#saver.alarm #sv-row,#saver.alarm #sv-date,#saver.alarm #sv-hint,#saver.alarm #sv-player{display:none;}
-#saver.alarm .sv-alarm{display:block;}
-#saver.alarm #sv-time{-webkit-animation:svBlink 1s steps(2) infinite;animation:svBlink 1s steps(2) infinite;color:#F2F2F2;}
-@-webkit-keyframes svBlink{50%{opacity:.35}} @keyframes svBlink{50%{opacity:.35}}
-.sv-alarm-title{font-size:6vmin;margin-bottom:2vmin;color:#CFCFCF;}
-.sv-alarm .sv-btn{border-color:#666;color:#EEE;margin:0 1.5vmin;font-size:4vmin;padding:2.2vmin 6vmin;}
-.sv-alarm .sv-btn.stop{background:#2E7D72;border-color:#2E7D72;color:#fff;}
-/* ===== SAVER: always-on clock (day + night), Athan scene, mini Quran player ===== */
-#saver{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;display:none;overflow:hidden;
-  -webkit-user-select:none;user-select:none;cursor:pointer;font-family:Georgia,'Times New Roman',serif;}
-#saver.on{display:block;}
-#sv-inner{position:absolute;top:0;left:0;right:0;bottom:0;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;
-  -webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;text-align:center;
-  -webkit-transition:-webkit-transform 2s;transition:transform 2s;}
-#sv-time{font-family:-apple-system,'Helvetica Neue',sans-serif;font-weight:200;font-size:34vmin;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
-#sv-date{font-size:3.6vmin;margin-top:1.5vmin;}
-#sv-row{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;margin-top:4vmin;}
-#sv-wx{font-size:4.6vmin;padding:0 4vmin;}
-#sv-sep{width:1px;height:9vmin;}
-#sv-next{padding:0 4vmin;text-align:left;}
-#sv-next-name{font-size:6vmin;line-height:1.1;}
-#sv-next-in{font-size:3.4vmin;margin-top:.6vmin;}
-#sv-hint{position:absolute;bottom:2.5vmin;left:0;right:0;text-align:center;font-size:2vmin;}
-/* day: paper */
-#saver.day{background:#F4F1EA;color:#1A1A1A;}
-#saver.day #sv-date,#saver.day #sv-next-in{color:#6A665C;} #saver.day #sv-sep{background:#CFC9BA;} #saver.day #sv-hint{color:#B5AFA2;}
-#saver.day .sv-sun{position:absolute;top:-22vmin;right:-16vmin;width:60vmin;height:60vmin;border-radius:50%;
-  background:radial-gradient(circle, rgba(232,190,110,.45) 0%, rgba(232,190,110,.12) 45%, rgba(244,241,234,0) 70%);}
-#saver.day .sv-stars,#saver.day .sv-moon{display:none;}
-/* night: black, dim */
-#saver.night{background:#000;color:#8C8C8C;}
-#saver.night #sv-date,#saver.night #sv-next-in{color:#4F4F4F;} #saver.night #sv-wx,#saver.night #sv-next-name{color:#7A7A7A;}
-#saver.night #sv-sep{background:#262626;} #saver.night #sv-hint{color:#1F1F1F;}
-#saver.night .sv-sun{display:none;}
-.sv-moon{position:absolute;top:7vmin;right:9vmin;width:9vmin;height:9vmin;border-radius:50%;box-shadow:2.2vmin 1.2vmin 0 0 #6E6A5E;}
-.sv-star{position:absolute;width:3px;height:3px;border-radius:50%;background:#7a7a7a;opacity:.15;
-  -webkit-animation:svTw 6s ease-in-out infinite;animation:svTw 6s ease-in-out infinite;}
-@-webkit-keyframes svTw{0%,100%{opacity:.1}50%{opacity:.6}} @keyframes svTw{0%,100%{opacity:.1}50%{opacity:.6}}
-/* Athan scene */
-.sv-athan{display:none;}
-#saver.athan{background:#071a1f;background-image:radial-gradient(ellipse at 50% 100%, #12424a 0%, #0a252b 45%, #071a1f 75%);color:#EAD9A8;}
-#saver.athan .sv-sun,#saver.athan .sv-moon{display:none;} #saver.athan .sv-stars{display:block;}
-#saver.athan .sv-star{background:#EAD9A8;}
-#saver.athan #sv-row,#saver.athan #sv-date,#saver.athan #sv-hint{display:none;}
-#saver.athan #sv-inner{-webkit-justify-content:flex-start;justify-content:flex-start;padding-top:12vmin;}
-#saver.athan #sv-time{font-size:16vmin;color:#EAD9A8;opacity:.85;}
-#saver.athan .sv-athan{display:block;}
-.sv-athan-title{font-size:13vmin;line-height:1.2;direction:rtl;color:#F2E3B3;margin-bottom:1vmin;
-  text-shadow:0 0 4vmin rgba(242,227,179,.35);-webkit-animation:svGlow 4s ease-in-out infinite;animation:svGlow 4s ease-in-out infinite;}
-@-webkit-keyframes svGlow{0%,100%{opacity:.75}50%{opacity:1}} @keyframes svGlow{0%,100%{opacity:.75}50%{opacity:1}}
-.sv-athan-sub{font-size:4.4vmin;color:#BFD8D2;margin-bottom:3vmin;}
-.sv-mosque{position:absolute;left:0;bottom:0;width:100%;height:26vmin;overflow:visible;}
-.sv-ring{position:absolute;left:50%;top:50%;width:70vmin;height:70vmin;margin:-35vmin 0 0 -35vmin;border-radius:50%;
-  border:1px solid rgba(234,217,168,.25);-webkit-animation:svRing 5s ease-out infinite;animation:svRing 5s ease-out infinite;}
-@-webkit-keyframes svRing{0%{-webkit-transform:scale(.6);opacity:.7}100%{-webkit-transform:scale(1.4);opacity:0}}
-@keyframes svRing{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.4);opacity:0}}
-.sv-btn{display:inline-block;padding:1.6vmin 4vmin;border-radius:5vmin;font-size:3.2vmin;border:1px solid rgba(234,217,168,.5);color:#EAD9A8;background:rgba(0,0,0,.2);}
-/* mini Quran player */
-#sv-player{display:none;position:absolute;left:50%;bottom:6vmin;width:72vmin;margin-left:-36vmin;padding:2vmin 3vmin;border-radius:3vmin;
-  font-family:Georgia,serif;-webkit-align-items:center;align-items:center;}
-#sv-player.on{display:-webkit-flex;display:flex;}
-#saver.day #sv-player{background:#FBFAF6;border:1px solid #D9D4C7;color:#1A1A1A;}
-#saver.night #sv-player{background:#0d0d0d;border:1px solid #222;color:#8C8C8C;}
-#saver.athan #sv-player{display:none;}
-#sv-p-info{-webkit-flex:1;flex:1;text-align:right;direction:rtl;padding:0 2vmin;overflow:hidden;}
-#sv-p-name{font-size:4vmin;white-space:nowrap;}
-#sv-p-bar{height:3px;margin-top:1.2vmin;background:rgba(128,128,128,.25);border-radius:2px;overflow:hidden;}
-#sv-p-fill{height:3px;width:0;background:#2E7D72;}
-.sv-pbtn{width:8vmin;height:8vmin;border-radius:50%;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
-  -webkit-justify-content:center;justify-content:center;font-size:3.2vmin;margin:0 .6vmin;border:1px solid rgba(128,128,128,.35);}
-.sv-pbtn.main{width:10vmin;height:10vmin;font-size:4vmin;background:#2E7D72;border-color:#2E7D72;color:#FBFAF6;}
-#saver.night .sv-pbtn.main{background:#1f4e48;border-color:#1f4e48;color:#9a9a9a;}
-#saver.has-player #sv-hint{display:none;}
+/* ═══ GOLD ═══ */
+.gold-price-big{font-size:38px;font-weight:300;color:var(--amber);letter-spacing:-1px}
+.gold-unit{font-size:9px;color:var(--muted)}
+.gold-change.up{color:var(--green)}
+.gold-change.dn{color:var(--red)}
+.gold-karats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
+.gold-k-row{background:var(--raised);border:1px solid var(--border);
+  padding:5px 8px;border-radius:var(--radius)}
+.gold-k-label{font-size:9px;color:var(--muted);margin-bottom:1px}
+.gold-k-val{font-size:13px;color:var(--dim)}
+
+/* ═══ HOLIDAYS ═══ */
+.holiday-table{width:100%;border-collapse:collapse;font-size:11px}
+.holiday-table th{text-align:left;padding:4px 8px;color:var(--muted);
+  border-bottom:1px solid var(--border);letter-spacing:0.08em;font-size:9px;font-weight:400}
+.holiday-table td{padding:4px 8px;border-bottom:1px solid var(--border)44;color:var(--dim)}
+.holiday-table tr:last-child td{border:none}
+.holiday-table td.lbl{color:var(--sub);width:72px;font-size:10px}
+.holiday-table td.today{color:var(--green)}
+.holiday-table td.soon{color:var(--amber)}
+
+/* ═══ AGENDA ═══ */
+.agenda-wrap{max-height:180px;overflow-y:auto}
+.agenda-wrap::-webkit-scrollbar{width:3px}
+.agenda-wrap::-webkit-scrollbar-thumb{background:var(--border)}
+.agenda-day-label{font-size:9px;color:var(--muted);letter-spacing:0.1em;
+  margin:6px 0 3px;padding-top:4px;border-top:1px solid var(--border)55}
+.agenda-day-label:first-child{margin-top:0;border:none}
+.agenda-event{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;color:var(--dim)}
+.agenda-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.agenda-time{color:var(--muted);font-size:10px;min-width:36px}
+.btn-auth{background:none;border:1px solid var(--border);color:var(--sub);
+  font-family:var(--font);font-size:11px;padding:5px 12px;cursor:pointer;
+  transition:all 0.15s;border-radius:var(--radius)}
+.btn-auth:hover{border-color:var(--amber);color:var(--amber)}
+
+/* ═══ SETTINGS OVERLAY ═══ */
+#settings-overlay{display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);overflow-y:auto;
+  padding:20px}
+#settings-overlay.show{display:block}
+#settings-panel{background:var(--surface);border:1px solid var(--border);
+  max-width:720px;margin:0 auto;padding:20px;border-radius:var(--radius)}
+.settings-title{font-size:14px;color:var(--text);letter-spacing:0.1em;
+  margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center}
+.settings-close{cursor:pointer;color:var(--muted);font-size:18px;padding:0 4px}
+.settings-close:hover{color:var(--red)}
+.settings-section{margin-bottom:20px}
+.settings-section-title{font-size:9px;letter-spacing:0.18em;color:var(--amber);
+  margin-bottom:10px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;
+  padding:5px 0;font-size:12px;color:var(--dim)}
+.settings-row label{cursor:pointer;display:flex;align-items:center;gap:8px}
+input[type=checkbox]{accent-color:var(--amber);width:14px;height:14px;cursor:pointer}
+.settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px}
+.settings-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+
+/* THEME CARDS */
+.theme-card{border:2px solid var(--border);padding:10px;cursor:pointer;
+  display:flex;flex-direction:column;gap:4px;transition:border-color 0.15s;
+  border-radius:var(--radius)}
+.theme-card:hover,.theme-card.active{border-color:var(--amber)}
+.theme-swatch{height:24px;border-radius:2px;margin-bottom:4px}
+.theme-name{font-size:10px;color:var(--sub);letter-spacing:0.1em}
+.theme-desc{font-size:9px;color:var(--muted)}
+
+/* CLOCK EDIT ROWS */
+.clock-edit-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.clock-edit-row input,.clock-edit-row select{
+  flex:1;background:var(--raised);border:1px solid var(--border);
+  color:var(--text);font-family:var(--font);font-size:11px;
+  padding:5px 8px;outline:none;border-radius:var(--radius)}
+.clock-edit-row input:focus,.clock-edit-row select:focus{border-color:var(--amber)88}
+.rm-btn{background:none;border:1px solid var(--border);color:var(--muted);
+  font-family:var(--font);font-size:11px;padding:4px 8px;cursor:pointer;border-radius:var(--radius)}
+.rm-btn:hover{border-color:var(--red);color:var(--red)}
+.add-btn{background:none;border:1px dashed var(--border);color:var(--sub);
+  font-family:var(--font);font-size:11px;padding:5px 12px;cursor:pointer;
+  width:100%;margin-top:4px;border-radius:var(--radius)}
+.add-btn:hover{border-color:var(--green);color:var(--green)}
+.save-btn{background:color-mix(in srgb,var(--amber) 15%,transparent);
+  border:1px solid var(--amber);color:var(--amber);
+  font-family:var(--font);font-size:11px;padding:7px 20px;cursor:pointer;
+  margin-top:14px;width:100%;letter-spacing:0.1em;border-radius:var(--radius)}
+.save-btn:hover{background:color-mix(in srgb,var(--amber) 25%,transparent)}
+
+/* INSTALL BANNER */
+#install-banner{display:none;align-items:center;justify-content:space-between;
+  padding:8px 14px;background:color-mix(in srgb,var(--blue) 15%,transparent);
+  border-bottom:1px solid var(--blue)44;font-size:11px;color:var(--dim)}
+#install-banner.show{display:flex}
+#install-banner button{background:none;border:1px solid var(--blue);color:var(--blue);
+  font-family:var(--font);font-size:10px;padding:3px 10px;cursor:pointer;border-radius:var(--radius)}
+
+/* UTILITY */
+.flex-between{display:flex;justify-content:space-between;align-items:flex-start}
+.mt6{margin-top:6px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border)}
 </style>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js" async defer></script>
-
 </head>
 <body>
-<div id="saver">
-  <div class="sv-sun"></div><div class="sv-moon"></div><div class="sv-stars" id="sv-stars"></div>
-  <div class="sv-athan"><div class="sv-ring"></div><div class="sv-ring" style="-webkit-animation-delay:2.5s;animation-delay:2.5s"></div>
-    <svg class="sv-mosque" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMax meet"><g fill="#04110f">
-      <rect x="-2000" y="250" width="5000" height="60"/>
-      <rect x="140" y="80" width="26" height="180"/><path d="M136 80 L153 30 L170 80 Z"/><circle cx="153" cy="24" r="5"/>
-      <rect x="834" y="80" width="26" height="180"/><path d="M830 80 L847 30 L864 80 Z"/><circle cx="847" cy="24" r="5"/>
-      <rect x="260" y="170" width="480" height="90"/>
-      <path d="M380 170 Q380 70 500 60 Q620 70 620 170 Z"/><rect x="497" y="20" width="6" height="40"/><path d="M500 6 a10 10 0 1 0 8 16 a8 8 0 1 1 -8 -16 z"/>
-      <path d="M270 170 Q270 125 315 120 Q360 125 360 170 Z"/><path d="M640 170 Q640 125 685 120 Q730 125 730 170 Z"/>
-    </g></svg></div>
-  <div id="sv-inner">
-    <div class="sv-alarm"><div class="sv-alarm-title" id="sv-alarm-title">⏰ Alarm</div></div>
-    <div class="sv-athan"><div class="sv-athan-title">الله أكبر</div><div class="sv-athan-sub" id="sv-athan-sub">Time for prayer</div></div>
-    <div id="sv-time">--:--</div>
-    <div id="sv-date"></div>
-    <div id="sv-row"><div id="sv-wx"></div><div id="sv-sep"></div><div id="sv-next"><div id="sv-next-name"></div><div id="sv-next-in"></div></div></div>
-    <div class="sv-athan" style="margin-top:4vmin"><span class="sv-btn sv-keep" id="sv-athan-stop">⏹ Stop Athan</span></div>
-    <div class="sv-alarm" style="margin-top:5vmin"><span class="sv-btn stop sv-keep" id="sv-alarm-stop">Stop</span><span class="sv-btn sv-keep" id="sv-alarm-snooze">Snooze 5 min</span></div>
-  </div>
-  <div id="sv-player" class="sv-keep">
-    <div class="sv-pbtn sv-keep" id="sv-p-prev">⏮</div><div class="sv-pbtn main sv-keep" id="sv-p-play">⏸</div><div class="sv-pbtn sv-keep" id="sv-p-next">⏭</div>
-    <div id="sv-p-info"><div id="sv-p-name"></div><div id="sv-p-bar"><div id="sv-p-fill"></div></div></div>
-  </div>
-  <div id="sv-hint">Tap to open dashboard</div>
-  <div style="position:absolute;bottom:1vmin;right:1.5vmin;font-size:1.4vmin;opacity:.35">v2026-10-15</div>
-</div>
-<div id="sound-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;text-align:center;font-weight:700;font-size:.95rem;background:#FFC857;color:#1B2A4A;cursor:pointer;">🔇 Tap anywhere once to enable Athan sound</div>
+<div id="app">
 
-<div class="top">
-  <div class="brand">
-    <h1 id="greeting">Good Evening</h1>
-    <div class="sub" id="live-date">Loading date…</div>
-  </div>
-  <div class="top-controls">
-    <div class="pill" id="clock-cairo-pill">🕐 --:--</div>
-    <button class="toggle-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+<!-- INSTALL BANNER (PWA) -->
+<div id="install-banner">
+  <span>📱 Install HORIZON as an app — tap for offline access</span>
+  <div style="display:flex;gap:8px">
+    <button id="install-btn">INSTALL</button>
+    <button onclick="document.getElementById('install-banner').classList.remove('show')" style="border-color:var(--muted);color:var(--muted)">✕</button>
   </div>
 </div>
 
-<div class="grid">
-
-    <div class="tile hero" draggable="true" data-tile="c-prayer" id="tile-c-prayer">
-    <div class="card c-prayer">
-      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
-      <h2>🕌 Prayers · Cairo</h2>
-      <div class="prayer-count" id="prayer-countdown">-- h -- m</div>
-      <div class="p-list" id="prayer-list">
-        <div class="p-row" id="p-fajr"><span class="p-name">Fajr</span><span class="p-time">--:--</span><button class="p-bell" data-p="fajr" title="Athan on/off">🔕 Athan off</button></div>
-        <div class="p-row" id="p-dhuhr"><span class="p-name">Dhuhr</span><span class="p-time">--:--</span><button class="p-bell" data-p="dhuhr" title="Athan on/off">🔕 Athan off</button></div>
-        <div class="p-row" id="p-asr"><span class="p-name">Asr</span><span class="p-time">--:--</span><button class="p-bell" data-p="asr" title="Athan on/off">🔕 Athan off</button></div>
-        <div class="p-row" id="p-maghrib"><span class="p-name">Maghrib</span><span class="p-time">--:--</span><button class="p-bell" data-p="maghrib" title="Athan on/off">🔕 Athan off</button></div>
-        <div class="p-row" id="p-isha"><span class="p-name">Isha</span><span class="p-time">--:--</span><button class="p-bell" data-p="isha" title="Athan on/off">🔕 Athan off</button></div>
-      </div>
-      <div class="athan-note"><span>Athan plays while this page is open. Tap a bell once per visit to allow sound.</span><button class="mini-btn" id="athan-test">▶ Test</button><button class="mini-btn" id="athan-stop" style="display:none;">⏹ Stop</button></div>
-      <div class="stamp" id="stamp-prayer"></div>
-    </div>
-    </div>
-
-    <div class="tile" draggable="true" data-tile="c-holiday" id="tile-c-holiday">
-    <div class="card c-holiday">
-      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
-      <h2>🎉 30-Day Holidays &amp; Weekends</h2>
-      <div id="holiday-list">
-        <div class="h-country" id="hc-eg"><div class="h-head"><span>🇪🇬 Egypt</span><span class="h-tag" id="we-eg">–</span></div><div class="h-alert" id="al-eg">Loading…</div></div>
-        <div class="h-country" id="hc-tr"><div class="h-head"><span>🇹🇷 Turkey</span><span class="h-tag" id="we-tr">–</span></div><div class="h-alert" id="al-tr">Loading…</div></div>
-        <div class="h-country" id="hc-uk"><div class="h-head"><span>🇬🇧 United Kingdom</span><span class="h-tag" id="we-uk">–</span></div><div class="h-alert" id="al-uk">Loading…</div></div>
-      </div>
-      <div class="stamp" id="stamp-holiday"></div>
-    </div>
-    </div>
-
-  <!-- Clocks -->
-  <div class="tile" draggable="true" data-tile="c-alarm" id="tile-c-alarm">
-  <div class="card c-alarm">
-    <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
-    <h2>⏰ Alarms</h2>
-    <div id="alarm-list"></div>
-    <div class="al-form">
-      <input type="time" id="al-time" value="07:00">
-      <select id="al-sound"><option value="beep">🔔 Beep (loud)</option><option value="athan">🕌 Athan</option></select>
-      <input type="text" id="al-label" placeholder="Label (optional)" maxlength="30">
-      <div class="al-days" id="al-days"></div>
-      <button class="mini-btn al-add" id="al-add">＋ Add alarm</button>
-    </div>
-    <div class="fx-note">No days ticked = rings once. Rings for up to 10 minutes or until stopped. Plays only while this page is open on screen.</div>
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <div class="seg">
+    <span class="live-indicator"></span>
+    <span style="color:var(--text)">HORIZON</span>
+    <span class="sep">|</span>
+    <span id="hijri-date">—</span>
   </div>
+  <div class="seg">
+    <span id="status-gregorian">—</span>
+    <span class="sep">|</span>
+    <span id="status-ip-loc" style="color:var(--sub)">—</span>
+    <span class="sep">|</span>
+    <button class="icon-btn" onclick="openSettings()">⚙ SETTINGS</button>
+  </div>
+</div>
+
+<!-- ROW 1: CLOCKS + PRAYER + QURAN -->
+<div class="grid-3">
+  <!-- CLOCKS -->
+  <div>
+    <div class="clocks-grid" id="clocks-grid"></div>
   </div>
 
-  <div class="tile" draggable="true" data-tile="c-clocks" id="tile-c-clocks">
-    <div class="card c-clocks">
-      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
-    <h2>🌍 World Clocks &amp; Weather</h2>
-    <div class="clocks-row">
-      <div class="clock-item" id="tz-cairo"><div class="clock-name">Cairo</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
-      <div class="clock-item" id="tz-istanbul"><div class="clock-name">Istanbul</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
-      <div class="clock-item" id="tz-london"><div class="clock-name">London</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
-      <div class="clock-item" id="tz-local" style="display:none;"><div class="clock-name" id="local-name">Local</div><div class="clock-time">--:--</div><div class="clock-wx">Loading…</div></div>
-    </div>
-    <div class="hourly-wrap"><div class="hourly-title" id="hourly-title">Tap a city for hourly weather</div><div class="hourly" id="hourly"></div></div>
-    <div class="stamp" id="stamp-weather"></div>
-  </div>
+  <!-- PRAYER TIMES -->
+  <div class="card">
+    <div class="card-label red">PRAYER TIMES</div>
+    <div class="prayer-list" id="prayer-list"></div>
+    <div class="prayer-countdown">Next: <b id="next-prayer-name">—</b> in <b id="next-prayer-countdown">—</b></div>
+    <div class="athan-grid" id="athan-grid"></div>
   </div>
 
-  <!-- FX -->
-  <div class="tile" draggable="true" data-tile="c-fx" id="tile-c-fx">
-    <div class="card c-fx">
-      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
-    <h2>📈 Currency &amp; Gold</h2>
-    <div class="fx-input-row">
-      <select id="base-currency">
-        <option value="USD" selected>USD</option>
-        <option value="GBP">GBP</option>
-        <option value="EUR">EUR</option>
-        <option value="EGP">EGP</option>
-        <option value="TRY">TRY</option>
+  <!-- QURAN PLAYER -->
+  <div class="card">
+    <div class="card-label green">QURAN PLAYER</div>
+    <div class="quran-nowplaying">NOW: <b id="quran-surah-name">Select a surah</b></div>
+    <div class="quran-row">
+      <select class="quran-select" id="quran-reciter" onchange="changeReciter(this.value)" title="Reciter">
+        <!-- populated by JS -->
       </select>
-      <input type="number" id="base-amount" value="1" step="any">
-      <span style="align-self:center;color:var(--text-mid);font-size:.85rem;" id="fx-live-status">syncing…</span>
     </div>
-    <div class="fx-grid" id="fx-grid"></div>
-    <div class="fx-note">Mid-market indicative rates — not buy/sell (exchange office) pricing.</div>
-    <div class="stamp" id="stamp-fx"></div>
-  </div>
-  </div>
-
-  <!-- Quran -->
-  <div class="tile" draggable="true" data-tile="c-radio" id="tile-c-radio">
-    <div class="card c-radio">
-      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
-    <h2>📖 Quran — Mahmoud Khalil Al-Husary</h2>
-    <div class="quran">
-      <div>
-        <div class="q-now" id="q-ar">—</div>
-        <div class="q-sub" id="q-sub">Pick a surah to play</div>
-        <div class="q-ctl">
-          <button class="mini-btn" id="q-prev">⏮</button>
-          <button class="play-btn" id="q-play">▶</button>
-          <button class="mini-btn" id="q-next">⏭</button>
-          <button class="mini-btn" id="q-rep" title="Repeat this surah">🔁 Repeat</button>
-        </div>
-        <input type="range" class="q-seek" id="q-seek" min="0" max="1000" value="0">
-        <div class="q-times"><span id="q-cur">0:00</span><span id="q-dur">0:00</span></div>
-        <div class="radio-status" id="q-status" style="margin-top:8px;">Ready</div>
-        <audio id="q-audio" preload="none"></audio>
-        <audio id="q-audio-b" preload="none"></audio>
-        <audio id="athan-audio" preload="none"></audio>
-        <audio id="alarm-audio" preload="none" loop></audio>
-      </div>
-      <div>
-        <input class="q-search" id="q-search" placeholder="Search surah (name or number)">
-        <div class="q-list" id="q-list"></div>
-      </div>
+    <select class="quran-select" id="quran-surah" onchange="loadSurah(this.value)" style="margin-bottom:8px;width:100%">
+      <option value="">— SELECT SURAH —</option>
+    </select>
+    <div class="quran-controls">
+      <button class="qbtn play-btn" id="quran-play-btn" onclick="togglePlay()">▶</button>
+      <button class="qbtn" onclick="seekRel(-10)">-10s</button>
+      <button class="qbtn" onclick="seekRel(10)">+10s</button>
+      <button class="qbtn" id="quran-repeat-btn" onclick="toggleRepeat()">↩ RPT</button>
+    </div>
+    <div class="quran-progress-wrap" onclick="seekClick(event)">
+      <div class="quran-progress-fill" id="quran-progress"></div>
+    </div>
+    <div class="quran-time">
+      <span id="quran-current">0:00</span>
+      <span id="quran-duration">0:00</span>
     </div>
   </div>
-  </div>
-  <!-- Calendar / Tasks Agenda -->
-  <div class="tile" draggable="true" data-tile="c-cal" id="tile-c-cal">
-    <div class="card c-cal">
-      <span class="drag-handle" title="Drag to rearrange">⠿⠿</span>
-    <h2>📅 Agenda — Events &amp; Tasks</h2>
-    <div id="signin-block">
-      <button id="gsi-btn" class="pill" style="cursor:pointer;border:1px solid var(--emerald);">Sign in with Google</button>
-      <div class="fx-note" style="margin-top:10px;">Read-only access to your Google Calendar and Tasks. Sign-in lasts about an hour, then tap the button again.</div>
-    </div>
-    <div id="agenda-block" style="display:none;">
-      <div id="overdue-block"></div>
-      <h2 id="agenda-day-label">Today</h2>
-      <div id="today-list" class="agenda-list"></div>
-      <h2 style="margin-top:22px;">Next 7 Days <span style="font-weight:400;text-transform:none;font-size:.7rem;color:var(--text-low);">(tap a day)</span></h2>
-      <div id="week-strip" class="week-strip"></div>
-    </div>
-    <div class="stamp" id="stamp-cal"></div>
-  </div>
-  </div>
-
-
 </div>
+
+<!-- ROW 2: CURRENCY + GOLD (hideable) -->
+<div class="grid-2" id="row-finance">
+  <div class="card">
+    <div class="card-label amber">CURRENCY</div>
+    <div class="currency-row">
+      <input class="curr-input" id="curr-amount" type="number" value="100" oninput="convertCurrency()"/>
+      <select class="curr-select" id="curr-from" onchange="convertCurrency()">
+        <option>EGP</option><option>USD</option><option>GBP</option>
+        <option>TRY</option><option>SAR</option><option>EUR</option>
+        <option>AED</option><option>JPY</option><option>CNY</option>
+      </select>
+      <span style="color:var(--muted)">→</span>
+    </div>
+    <div id="curr-results"><div class="curr-loading">loading rates…</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label amber">GOLD // EGP</div>
+    <div class="flex-between">
+      <div>
+        <div class="gold-unit">24K / gram</div>
+        <div class="gold-price-big" id="gold-24k">—</div>
+        <div class="gold-change" id="gold-change" style="font-size:11px;margin-top:2px">—</div>
+      </div>
+      <div style="text-align:right;color:var(--muted);font-size:9px;line-height:1.6" id="gold-updated">—</div>
+    </div>
+    <div class="gold-karats" id="gold-karats"></div>
+  </div>
+</div>
+
+<!-- ROW 3: HOLIDAYS + CALENDAR -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-label">HOLIDAYS</div>
+    <table class="holiday-table">
+      <thead id="holiday-head"></thead>
+      <tbody id="holiday-body"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-label blue">AGENDA + TASKS</div>
+    <div id="cal-signin">
+      <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Google Calendar not connected.</div>
+      <button class="btn-auth" onclick="initGoogleAuth()">CONNECT CALENDAR</button>
+    </div>
+    <div id="cal-content" style="display:none">
+      <div class="agenda-wrap" id="agenda-list"></div>
+      <div id="tasks-list" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- SETTINGS OVERLAY -->
+<div id="settings-overlay">
+<div id="settings-panel">
+  <div class="settings-title">
+    <span>⚙ HORIZON SETTINGS</span>
+    <span class="settings-close" onclick="closeSettings()">✕</span>
+  </div>
+
+  <!-- THEMES -->
+  <div class="settings-section">
+    <div class="settings-section-title">THEME</div>
+    <div class="settings-grid-3">
+      <div class="theme-card active" id="theme-dots" onclick="setTheme('dots')">
+        <div class="theme-swatch" style="background:linear-gradient(135deg,#0A0A0A 0%,#1A1E26 100%);border:1px solid #252932"></div>
+        <div class="theme-name">DOTS</div>
+        <div class="theme-desc">Default. Black + amber. Dot-matrix grid.</div>
+      </div>
+      <div class="theme-card" id="theme-cockpit" onclick="setTheme('cockpit')">
+        <div class="theme-swatch" style="background:linear-gradient(135deg,#060A0E 0%,#151D26 100%);border:1px solid #1E2A36"></div>
+        <div class="theme-name">COCKPIT</div>
+        <div class="theme-desc">Deep navy. Warm amber cockpit feel.</div>
+      </div>
+      <div class="theme-card" id="theme-minimal" onclick="setTheme('minimal')">
+        <div class="theme-swatch" style="background:linear-gradient(135deg,#0F0F0F 0%,#222 100%);border:1px solid #2E2E2E"></div>
+        <div class="theme-name">MINIMAL</div>
+        <div class="theme-desc">Pure dark. Rounded. Clean.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORLD CLOCKS -->
+  <div class="settings-section">
+    <div class="settings-section-title">WORLD CLOCKS (up to 4)</div>
+    <div id="clock-editor"></div>
+    <button class="add-btn" onclick="addClockSlot()">+ ADD CLOCK</button>
+  </div>
+
+  <!-- SHOW/HIDE WIDGETS -->
+  <div class="settings-section">
+    <div class="settings-section-title">SHOW / HIDE WIDGETS</div>
+    <div class="settings-row">
+      <label><input type="checkbox" id="tog-finance" onchange="toggleFinance(this.checked)" checked/> Currency &amp; Gold</label>
+    </div>
+    <div class="settings-row">
+      <label><input type="checkbox" id="tog-holidays" onchange="toggleHolidays(this.checked)" checked/> Holidays Panel</label>
+    </div>
+  </div>
+
+  <!-- HOLIDAY COUNTRIES -->
+  <div class="settings-section">
+    <div class="settings-section-title">HOLIDAY COUNTRIES (up to 3)</div>
+    <div class="settings-grid-3" id="holiday-country-picker"></div>
+  </div>
+
+  <!-- OFFLINE / INSTALL -->
+  <div class="settings-section">
+    <div class="settings-section-title">OFFLINE &amp; INSTALL</div>
+    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+      <div style="font-size:11px;color:var(--dim)">Cache dashboard for offline use (service worker). On iPad: Safari → Share → <b style="color:var(--amber)">Add to Home Screen</b> for fullscreen kiosk app.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-auth" onclick="cacheOffline()">💾 CACHE FOR OFFLINE</button>
+        <button class="btn-auth" id="offline-status" style="cursor:default;border-color:var(--muted)">STATUS: CHECKING…</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveSettings()">SAVE &amp; CLOSE</button>
+</div>
+</div>
+
+<audio id="quran-audio" preload="none"></audio>
 
 <script>
-/* ---------- THEME ---------- */
-const themeToggle = document.getElementById('theme-toggle');
-// Default look is "paper" (Kindle-style). The button switches to the dark look and back.
-function applyTheme(t){
-  document.body.classList.remove('light');
-  document.body.classList.toggle('paper', t !== 'dark');
-  document.documentElement.classList.toggle('paper-root', t !== 'dark');
-  themeToggle.innerText = t === 'dark' ? '📖' : '🌙';
-  themeToggle.title = t === 'dark' ? 'Paper look' : 'Dark look';
-}
-let curTheme = 'paper';
-try{ if(localStorage.getItem('horizon_theme')==='dark') curTheme='dark'; }catch(e){}
-applyTheme(curTheme);
-themeToggle.onclick = () => {
-  curTheme = curTheme === 'dark' ? 'paper' : 'dark';
-  applyTheme(curTheme);
-  try{ localStorage.setItem('horizon_theme', curTheme); }catch(e){}
-};
+// ═══════════════════════════════════════
+// STATE — load from localStorage or defaults
+// ═══════════════════════════════════════
+const DEFAULT_CLOCKS = [
+  {label:'ISTANBUL', tz:'Europe/Istanbul', lat:41.01, lon:28.98},
+  {label:'CAIRO',    tz:'Africa/Cairo',    lat:30.06, lon:31.25},
+  {label:'LONDON',   tz:'Europe/London',   lat:51.51, lon:-0.13},
+  {label:'LOCAL',    tz:'LOCAL',           lat:null,  lon:null},
+];
+const DEFAULT_HOLIDAY_COUNTRIES = ['EG','TR','UK'];
 
-/* ---------- DRAG TO REARRANGE (saved per browser) ---------- */
-(function(){
-  const grid = document.querySelector('.grid');
-  const TILE_ORDER_KEY = 'horizon_tile_order';
-  let dragged = null;
-  function applySavedOrder(){
-    let order = [];
-    try{ order = JSON.parse(localStorage.getItem(TILE_ORDER_KEY)||'[]'); }catch(e){}
-    order.forEach(id=>{ const el = document.getElementById('tile-'+id); if(el) grid.appendChild(el); });
+let ST = loadState();
+
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem('horizon_state')||'{}');
+    return {
+      theme:   s.theme   || 'dots',
+      clocks:  s.clocks  || JSON.parse(JSON.stringify(DEFAULT_CLOCKS)),
+      showFinance:  s.showFinance  !== undefined ? s.showFinance  : true,
+      showHolidays: s.showHolidays !== undefined ? s.showHolidays : true,
+      holidayCountries: s.holidayCountries || ['EG','TR','UK'],
+      athanState: s.athanState || {Fajr:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true},
+      reciterId: s.reciterId || 'husary',
+    };
+  }catch(e){ return {theme:'dots',clocks:JSON.parse(JSON.stringify(DEFAULT_CLOCKS)),
+    showFinance:true,showHolidays:true,holidayCountries:['EG','TR','UK'],
+    athanState:{Fajr:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true},reciterId:'husary'}; }
+}
+function saveState(){ localStorage.setItem('horizon_state', JSON.stringify(ST)); }
+
+// Apply theme on load
+applyTheme(ST.theme);
+applyWidgetVisibility();
+
+// ═══════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t === 'dots' ? '' : t);
+  document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'));
+  const el = document.getElementById('theme-'+t);
+  if(el) el.classList.add('active');
+  ST.theme = t; saveState();
+}
+function setTheme(t){ applyTheme(t); }
+
+// ═══════════════════════════════════════
+// TIMEZONES REFERENCE LIST
+// ═══════════════════════════════════════
+const TZLIST = [
+  {tz:'LOCAL',           label:'Local (Device)'},
+  {tz:'Africa/Cairo',    label:'Cairo, Egypt'},
+  {tz:'Europe/Istanbul', label:'Istanbul, Turkey'},
+  {tz:'Europe/London',   label:'London, UK'},
+  {tz:'America/New_York',label:'New York, USA'},
+  {tz:'America/Los_Angeles',label:'Los Angeles, USA'},
+  {tz:'America/Chicago', label:'Chicago, USA'},
+  {tz:'America/Toronto', label:'Toronto, Canada'},
+  {tz:'America/Sao_Paulo',label:'São Paulo, Brazil'},
+  {tz:'Europe/Paris',    label:'Paris, France'},
+  {tz:'Europe/Berlin',   label:'Berlin, Germany'},
+  {tz:'Europe/Madrid',   label:'Madrid, Spain'},
+  {tz:'Europe/Rome',     label:'Rome, Italy'},
+  {tz:'Europe/Moscow',   label:'Moscow, Russia'},
+  {tz:'Europe/Amsterdam',label:'Amsterdam, Netherlands'},
+  {tz:'Europe/Stockholm',label:'Stockholm, Sweden'},
+  {tz:'Europe/Warsaw',   label:'Warsaw, Poland'},
+  {tz:'Asia/Dubai',      label:'Dubai, UAE'},
+  {tz:'Asia/Riyadh',     label:'Riyadh, Saudi Arabia'},
+  {tz:'Asia/Kuwait',     label:'Kuwait City'},
+  {tz:'Asia/Beirut',     label:'Beirut, Lebanon'},
+  {tz:'Asia/Amman',      label:'Amman, Jordan'},
+  {tz:'Asia/Baghdad',    label:'Baghdad, Iraq'},
+  {tz:'Asia/Tehran',     label:'Tehran, Iran'},
+  {tz:'Asia/Karachi',    label:'Karachi, Pakistan'},
+  {tz:'Asia/Kolkata',    label:'Mumbai / Delhi, India'},
+  {tz:'Asia/Dhaka',      label:'Dhaka, Bangladesh'},
+  {tz:'Asia/Bangkok',    label:'Bangkok, Thailand'},
+  {tz:'Asia/Singapore',  label:'Singapore'},
+  {tz:'Asia/Hong_Kong',  label:'Hong Kong'},
+  {tz:'Asia/Shanghai',   label:'Beijing / Shanghai, China'},
+  {tz:'Asia/Tokyo',      label:'Tokyo, Japan'},
+  {tz:'Asia/Seoul',      label:'Seoul, South Korea'},
+  {tz:'Asia/Jakarta',    label:'Jakarta, Indonesia'},
+  {tz:'Australia/Sydney',label:'Sydney, Australia'},
+  {tz:'Pacific/Auckland',label:'Auckland, New Zealand'},
+  {tz:'Africa/Johannesburg',label:'Johannesburg, South Africa'},
+  {tz:'Africa/Lagos',    label:'Lagos, Nigeria'},
+  {tz:'Africa/Nairobi',  label:'Nairobi, Kenya'},
+  {tz:'America/Mexico_City',label:'Mexico City'},
+  {tz:'America/Buenos_Aires',label:'Buenos Aires, Argentina'},
+];
+
+// ═══════════════════════════════════════
+// CLOCKS
+// ═══════════════════════════════════════
+const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const DAYS=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const weatherCache={};
+
+function fmtTime(d,tz){
+  if(tz==='LOCAL') return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false});
+  return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz,hour12:false});
+}
+function fmtDate(d,tz){
+  let loc;
+  if(tz==='LOCAL') loc=d;
+  else loc=new Date(d.toLocaleString('en-US',{timeZone:tz}));
+  return `${DAYS[loc.getDay()]} ${loc.getDate()} ${MONTHS[loc.getMonth()]}`;
+}
+
+function renderClocksGrid(){
+  const grid = document.getElementById('clocks-grid');
+  const cols = ST.clocks.length <= 2 ? 1 : 2;
+  grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  grid.innerHTML = ST.clocks.map((c,i)=>`
+    <div class="card clock-card" id="clk-${i}" onclick="toggleWeather(${i})">
+      <div class="card-label amber">${c.label||c.tz.split('/').pop().replace('_',' ')}</div>
+      <div class="clock-time" id="time-${i}">--:--</div>
+      <div class="clock-date" id="date-${i}">—</div>
+      <div class="weather-pop" id="wx-${i}"></div>
+    </div>`).join('');
+  // Pre-load weather for known coords
+  ST.clocks.forEach((c,i)=>{
+    if(c.lat && c.lon) loadWeather(c.lat,c.lon,i);
+  });
+}
+
+function tickClocks(){
+  const now=new Date();
+  ST.clocks.forEach((c,i)=>{
+    document.getElementById('time-'+i).textContent = fmtTime(now,c.tz);
+    document.getElementById('date-'+i).textContent = fmtDate(now,c.tz);
+  });
+  document.getElementById('status-gregorian').textContent =
+    `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  updateHijri(now);
+}
+
+function updateHijri(d){
+  try{
+    const h=new Intl.DateTimeFormat('en-TN-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(d);
+    document.getElementById('hijri-date').textContent=h;
+  }catch(e){}
+}
+
+// WEATHER
+async function loadWeather(lat,lon,idx){
+  try{
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m&forecast_days=1&timezone=auto`);
+    const d=await r.json();
+    weatherCache[idx]={times:d.hourly.time,temps:d.hourly.temperature_2m};
+  }catch(e){}
+}
+
+function toggleWeather(idx){
+  const pop=document.getElementById('wx-'+idx);
+  const open=pop.classList.contains('show');
+  document.querySelectorAll('.weather-pop').forEach(p=>p.classList.remove('show'));
+  if(open) return;
+  if(!weatherCache[idx]){
+    pop.innerHTML='<div style="color:var(--muted);font-size:10px">no weather data — set coords in settings</div>';
+  } else {
+    const {times,temps}=weatherCache[idx];
+    const h=new Date().getHours();
+    let html='';
+    for(let i=h;i<Math.min(h+8,times.length);i++)
+      html+=`<div class="weather-row"><span>${times[i].split('T')[1].substring(0,5)}</span><span>${Math.round(temps[i])}°C</span></div>`;
+    pop.innerHTML=html||'<div style="color:var(--muted);font-size:10px">no data</div>';
   }
-  function saveOrder(){
-    const order = [...grid.querySelectorAll('.tile')].map(t=>t.dataset.tile);
-    try{ localStorage.setItem(TILE_ORDER_KEY, JSON.stringify(order)); }catch(e){}
+  pop.classList.add('show');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.clock-card')) document.querySelectorAll('.weather-pop').forEach(p=>p.classList.remove('show'));
+});
+
+// IP GEOLOCATION → LOCAL CLOCK
+fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
+  document.getElementById('status-ip-loc').textContent=(d.city||d.country_name||'—').toUpperCase();
+  const localIdx = ST.clocks.findIndex(c=>c.tz==='LOCAL');
+  if(localIdx>=0 && d.latitude && d.longitude){
+    ST.clocks[localIdx].lat = d.latitude;
+    ST.clocks[localIdx].lon = d.longitude;
+    ST.clocks[localIdx].label = (d.city||'LOCAL').toUpperCase().substring(0,8);
+    const lbl = document.querySelector(`#clk-${localIdx} .card-label`);
+    if(lbl) lbl.firstChild.textContent = ST.clocks[localIdx].label;
+    loadWeather(d.latitude,d.longitude,localIdx);
   }
-  applySavedOrder();
-  grid.querySelectorAll('.tile').forEach(tile=>{
-    tile.addEventListener('dragstart', e=>{ dragged = tile; tile.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
-    tile.addEventListener('dragend', ()=>{ tile.classList.remove('dragging'); grid.querySelectorAll('.tile').forEach(t=>t.classList.remove('drag-over')); saveOrder(); });
-    tile.addEventListener('dragover', e=>{ e.preventDefault(); if(tile!==dragged) tile.classList.add('drag-over'); });
-    tile.addEventListener('dragleave', ()=>{ tile.classList.remove('drag-over'); });
-    tile.addEventListener('drop', e=>{
-      e.preventDefault(); tile.classList.remove('drag-over');
-      if(!dragged || dragged===tile) return;
-      const tiles = [...grid.querySelectorAll('.tile')];
-      const from = tiles.indexOf(dragged), to = tiles.indexOf(tile);
-      if(from<to) tile.after(dragged); else tile.before(dragged);
-    });
+}).catch(()=>{});
+
+renderClocksGrid();
+setInterval(tickClocks,1000); tickClocks();
+
+// ═══════════════════════════════════════
+// PRAYER TIMES
+// ═══════════════════════════════════════
+let prayerTimes={};
+const PRAYER_NAMES=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
+
+async function loadPrayerTimes(){
+  try{
+    const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5');
+    const d=await r.json();
+    if(d.code===200){ prayerTimes=d.data.timings; renderPrayers(); }
+  }catch(e){ renderPrayers(); }
+}
+
+function renderPrayers(){
+  const now=new Date();
+  const hm=t=>{const p=t.split(':');return parseInt(p[0])*60+parseInt(p[1]);};
+  const nowM=now.getHours()*60+now.getMinutes();
+  let cur=null, nextP=null, nextM=Infinity;
+  PRAYER_NAMES.forEach(n=>{
+    const t=prayerTimes[n]||'00:00';
+    const m=hm(t);
+    if(m<=nowM) cur=n;
+    if(m>nowM&&m<nextM){nextM=m;nextP=n;}
+  });
+  document.getElementById('prayer-list').innerHTML=PRAYER_NAMES.map(n=>{
+    const t=prayerTimes[n]||'--:--';
+    const isCur=(n===cur);
+    return `<div class="prayer-row ${isCur?'current':''}">
+      <span class="prayer-name">${isCur?'<span class="live-dot"></span>':''}${n.toUpperCase()}</span>
+      <span class="prayer-time-val">${t}</span>
+    </div>`;
+  }).join('');
+  if(nextP){
+    const diff=nextM-nowM;
+    document.getElementById('next-prayer-name').textContent=nextP;
+    document.getElementById('next-prayer-countdown').textContent=diff>=60?`${Math.floor(diff/60)}h ${diff%60}m`:`${diff}m`;
+  }
+  renderAthanToggles();
+}
+
+function renderAthanToggles(){
+  const prayers=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+  document.getElementById('athan-grid').innerHTML=prayers.map(p=>`
+    <div class="athan-item">
+      <div class="toggle ${ST.athanState[p]?'on':''}" onclick="toggleAthan('${p}')"></div>
+      <span>${p.substring(0,3).toUpperCase()}</span>
+    </div>`).join('');
+}
+
+function toggleAthan(p){
+  ST.athanState[p]=!ST.athanState[p];
+  saveState(); renderAthanToggles();
+}
+
+setInterval(renderPrayers,30000);
+loadPrayerTimes();
+
+// ═══════════════════════════════════════
+// QURAN PLAYER
+// ═══════════════════════════════════════
+const RECITERS = [
+  {id:'husary',   name:'Al-Husary (Murattal)', base:'https://download.quranicaudio.com/quran/mahmood_khalil_al-hussaree/'},
+  {id:'minshawi', name:'Al-Minshawi (Murattal)',base:'https://download.quranicaudio.com/quran/muhammad_siddeeq_al-minshaawee/'},
+  {id:'sudais',   name:'Al-Sudais',             base:'https://download.quranicaudio.com/quran/abdurrahmaan_as-sudais/'},
+  {id:'shuraim',  name:'Al-Shuraim',            base:'https://download.quranicaudio.com/quran/saud_ash-shuraym/'},
+  {id:'afasy',    name:'Mishary Al-Afasy',       base:'https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/'},
+  {id:'ghamdi',   name:'Al-Ghamdi',             base:'https://download.quranicaudio.com/quran/saad_el-ghamidi/'},
+  {id:'ajamy',    name:'Ahmad Al-Ajamy',         base:'https://download.quranicaudio.com/quran/ahmad_ibn_3ali_al-3ajamy/'},
+  {id:'dossary',  name:'Yasser Al-Dossary',      base:'https://download.quranicaudio.com/quran/yasser_ad-duwsari/'},
+  {id:'husary_mujawwad',name:'Al-Husary (Mujawwad)',base:'https://download.quranicaudio.com/quran/mahmood_khalil_al-hussaree_mujawwad/'},
+  {id:'ayyoub',   name:'Abu Bakr Al-Shatri',     base:'https://download.quranicaudio.com/quran/abu_bakr_ash-shaatree/'},
+];
+
+const SURAHS=[
+  'Al-Fatihah','Al-Baqarah','Aali Imran','An-Nisa','Al-Maidah','Al-Anam','Al-Araf','Al-Anfal',
+  'At-Tawbah','Yunus','Hud','Yusuf','Ar-Rad','Ibrahim','Al-Hijr','An-Nahl','Al-Isra','Al-Kahf',
+  'Maryam','Ta-Ha','Al-Anbiya','Al-Hajj','Al-Muminun','An-Nur','Al-Furqan','Ash-Shuara','An-Naml',
+  'Al-Qasas','Al-Ankabut','Ar-Rum','Luqman','As-Sajdah','Al-Ahzab','Saba','Fatir','Ya-Sin',
+  'As-Saffat','Sad','Az-Zumar','Ghafir','Fussilat','Ash-Shura','Az-Zukhruf','Ad-Dukhan','Al-Jathiyah',
+  'Al-Ahqaf','Muhammad','Al-Fath','Al-Hujurat','Qaf','Adh-Dhariyat','At-Tur','An-Najm','Al-Qamar',
+  'Ar-Rahman','Al-Waqiah','Al-Hadid','Al-Mujadila','Al-Hashr','Al-Mumtahanah','As-Saf','Al-Jumuah',
+  'Al-Munafiqun','At-Taghabun','At-Talaq','At-Tahrim','Al-Mulk','Al-Qalam','Al-Haqqah','Al-Maarij',
+  'Nuh','Al-Jinn','Al-Muzzammil','Al-Muddathir','Al-Qiyamah','Al-Insan','Al-Mursalat','An-Naba',
+  'An-Naziat','Abasa','At-Takwir','Al-Infitar','Al-Mutaffifin','Al-Inshiqaq','Al-Buruj','At-Tariq',
+  'Al-Ala','Al-Ghashiyah','Al-Fajr','Al-Balad','Ash-Shams','Al-Layl','Ad-Duha','Ash-Sharh',
+  'At-Tin','Al-Alaq','Al-Qadr','Al-Bayyinah','Az-Zalzalah','Al-Adiyat','Al-Qariah','At-Takathur',
+  'Al-Asr','Al-Humazah','Al-Fil','Quraysh','Al-Maun','Al-Kawthar','Al-Kafirun','An-Nasr',
+  'Al-Masad','Al-Ikhlas','Al-Falaq','An-Nas'
+];
+
+const audio=document.getElementById('quran-audio');
+let isPlaying=false,isRepeat=false;
+let currentReciterBase = RECITERS.find(r=>r.id===ST.reciterId)?.base || RECITERS[0].base;
+let currentSurahNum = null;
+
+// Build reciter dropdown
+(()=>{
+  const sel=document.getElementById('quran-reciter');
+  RECITERS.forEach(r=>{
+    const o=document.createElement('option');
+    o.value=r.id; o.textContent=r.name;
+    if(r.id===ST.reciterId) o.selected=true;
+    sel.appendChild(o);
   });
 })();
 
-/* ---------- CLOCKS / DATE ---------- */
-const locations = {
-  cairo:{tz:'Africa/Cairo',lat:30.0444,lon:31.2357},
-  istanbul:{tz:'Europe/Istanbul',lat:41.0082,lon:28.9784},
-  london:{tz:'Europe/London',lat:51.5074,lon:-0.1278},
-  // 'local' (4th card) is added after the IP lookup
+// Build surah dropdown
+(()=>{
+  const sel=document.getElementById('quran-surah');
+  SURAHS.forEach((name,i)=>{
+    const o=document.createElement('option');
+    o.value=String(i+1).padStart(3,'0');
+    o.textContent=`${i+1}. ${name}`;
+    sel.appendChild(o);
+  });
+})();
+
+function changeReciter(id){
+  const rec=RECITERS.find(r=>r.id===id);
+  if(!rec) return;
+  currentReciterBase=rec.base;
+  ST.reciterId=id; saveState();
+  if(currentSurahNum) loadSurah(currentSurahNum,false);
+}
+
+function loadSurah(num, autoPlay=true){
+  if(!num) return;
+  currentSurahNum=num;
+  audio.src=`${currentReciterBase}${num}.mp3`;
+  document.getElementById('quran-surah-name').textContent=SURAHS[parseInt(num)-1];
+  if(autoPlay||isPlaying){ audio.play().then(()=>{isPlaying=true;updatePlayBtn();}).catch(()=>{}); }
+}
+
+function togglePlay(){
+  if(audio.paused){ audio.play().then(()=>{isPlaying=true;updatePlayBtn();}).catch(()=>{}); }
+  else{ audio.pause(); isPlaying=false; updatePlayBtn(); }
+}
+function updatePlayBtn(){ document.getElementById('quran-play-btn').textContent=isPlaying?'⏸':'▶'; }
+function seekRel(s){ audio.currentTime=Math.max(0,audio.currentTime+s); }
+function toggleRepeat(){ isRepeat=!isRepeat; document.getElementById('quran-repeat-btn').classList.toggle('active',isRepeat); }
+function seekClick(e){
+  const r=e.currentTarget.getBoundingClientRect();
+  if(audio.duration) audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;
+}
+function fmtAT(s){ if(isNaN(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
+audio.addEventListener('timeupdate',()=>{
+  const p=audio.duration?(audio.currentTime/audio.duration)*100:0;
+  document.getElementById('quran-progress').style.width=p+'%';
+  document.getElementById('quran-current').textContent=fmtAT(audio.currentTime);
+  document.getElementById('quran-duration').textContent=fmtAT(audio.duration);
+});
+audio.addEventListener('play',()=>{isPlaying=true;updatePlayBtn();});
+audio.addEventListener('pause',()=>{isPlaying=false;updatePlayBtn();});
+audio.addEventListener('ended',()=>{ if(isRepeat) audio.play(); else{ isPlaying=false; updatePlayBtn(); } });
+
+// ═══════════════════════════════════════
+// CURRENCY
+// ═══════════════════════════════════════
+let ratesCache=null;
+const FLAGS={USD:'🇺🇸',EGP:'🇪🇬',GBP:'🇬🇧',TRY:'🇹🇷',SAR:'🇸🇦',EUR:'🇪🇺',AED:'🇦🇪',JPY:'🇯🇵',CNY:'🇨🇳'};
+const CURRENCIES=['USD','EGP','GBP','TRY','SAR','EUR','AED','JPY','CNY'];
+
+async function loadRates(){
+  try{
+    const r=await fetch('https://open.er-api.com/v6/latest/USD');
+    const d=await r.json();
+    if(d.result==='success'){ ratesCache=d.rates; convertCurrency(); }
+  }catch(e){ document.getElementById('curr-results').innerHTML='<div class="curr-loading">rates unavailable</div>'; }
+}
+function convertCurrency(){
+  const amount=parseFloat(document.getElementById('curr-amount').value)||0;
+  const from=document.getElementById('curr-from').value;
+  if(!ratesCache){ loadRates(); return; }
+  const baseUSD=amount/ratesCache[from];
+  document.getElementById('curr-results').innerHTML=CURRENCIES
+    .filter(c=>c!==from)
+    .map(c=>{
+      const val=(baseUSD*ratesCache[c]).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      return `<div class="curr-result-row"><span>${FLAGS[c]||''} ${c}</span><span class="val">${val}</span></div>`;
+    }).join('');
+}
+loadRates();
+
+// ═══════════════════════════════════════
+// GOLD
+// ═══════════════════════════════════════
+async function loadGold(){
+  try{
+    const r=await fetch('https://open.er-api.com/v6/latest/XAU');
+    const d=await r.json();
+    if(d.result==='success'){
+      const egpPerOz=d.rates['EGP'];
+      const g=egpPerOz/31.1035;
+      document.getElementById('gold-24k').textContent=Math.round(g).toLocaleString('en-EG');
+      document.getElementById('gold-change').textContent='XAU/EGP LIVE';
+      document.getElementById('gold-updated').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('gold-karats').innerHTML=
+        [['21K',21],['18K',18],['14K',14]].map(([k,n])=>
+          `<div class="gold-k-row"><div class="gold-k-label">${k}/g</div><div class="gold-k-val">${Math.round(g*n/24).toLocaleString('en-EG')}</div></div>`
+        ).join('');
+    }
+  }catch(e){ document.getElementById('gold-24k').textContent='—'; }
+}
+loadGold(); setInterval(loadGold,300000);
+
+// ═══════════════════════════════════════
+// HOLIDAYS
+// ═══════════════════════════════════════
+const ALL_HOLIDAYS = {
+  EG:[
+    {d:'2025-01-07',n:"Coptic Christmas"},
+    {d:'2025-01-25',n:"Revolution Day"},
+    {d:'2025-04-25',n:"Sinai Liberation"},
+    {d:'2025-05-01',n:"Labor Day"},
+    {d:'2025-06-30',n:"June Revolution"},
+    {d:'2025-07-23',n:"Revolution Day (Jul)"},
+    {d:'2025-10-06',n:"Armed Forces Day"},
+  ],
+  TR:[
+    {d:'2025-01-01',n:"New Year"},
+    {d:'2025-04-23',n:"National Sovereignty"},
+    {d:'2025-05-01',n:"Labor & Solidarity"},
+    {d:'2025-05-19',n:"Youth & Sports Day"},
+    {d:'2025-07-15',n:"Democracy Day"},
+    {d:'2025-08-30',n:"Victory Day"},
+    {d:'2025-10-29',n:"Republic Day"},
+  ],
+  UK:[
+    {d:'2025-01-01',n:"New Year"},
+    {d:'2025-04-18',n:"Good Friday"},
+    {d:'2025-04-21',n:"Easter Monday"},
+    {d:'2025-05-05',n:"Early May BH"},
+    {d:'2025-05-26',n:"Spring BH"},
+    {d:'2025-08-25',n:"Summer BH"},
+    {d:'2025-12-25',n:"Christmas Day"},
+    {d:'2025-12-26',n:"Boxing Day"},
+  ],
+  SA:[
+    {d:'2025-02-22',n:"Founding Day"},
+    {d:'2025-09-23',n:"National Day"},
+  ],
+  US:[
+    {d:'2025-01-01',n:"New Year"},
+    {d:'2025-07-04',n:"Independence Day"},
+    {d:'2025-11-27',n:"Thanksgiving"},
+    {d:'2025-12-25',n:"Christmas Day"},
+  ],
+  DE:[
+    {d:'2025-01-01',n:"New Year"},
+    {d:'2025-10-03',n:"Reunification Day"},
+    {d:'2025-12-25',n:"Christmas Day"},
+  ],
 };
-function updateClocks(){
-  const now = new Date();
-  document.getElementById('live-date').innerText = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  const h = now.getHours();
-  document.getElementById('greeting').innerText = h<12?'Good Morning':h<18?'Good Afternoon':'Good Evening';
-  for(const [name,cfg] of Object.entries(locations)){
-    const str = now.toLocaleTimeString('en-US',{timeZone:cfg.tz,hour12:false,hour:'2-digit',minute:'2-digit'});
-    const el = document.querySelector(`#tz-${name} .clock-time`);
-    if(el) el.innerText = str;
-    if(name==='cairo') document.getElementById('clock-cairo-pill').innerText = `🕐 ${str} Cairo`;
-  }
-  evaluateHolidays(now);
-}
-
-/* ---------- HOLIDAYS (kept fixed calendar list; Hijri-dependent ones flagged) ---------- */
-const holidays2026 = {
-  eg:[{date:"2026-01-07",label:"Coptic Christmas"},{date:"2026-01-25",label:"Revolution Day"},
-      {date:"2026-03-20",label:"Eid Al-Fitr*"},{date:"2026-04-13",label:"Sham El-Nessim"},
-      {date:"2026-04-25",label:"Sinai Liberation"},{date:"2026-05-01",label:"Labor Day"},
-      {date:"2026-05-27",label:"Eid Al-Adha*"},{date:"2026-06-16",label:"Islamic New Year*"},
-      {date:"2026-06-30",label:"June 30 Revolution"},{date:"2026-07-23",label:"Revolution Day"},
-      {date:"2026-08-25",label:"Mawlid al-Nabi*"},{date:"2026-10-06",label:"Armed Forces Day"}],
-  tr:[{date:"2026-01-01",label:"New Year's Day"},{date:"2026-03-20",label:"Ramadan Feast*"},
-      {date:"2026-04-23",label:"Children's Day"},{date:"2026-05-01",label:"Labor Day"},
-      {date:"2026-05-19",label:"Youth & Sports Day"},{date:"2026-05-27",label:"Sacrifice Feast*"},
-      {date:"2026-07-15",label:"Democracy Day"},{date:"2026-08-30",label:"Victory Day"},
-      {date:"2026-10-29",label:"Republic Day"}],
-  uk:[{date:"2026-01-01",label:"New Year's Day"},{date:"2026-04-03",label:"Good Friday"},
-      {date:"2026-04-06",label:"Easter Monday"},{date:"2026-05-04",label:"Early May Bank Holiday"},
-      {date:"2026-05-25",label:"Spring Bank Holiday"},{date:"2026-08-31",label:"Summer Bank Holiday"},
-      {date:"2026-12-25",label:"Christmas Day"},{date:"2026-12-28",label:"Boxing Day (Obs)"}]
+const COUNTRY_META={
+  EG:{flag:'🇪🇬',name:'EGYPT'},
+  TR:{flag:'🇹🇷',name:'TURKEY'},
+  UK:{flag:'🇬🇧',name:'UK'},
+  SA:{flag:'🇸🇦',name:'SAUDI'},
+  US:{flag:'🇺🇸',name:'USA'},
+  DE:{flag:'🇩🇪',name:'GERMANY'},
 };
-// *marked entries depend on moon sighting — verify closer to date.
-function evaluateHolidays(now){
-  const dow = now.getDay();
-  const isEgWknd = (dow===5||dow===6);
-  const isTrUkWknd = (dow===6||dow===0);
-  setTag('eg', isEgWknd); setTag('tr', isTrUkWknd); setTag('uk', isTrUkWknd);
-  ['eg','tr','uk'].forEach(c=>{
-    let found=null;
-    for(let i=0;i<=30;i++){
-      const d=new Date(now); d.setDate(now.getDate()+i);
-      const ds=d.toISOString().split('T')[0];
-      const m = holidays2026[c].find(h=>h.date===ds);
-      if(m){found={label:m.label,days:i};break;}
-    }
-    const el = document.getElementById(`al-${c}`);
-    if(found){
-      el.className = found.days===0?'h-alert today':'h-alert';
-      el.innerText = found.days===0?`Today — ${found.label}`:`${found.label} in ${found.days}d`;
-    } else { el.className='h-alert'; el.innerText='No holidays in 30 days'; }
+
+function renderHolidays(){
+  const countries = ST.holidayCountries.slice(0,3);
+  const now=new Date(); now.setHours(0,0,0,0);
+  // Build combined upcoming list
+  let all=[];
+  countries.forEach(c=>{
+    (ALL_HOLIDAYS[c]||[]).forEach(h=>{ all.push({...h,c,d:new Date(h.d)}); });
   });
-  document.getElementById('stamp-holiday').innerText = 'Updated '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-}
-function setTag(id,isWknd){
-  const el = document.getElementById(`we-${id}`);
-  el.innerText = isWknd?'Weekend':'Work Day';
-  el.className = 'h-tag '+(isWknd?'weekend':'workday');
-}
+  all=all.filter(h=>h.d>=now).sort((a,b)=>a.d-b.d);
+  // Collect unique dates
+  const dates=[...new Set(all.map(h=>h.d.toISOString().split('T')[0]))].slice(0,7);
 
-/* ---------- LOCAL SAVE (use internet only to refresh) ---------- */
-function saveLocal(k,v){ try{ localStorage.setItem('hz_'+k, JSON.stringify({t:Date.now(), v:v})); }catch(e){} }
-function loadLocal(k){ try{ const r=JSON.parse(localStorage.getItem('hz_'+k)||'null'); return r; }catch(e){ return null; } }
-function agoText(t){ const m=Math.round((Date.now()-t)/60000); if(m<1) return 'just now'; if(m<60) return m+' min ago'; const h=Math.round(m/60); if(h<48) return h+' h ago'; return Math.round(h/24)+' days ago'; }
+  // Header
+  document.getElementById('holiday-head').innerHTML=`<tr><th></th>${countries.map(c=>`<th>${COUNTRY_META[c]?.flag||''} ${COUNTRY_META[c]?.name||c}</th>`).join('')}</tr>`;
+  // Rows
+  document.getElementById('holiday-body').innerHTML=dates.map(dateStr=>{
+    const d=new Date(dateStr);
+    const diff=Math.round((d-now)/(86400000));
+    const cls=diff===0?'today':diff<=30?'soon':'';
+    const lbl=diff===0?'TODAY':diff===1?'TOMORROW':`IN ${diff}D`;
+    return `<tr>
+      <td class="lbl ${cls}">${lbl}</td>
+      ${countries.map(c=>{
+        const h=all.find(x=>x.c===c&&x.d.toISOString().split('T')[0]===dateStr);
+        return `<td class="${cls}">${h?h.n:'—'}</td>`;
+      }).join('')}
+    </tr>`;
+  }).join('');
+}
+renderHolidays();
 
-/* Offline prayer times — Egyptian General Authority (Fajr 19.5°, Isha 17.5°), Shafi Asr. */
-function calcPrayerTimes(date, lat, lon, tzHours){
-  var D2R=Math.PI/180, R2D=180/Math.PI;
-  function sin(d){return Math.sin(d*D2R);} function cos(d){return Math.cos(d*D2R);} function tan(d){return Math.tan(d*D2R);}
-  function asin(x){return R2D*Math.asin(x);} function acos(x){return R2D*Math.acos(x);} function atan2(y,x){return R2D*Math.atan2(y,x);}
-  function acot(x){return R2D*Math.atan(1/x);}
-  function fix(a,b){a=a-b*Math.floor(a/b);return a<0?a+b:a;}
-  var y=date.getFullYear(), m=date.getMonth()+1, d=date.getDate();
-  if(m<=2){y-=1;m+=12;}
-  var A=Math.floor(y/100), B=2-A+Math.floor(A/4);
-  var jd=Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5 - lon/(15*24);
-  function sunPos(t){ // t = fraction of day
-    var D=jd+t-2451545.0, g=fix(357.529+0.98560028*D,360), q=fix(280.459+0.98564736*D,360);
-    var L=fix(q+1.915*sin(g)+0.020*sin(2*g),360), e=23.439-0.00000036*D;
-    var RA=fix(atan2(cos(e)*sin(L),cos(L))/15,24);
-    return {decl:asin(sin(e)*sin(L)), eqt:q/15-RA};
-  }
-  function midDay(t){ return fix(12-sunPos(t).eqt,24); }
-  function sunAngleTime(angle,t,ccw){
-    var decl=sunPos(t).decl, noon=midDay(t);
-    var v=acos((-sin(angle)-sin(decl)*sin(lat))/(cos(decl)*cos(lat)))/15;
-    return noon+(ccw?-v:v);
-  }
-  function asrTime(factor,t){ var decl=sunPos(t).decl; var ang=-acot(factor+tan(Math.abs(lat-decl))); return sunAngleTime(ang,t); }
-  var t={fajr:5/24,sunrise:6/24,dhuhr:12/24,asr:13/24,maghrib:18/24,isha:18/24};
-  var r={};
-  for(var i=0;i<2;i++){ // two refinement passes
-    r.fajr=sunAngleTime(19.5,t.fajr,true); r.sunrise=sunAngleTime(0.833,t.sunrise,true);
-    r.dhuhr=midDay(t.dhuhr); r.asr=asrTime(1,t.asr); r.maghrib=sunAngleTime(0.833,t.maghrib);
-    r.isha=sunAngleTime(17.5,t.isha);
-    for(var k in r) t[k]=r[k]/24;
-  }
-  var adj=tzHours-lon/15, out={};
-  function fmt(h){ h=fix(h+0.5/60,24); var H=Math.floor(h), M=Math.floor((h-H)*60); return (H<10?'0':'')+H+':'+(M<10?'0':'')+M; }
-  out.Fajr=fmt(r.fajr+adj); out.Sunrise=fmt(r.sunrise+adj); out.Dhuhr=fmt(r.dhuhr+adj);
-  out.Asr=fmt(r.asr+adj); out.Maghrib=fmt(r.maghrib+adj); out.Isha=fmt(r.isha+adj);
-  return out;
-}
-
-/* ---------- WEATHER ---------- */
-async function fetchWeather(){
-  for(const [name,cfg] of Object.entries(locations)){
-    const el = document.querySelector(`#tz-${name} .clock-wx`);
-    try{
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${cfg.lat}&longitude=${cfg.lon}&current_weather=true`);
-      if(!res.ok) throw new Error('bad response');
-      const data = await res.json();
-      const t = Math.round(data.current_weather.temperature);
-      const code = data.current_weather.weathercode;
-      el.innerText = `${wxIcon(code)} ${t}°C`;
-      saveLocal('wx_'+name, el.innerText);
-    }catch(e){
-      const c = loadLocal('wx_'+name);
-      el.innerHTML = c ? (c.v + ' <span style="opacity:.6;font-size:.8em">· ' + agoText(c.t) + '</span>') : '<span class="err">offline</span>';
-    }
-  }
-  document.getElementById('stamp-weather').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-}
-function wxIcon(code){
-  if(code===0) return '☀️';
-  if([1,2].includes(code)) return '🌤️';
-  if(code===3) return '☁️';
-  if([45,48].includes(code)) return '🌫️';
-  if(code>=51&&code<=67) return '🌧️';
-  if(code>=71&&code<=77) return '❄️';
-  if(code>=80&&code<=82) return '🌦️';
-  if(code>=95) return '⛈️';
-  return '🌡️';
-}
-
-/* ---------- LOCATION (IP) + HOURLY WEATHER ---------- */
-let selectedCity = 'cairo';
-async function initLocation(){
-  try{
-    const r = await fetch('https://ipwho.is/');
-    const d = await r.json();
-    if(!d.success) throw new Error('ip');
-    const map = {EG:'cairo', TR:'istanbul', GB:'london'};
-    if(map[d.country_code]){ selectedCity = map[d.country_code]; }
-    else{
-      locations.local = {tz:(d.timezone&&d.timezone.id)||Intl.DateTimeFormat().resolvedOptions().timeZone, lat:d.latitude, lon:d.longitude};
-      document.getElementById('local-name').innerText = '📍 ' + (d.city || d.country);
-      document.getElementById('tz-local').style.display = '';
-      selectedCity = 'local';
-    }
-  }catch(e){ /* keep Cairo as default */ }
-  fetchWeather();
-  selectCity(selectedCity);
-}
-document.querySelector('.clocks-row').addEventListener('click', ev=>{
-  const it = ev.target.closest('.clock-item'); if(!it) return;
-  selectCity(it.id.replace('tz-',''));
-});
-async function selectCity(name){
-  if(!locations[name]) return;
-  selectedCity = name;
-  document.querySelectorAll('.clock-item').forEach(e=>e.classList.toggle('sel', e.id==='tz-'+name));
-  const cfg = locations[name], box = document.getElementById('hourly'), title = document.getElementById('hourly-title');
-  const label = document.querySelector('#tz-'+name+' .clock-name').innerText;
-  title.innerText = label + ' — next 24 hours';
-  box.innerHTML = '<span class="err" style="color:var(--text-low)">Loading…</span>';
-  try{
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${cfg.lat}&longitude=${cfg.lon}&current_weather=true&hourly=temperature_2m,weathercode,precipitation_probability&timezone=auto&forecast_days=2`);
-    if(!res.ok) throw new Error('bad');
-    const d = await res.json();
-    const curHour = d.current_weather.time.slice(0,13)+':00';
-    let i = d.hourly.time.findIndex(t=>t>=curHour); if(i<0) i=0;
-    let html='';
-    for(let k=i;k<i+24 && k<d.hourly.time.length;k++){
-      const hh = d.hourly.time[k].slice(11,16);
-      html += `<div class="hr-cell${k===i?' now':''}"><div class="hr-t">${k===i?'Now':hh}</div><div class="hr-i">${wxIcon(d.hourly.weathercode[k])}</div><div class="hr-d">${Math.round(d.hourly.temperature_2m[k])}°</div><div class="hr-r">💧${d.hourly.precipitation_probability[k]!=null?d.hourly.precipitation_probability[k]:0}%</div></div>`;
-    }
-    box.innerHTML = html;
-    saveLocal('hourly_'+name, {title:title.innerText, html:html});
-  }catch(e){
-    const c = loadLocal('hourly_'+name);
-    if(c){ box.innerHTML = c.v.html; title.innerText = c.v.title + ' (saved ' + agoText(c.t) + ')'; }
-    else box.innerHTML = '<span class="err">Hourly weather unavailable — offline</span>';
-  }
-}
-
-/* ---------- FX + GOLD ---------- */
-let ratesUSD = null; // rates relative to USD base
-const currencies = ['USD','GBP','EUR','EGP','TRY'];
-async function fetchFX(){
-  const statusEl = document.getElementById('fx-live-status');
-  try{
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
-    if(!res.ok) throw new Error('bad response');
-    const data = await res.json();
-    if(data.result !== 'success') throw new Error('api error');
-    ratesUSD = data.rates;
-    saveLocal('fx', data.rates);
-    statusEl.innerText = 'live';
-    statusEl.style.color = 'var(--emerald)';
-    renderFX();
-  }catch(e){
-    const c = loadLocal('fx');
-    if(c){ ratesUSD = c.v; renderFX(); statusEl.innerText = 'offline — saved ' + agoText(c.t); }
-    else statusEl.innerText = 'offline — no saved rates yet';
-    statusEl.style.color = 'var(--danger)';
-  }
-  document.getElementById('stamp-fx').innerText = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-}
-async function fetchGoldOunceUSD(){
-  // Metals-API-style public endpoint fallback chain
-  try{
-    const res = await fetch('https://api.gold-api.com/price/XAU');
-    if(!res.ok) throw new Error('bad');
-    const d = await res.json();
-    if(d && d.price){ saveLocal('gold', d.price); return d.price; }
-    throw new Error('no price');
-  }catch(e){ const c = loadLocal('gold'); return c ? c.v : null; }
-}
-let goldOunceUSD = null;
-async function refreshGold(){ goldOunceUSD = await fetchGoldOunceUSD(); renderFX(); }
-
-function renderFX(){
-  if(!ratesUSD) return;
-  const base = document.getElementById('base-currency').value;
-  const amt = parseFloat(document.getElementById('base-amount').value) || 0;
-  // convert amt(base) -> USD -> each currency
-  const baseToUSD = amt / ratesUSD[base];
-  const grid = document.getElementById('fx-grid');
-  grid.innerHTML = '';
-  currencies.forEach(cur=>{
-    if(cur===base) return;
-    const val = baseToUSD * ratesUSD[cur];
-    const box = document.createElement('div');
-    box.className='fx-box';
-    box.innerHTML = `<div class="fx-label">${cur}</div><div class="fx-val">${val.toLocaleString(undefined,{maximumFractionDigits:2})}</div>`;
-    grid.appendChild(box);
-  });
-  // gold: gram price in base currency
-  const goldBox = document.createElement('div');
-  goldBox.className='fx-box gold';
-  if(goldOunceUSD){
-    const gramUSD = goldOunceUSD/31.1034768;
-    const gramInBase = gramUSD * ratesUSD[base] ; // ratesUSD[base] converts 1 USD to base currency
-    goldBox.innerHTML = `<div class="fx-label">Gold 24k /g</div><div class="fx-val">${gramInBase.toLocaleString(undefined,{maximumFractionDigits:2})} ${base}</div>`;
-  } else {
-    goldBox.innerHTML = `<div class="fx-label">Gold 24k /g</div><div class="fx-val err">unavailable</div>`;
-  }
-  grid.appendChild(goldBox);
-}
-document.getElementById('base-currency').addEventListener('change', renderFX);
-document.getElementById('base-amount').addEventListener('input', renderFX);
-
-/* ---------- PRAYER TIMES ---------- */
-let prayerTimes = null;
-function cairoNowParts(){ // Cairo date + UTC offset, without relying on newer Intl APIs
-  const now=new Date();
-  const d=now.toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'}); // YYYY-MM-DD
-  const [h,m]=cairoHM(now).split(':').map(Number);
-  let off=(h*60+m)-(now.getUTCHours()*60+now.getUTCMinutes()); if(off>720) off-=1440; if(off<-720) off+=1440;
-  return {date:d, tz:Math.round(off/30)/2};
-}
-function showPrayerTimes(prayers, sourceText){
-  for(const name of Object.keys(prayers)){
-    const el = document.querySelector(`#p-${name.toLowerCase()} .p-time`);
-    if(el) el.innerText = prayers[name].slice(0,5);
-  }
-  prayerTimes = prayers;
-  calcCountdown(prayers);
-  document.getElementById('stamp-prayer').innerText = sourceText;
-}
-async function updatePrayerTimes(){
-  const cp = cairoNowParts();
-  const saved = loadLocal('prayer');
-  if(saved && saved.v.date === cp.date){ showPrayerTimes(saved.v.times, 'Online times'); }
-  else{
-    const ymd = cp.date.split('-').map(Number);
-    const c = calcPrayerTimes(new Date(ymd[0],ymd[1]-1,ymd[2]), 30.0444, 31.2357, cp.tz);
-    showPrayerTimes({Fajr:c.Fajr,Dhuhr:c.Dhuhr,Asr:c.Asr,Maghrib:c.Maghrib,Isha:c.Isha}, 'Calculated on device');
-  }
-  if(saved && saved.v.date === cp.date) return; // already refreshed today
-  if(updatePrayerTimes.busy) return; updatePrayerTimes.busy = true;
-  try{
-    const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5');
-    if(!res.ok) throw new Error('bad');
-    const t = (await res.json()).data.timings;
-    const times = {Fajr:t.Fajr.slice(0,5),Dhuhr:t.Dhuhr.slice(0,5),Asr:t.Asr.slice(0,5),Maghrib:t.Maghrib.slice(0,5),Isha:t.Isha.slice(0,5)};
-    saveLocal('prayer', {date:cp.date, times:times});
-    showPrayerTimes(times, 'Online times');
-  }catch(e){ /* offline: device calculation stays */ }
-  finally{ updatePrayerTimes.busy = false; }
-}
-function cairoHM(d){ return d.toLocaleTimeString('en-GB',{timeZone:'Africa/Cairo',hour12:false,hour:'2-digit',minute:'2-digit'}); }
-function calcCountdown(prayers){
-  const now = new Date();
-  const [ch,cm] = cairoHM(now).split(':').map(Number);
-  const cur = ch*60+cm;
-  let next='Fajr', diffMin=Infinity;
-  for(const [name,time] of Object.entries(prayers)){
-    const [ph,pm] = time.split(':').map(Number);
-    const total = ph*60+pm;
-    const diff = total-cur;
-    if(diff>0 && diff<diffMin){diffMin=diff; next=name;}
-  }
-  if(diffMin===Infinity){
-    const [ph,pm] = prayers.Fajr.split(':').map(Number);
-    diffMin = (1440-cur)+(ph*60+pm); next='Fajr';
-  }
-  document.querySelectorAll('.p-row').forEach(r=>r.classList.remove('active'));
-  document.getElementById(`p-${next.toLowerCase()}`).classList.add('active');
-  document.getElementById('prayer-countdown').innerText = `${Math.floor(diffMin/60)}h ${diffMin%60}m to ${next}`;
-}
-
-/* ---------- QURAN PLAYER (Husary, Hafs murattal via mp3quran.net) ---------- */
-const SURAHS = [
-['Al-Fatihah','الفاتحة'],['Al-Baqarah','البقرة'],['Aal-E-Imran','آل عمران'],['An-Nisa','النساء'],['Al-Ma\'idah','المائدة'],['Al-An\'am','الأنعام'],['Al-A\'raf','الأعراف'],['Al-Anfal','الأنفال'],['At-Tawbah','التوبة'],['Yunus','يونس'],
-['Hud','هود'],['Yusuf','يوسف'],['Ar-Ra\'d','الرعد'],['Ibrahim','إبراهيم'],['Al-Hijr','الحجر'],['An-Nahl','النحل'],['Al-Isra','الإسراء'],['Al-Kahf','الكهف'],['Maryam','مريم'],['Ta-Ha','طه'],
-['Al-Anbiya','الأنبياء'],['Al-Hajj','الحج'],['Al-Mu\'minun','المؤمنون'],['An-Nur','النور'],['Al-Furqan','الفرقان'],['Ash-Shu\'ara','الشعراء'],['An-Naml','النمل'],['Al-Qasas','القصص'],['Al-Ankabut','العنكبوت'],['Ar-Rum','الروم'],
-['Luqman','لقمان'],['As-Sajdah','السجدة'],['Al-Ahzab','الأحزاب'],['Saba','سبأ'],['Fatir','فاطر'],['Ya-Sin','يس'],['As-Saffat','الصافات'],['Sad','ص'],['Az-Zumar','الزمر'],['Ghafir','غافر'],
-['Fussilat','فصلت'],['Ash-Shura','الشورى'],['Az-Zukhruf','الزخرف'],['Ad-Dukhan','الدخان'],['Al-Jathiyah','الجاثية'],['Al-Ahqaf','الأحقاف'],['Muhammad','محمد'],['Al-Fath','الفتح'],['Al-Hujurat','الحجرات'],['Qaf','ق'],
-['Adh-Dhariyat','الذاريات'],['At-Tur','الطور'],['An-Najm','النجم'],['Al-Qamar','القمر'],['Ar-Rahman','الرحمن'],['Al-Waqi\'ah','الواقعة'],['Al-Hadid','الحديد'],['Al-Mujadila','المجادلة'],['Al-Hashr','الحشر'],['Al-Mumtahanah','الممتحنة'],
-['As-Saff','الصف'],['Al-Jumu\'ah','الجمعة'],['Al-Munafiqun','المنافقون'],['At-Taghabun','التغابن'],['At-Talaq','الطلاق'],['At-Tahrim','التحريم'],['Al-Mulk','الملك'],['Al-Qalam','القلم'],['Al-Haqqah','الحاقة'],['Al-Ma\'arij','المعارج'],
-['Nuh','نوح'],['Al-Jinn','الجن'],['Al-Muzzammil','المزمل'],['Al-Muddaththir','المدثر'],['Al-Qiyamah','القيامة'],['Al-Insan','الإنسان'],['Al-Mursalat','المرسلات'],['An-Naba','النبأ'],['An-Nazi\'at','النازعات'],['Abasa','عبس'],
-['At-Takwir','التكوير'],['Al-Infitar','الانفطار'],['Al-Mutaffifin','المطففين'],['Al-Inshiqaq','الانشقاق'],['Al-Buruj','البروج'],['At-Tariq','الطارق'],['Al-A\'la','الأعلى'],['Al-Ghashiyah','الغاشية'],['Al-Fajr','الفجر'],['Al-Balad','البلد'],
-['Ash-Shams','الشمس'],['Al-Layl','الليل'],['Ad-Duha','الضحى'],['Ash-Sharh','الشرح'],['At-Tin','التين'],['Al-Alaq','العلق'],['Al-Qadr','القدر'],['Al-Bayyinah','البينة'],['Az-Zalzalah','الزلزلة'],['Al-Adiyat','العاديات'],
-['Al-Qari\'ah','القارعة'],['At-Takathur','التكاثر'],['Al-Asr','العصر'],['Al-Humazah','الهمزة'],['Al-Fil','الفيل'],['Quraysh','قريش'],['Al-Ma\'un','الماعون'],['Al-Kawthar','الكوثر'],['Al-Kafirun','الكافرون'],['An-Nasr','النصر'],
-['Al-Masad','المسد'],['Al-Ikhlas','الإخلاص'],['Al-Falaq','الفلق'],['An-Nas','الناس']
-];
-const QURAN_BASE = 'https://cdn.mp3quran.net/audio/mahmoud-husary/r1/';
-// Fallback sources: older iOS may reject the main CDN's certificate, so try others in turn.
-const QURAN_SOURCES = [
-  QURAN_BASE,
-  'https://download.quranicaudio.com/quran/mahmood_khaleel_al-husaree/',
-  'http://cdn.mp3quran.net/audio/mahmoud-husary/r1/'
-];
-let qSrcIdx = 0;
-// Surahs bundled with the dashboard and saved on the iPad for offline use.
-const OFFLINE_SURAHS = [1,18,36,55,56,67].concat(Array.from({length:37},(_, i)=>78+i));
-const savedAudio = {}; // key -> true when stored in IndexedDB
-function qPad(n){ return String(n).padStart(3,'0'); }
-function qUrl(n){ return QURAN_SOURCES[qSrcIdx] + qPad(n) + '.mp3'; }
-/* ---------- Two-player engine: surah after surah without stopping ----------
-   iOS 10 only lets sound start after a tap. A tap unlocks BOTH players, so while one
-   plays, the other loads the next surah and takes over at the end (no new permission needed). */
-function qFallbackUrl(n){ return OFFLINE_SURAHS.indexOf(n)>=0 ? 'audio/quran/'+qPad(n)+'.mp3' : QURAN_SOURCES[0]+qPad(n)+'.mp3'; }
-const qTemp = {};            // rolling download: n -> blob URL for surahs not saved permanently
-const qTempBusy = {};
-function qNextNum(n){ return n >= 114 ? 1 : n + 1; }
-function qSourceFor(n){      // saved copy > rolling download > bundled file > online
-  if(savedAudio['q'+n]) return audioDB.getUrl('q'+n).then(u=>u || qFallbackUrl(n));
-  if(qTemp[n]) return Promise.resolve(qTemp[n]);
-  return Promise.resolve(qFallbackUrl(n));
-}
-function qPrefetch(n){       // download a not-saved surah ahead of time (keeps only the next two)
-  if(savedAudio['q'+n] || qTemp[n] || qTempBusy[n] || !navigator.onLine) return Promise.resolve();
-  if(OFFLINE_SURAHS.indexOf(n)>=0) return Promise.resolve(); // bundled with the page, loads fast anyway
-  qTempBusy[n] = true;
-  return fetch(QURAN_SOURCES[0]+qPad(n)+'.mp3').then(r=>{
-    if(!r.ok) throw new Error(r.status);
-    const len = +r.headers.get('content-length') || 0;
-    if(len > 80*1024*1024) throw new Error('too big to hold'); // very long surahs just stream
-    return r.blob();
-  }).then(b=>{
-    qTemp[n] = URL.createObjectURL(b.type ? b : new Blob([b],{type:'audio/mpeg'}));
-    const keep = [qCur, qNextNum(qCur), qNextNum(qNextNum(qCur))];
-    Object.keys(qTemp).forEach(k=>{ k=+k; if(keep.indexOf(k)<0 && qAudio.src!==qTemp[k] && qStandby().src!==qTemp[k]){ try{ URL.revokeObjectURL(qTemp[k]); }catch(e){} delete qTemp[k]; } });
-  }).catch(()=>{ /* blocked or offline: it will stream instead */ }).then(()=>{ delete qTempBusy[n]; });
-}
-const qA = document.getElementById('q-audio'), qB = document.getElementById('q-audio-b');
-let qAudio = qA, qStandbyFor = 0;
-function qStandby(){ return qAudio === qA ? qB : qA; }
-function qSetEl(el, url){    // set a player's source, freeing its previous saved-copy URL
-  const old = el._blob;
-  el._blob = (url.indexOf('blob:')===0 && !Object.keys(qTemp).some(k=>qTemp[k]===url)) ? url : null;
-  el.src = url;
-  if(old && old !== url) setTimeout(()=>{ try{ URL.revokeObjectURL(old); }catch(e){} }, 5000);
-}
-function qUnlockBoth(){      // call inside a tap: lets both players start later without a tap
-  [qA,qB].forEach(el=>{
-    if(el === qAudio || !el.paused) return;
-    if(!el.src) el.src = 'audio/beep.wav';
-    el.muted = true;
-    const pr = el.play(); const done = ()=>{ el.pause(); el.muted = false; };
-    if(pr && pr.then) pr.then(done).catch(()=>{ el.muted = false; }); else done();
-  });
-}
-function qPrepareStandby(){
-  if(qRepeat || !qWantPlay) return;
-  const nx = qNextNum(qCur);
-  qPrefetch(nx).then(()=>{
-    if(qStandbyFor === nx || qNextNum(qCur) !== nx) return;
-    return qSourceFor(nx).then(url=>{
-      const sb = qStandby();
-      if(!sb.paused || qNextNum(qCur) !== nx) return;
-      qSetEl(sb, url); sb.preload = 'auto'; try{ sb.load(); }catch(e){}
-      qStandbyFor = nx;
-      qPrefetch(qNextNum(nx));
-    });
-  });
-}
-function qSetCurrent(n){
-  qCur = n; qShowInfo(n);
-  try{ localStorage.setItem('horizon_surah', String(n)); }catch(e){}
-  renderSurahList(document.getElementById('q-search').value);
-}
-function qTryNext(){         // the active player failed to load
-  const src = qAudio.src || '';
-  if(src.indexOf('blob:')===0 || src.indexOf('audio/quran/')>=0){ qSrcIdx = 0; qSetEl(qAudio, qUrl(qCur)); }
-  else if(qSrcIdx < QURAN_SOURCES.length-1){ qSrcIdx++; qSetEl(qAudio, qUrl(qCur)); qStatus.innerText='Trying backup source ' + qSrcIdx + '…'; }
-  else { qStatus.innerHTML='<span class="err">Could not play — all sources failed</span>'; qPlay.innerText='▶'; return false; }
-  const pr = qAudio.play(); if(pr && pr.catch) pr.catch(()=>{});
-  return true;
-}
-const qPlay = document.getElementById('q-play'), qStatus = document.getElementById('q-status');
-const qSeek = document.getElementById('q-seek');
-let qCur = 0, qRepeat = false, qWantPlay = false, qAdvanceAt = 0;
-try{ qCur = parseInt(localStorage.getItem('horizon_surah')||'0',10)||0; }catch(e){}
-function fmtT(t){ if(!isFinite(t)) return '0:00'; const m=Math.floor(t/60), s=Math.floor(t%60); return m+':'+String(s).padStart(2,'0'); }
-function renderSurahList(filter){
-  const f=(filter||'').trim().toLowerCase();
-  const box=document.getElementById('q-list'); let html='';
-  SURAHS.forEach((x,i)=>{
-    const n=i+1;
-    if(f && !(x[0].toLowerCase().includes(f) || x[1].includes(f) || String(n)===f)) return;
-    html+=`<button class="q-item${n===qCur?' cur':''}" data-n="${n}"><span class="q-num">${n}</span><span>${x[0]}</span><span class="q-ar">${x[1]}</span>${savedAudio['q'+n]?'<span class="q-off" title="Saved on this iPad">✓</span>':''}</button>`;
-  });
-  box.innerHTML = html || '<span class="err">No match</span>';
-}
-function qShowInfo(n){
-  const x=SURAHS[n-1];
-  document.getElementById('q-ar').innerText = 'سورة '+x[1];
-  document.getElementById('q-sub').innerText = n+' · '+x[0];
-}
-function playSurah(n, autoplay=true, byTap=false){
-  if(n<1) n=114; if(n>114) n=1;
-  if(byTap) qUnlockBoth();
-  qSrcIdx = 0; qStandbyFor = 0;
-  qSetCurrent(n);
-  if(!autoplay){ qSourceFor(n).then(u=>qSetEl(qAudio,u)); return; }
-  qWantPlay = true; qAdvanceAt = 0;
-  qStatus.innerText='Loading…';
-  const sb = qStandby(); if(!sb.paused) sb.pause();
-  const go = url=>{ qSetEl(qAudio, url); const pr = qAudio.play(); if(pr && pr.catch) pr.catch(()=>{}); };
-  if(savedAudio['q'+n]) qSourceFor(n).then(go); else go(qTemp[n] || qFallbackUrl(n)); // no delay when possible
-}
-function qAdvance(){         // hand over to the player that already holds the next surah
-  if(Date.now() - qAdvanceAt < 4000) return;
-  qAdvanceAt = Date.now();
-  if(qRepeat){ qAudio.currentTime = 0; const pr=qAudio.play(); if(pr&&pr.catch) pr.catch(()=>{}); return; }
-  const nx = qNextNum(qCur), sb = qStandby();
-  if(qStandbyFor === nx && sb.src){
-    const old = qAudio;
-    qAudio = sb; qStandbyFor = 0;
-    try{ sb.currentTime = 0; }catch(e){}
-    const pr = sb.play(); if(pr && pr.catch) pr.catch(()=>{});
-    old.pause();
-    qSetCurrent(nx);
-    qStatus.innerText = 'Playing · next plays automatically';
-  } else playSurah(nx);
-}
-document.getElementById('q-list').addEventListener('click', ev=>{ const b=ev.target.closest('.q-item'); if(b) playSurah(parseInt(b.dataset.n,10), true, true); });
-document.getElementById('q-search').addEventListener('input', e=>renderSurahList(e.target.value));
-qPlay.onclick = ()=>{
-  qUnlockBoth();
-  if(!qAudio.src || qAudio.src.indexOf('beep.wav')>=0){ playSurah(qCur||1, true, true); return; }
-  if(qAudio.paused){ qWantPlay = true; const pr=qAudio.play(); if(pr&&pr.then) pr.then(()=>{ qStatus.innerText='Playing · next plays automatically'; }).catch(()=>{ qStatus.innerHTML='<span class="err">Could not play</span>'; }); }
-  else { qWantPlay = false; qAudio.pause(); qStatus.innerText='Paused'; }
-};
-document.getElementById('q-prev').onclick = ()=>playSurah((qCur||1)-1, true, true);
-document.getElementById('q-next').onclick = ()=>playSurah((qCur||0)+1, true, true);
-document.getElementById('q-rep').onclick = e=>{ qRepeat=!qRepeat; e.currentTarget.classList.toggle('on',qRepeat); };
-let qLastPos = 0, qLastPosAt = Date.now();
-[qA,qB].forEach(el=>{
-  el.addEventListener('ended', ()=>{ if(el===qAudio && qWantPlay) qAdvance(); });
-  el.addEventListener('pause', ()=>{ if(el===qAudio) qPlay.innerText='▶'; });
-  el.addEventListener('playing', ()=>{ if(el!==qAudio) return; qPlay.innerText='⏸'; qStatus.innerText='Playing · next plays automatically'; qPrepareStandby(); });
-  el.addEventListener('error', ()=>{ if(el===qAudio) qTryNext(); else qStandbyFor = 0; });
-  el.addEventListener('timeupdate', ()=>{
-    if(el!==qAudio) return;
-    if(el.currentTime !== qLastPos){ qLastPos = el.currentTime; qLastPosAt = Date.now(); }
-    const d = el.duration; // some iOS versions never fire 'ended': move on at the very end ourselves
-    if(qWantPlay && d && isFinite(d) && d > 5 && el.currentTime >= d - 0.35) qAdvance();
-    document.getElementById('q-cur').innerText=fmtT(el.currentTime);
-    document.getElementById('q-dur').innerText=fmtT(d);
-    if(d) qSeek.value = Math.round(el.currentTime/d*1000);
-  });
-});
-setInterval(function(){ // watchdog: ended but nothing started, or a play() that was refused
-  if(!qWantPlay || !qAudio.paused) return;
-  if(!athanAudio.paused) return;
-  const aa = document.getElementById('alarm-audio'); if(aa && !aa.paused) return;
-  const d = qAudio.duration;
-  if(qAudio.ended || (d && isFinite(d) && qAudio.currentTime >= d - 1.5)) qAdvance();
-  else if(Date.now() - qAdvanceAt > 8000){ const pr = qAudio.play(); if(pr && pr.catch) pr.catch(()=>{}); }
-}, 3000);
-setInterval(function(){ // stuck while "playing" near the end → move on
-  if(!qWantPlay || qAudio.paused) return;
-  const d = qAudio.duration;
-  if(Date.now() - qLastPosAt > 15000 && d && isFinite(d) && qAudio.currentTime >= d - 5) qAdvance();
-}, 5000);
-qSeek.addEventListener('input', ()=>{ if(qAudio.duration) qAudio.currentTime = qSeek.value/1000*qAudio.duration; });
-renderSurahList('');
-if(qCur){ qShowInfo(qCur); }
-
-
-/* ---------- ATHAN (per-prayer on/off) ---------- */
-const ATHAN_URL = 'https://archive.org/download/20230209_20230209_1744/' + encodeURIComponent('اذان نادر جدا تخشع له القلوب بصوت الشيخ محمد صديق المنشاوي من فترة الخمسينات.mp3');
-const athanAudio = document.getElementById('athan-audio');
-let athanTriedRemote = false;
-athanAudio.src = 'audio/athan.mp3';
-athanAudio.addEventListener('error', ()=>{ if(!athanTriedRemote){ athanTriedRemote = true; athanAudio.src = ATHAN_URL; } });
-const PR = ['fajr','dhuhr','asr','maghrib','isha'];
-let athanOn = {fajr:false,dhuhr:false,asr:false,maghrib:false,isha:false};
-try{ Object.assign(athanOn, JSON.parse(localStorage.getItem('horizon_athan')||'{}')); }catch(e){}
-let athanFired = {}, resumeQuran = false;
-function renderBells(){
-  document.querySelectorAll('.p-bell').forEach(b=>{
-    const on = !!athanOn[b.dataset.p];
-    b.classList.toggle('on', on);
-    b.innerText = on ? '🔔 Athan on' : '🔕 Athan off';
-  });
-}
-function unlockAthan(){ // a user click lets the browser play later without a click
-  athanAudio.muted = true;
-  athanAudio.play().then(()=>{ athanAudio.pause(); athanAudio.currentTime=0; athanAudio.muted=false; }).catch(()=>{ athanAudio.muted=false; });
-}
-document.querySelectorAll('.p-bell').forEach(b=>b.onclick = ()=>{
-  const p=b.dataset.p; athanOn[p]=!athanOn[p];
-  try{ localStorage.setItem('horizon_athan', JSON.stringify(athanOn)); }catch(e){}
-  renderBells(); if(athanOn[p]) unlockAthan();
-});
-function startAthan(){
-  if(!qAudio.paused){ qWantPlay = false; qAudio.pause(); qPlay.innerText='▶'; qStatus.innerText='Stopped for Athan'; }
-  athanAudio.currentTime=0;
-  athanAudio.play().then(()=>{ document.getElementById('athan-stop').style.display=''; })
-    .catch(()=>{ document.getElementById('prayer-countdown').insertAdjacentHTML('afterend','<div class="err">Athan blocked by browser — tap any bell once to allow sound.</div>'); });
-}
-athanAudio.addEventListener('ended', ()=>{
-  document.getElementById('athan-stop').style.display='none';
-});
-document.getElementById('athan-test').onclick = startAthan;
-document.getElementById('athan-stop').onclick = ()=>{ athanAudio.pause(); athanAudio.dispatchEvent(new Event('ended')); };
-function checkAthan(){
-  if(!prayerTimes) return;
-  const now=new Date(), hm=cairoHM(now), day=now.toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
-  for(const p of PR){
-    const t = prayerTimes[p.charAt(0).toUpperCase()+p.slice(1)];
-    if(!t) continue;
-    const key=day+p;
-    if(athanOn[p] && t.slice(0,5)===hm && !athanFired[key]){ athanFired[key]=true; startAthan(); }
-  }
-}
-renderBells();
-
-/* ---------- CALENDAR + TASKS AGENDA (OAuth) ---------- */
-const GOOGLE_CLIENT_ID = '280014070383-1jd6blen4fn102vn7bg3o2pjvgeogmnv.apps.googleusercontent.com';
-const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks.readonly';
-let gAccessToken = null;
-let tokenClient = null;
-let allEvents = [], allTasks = [];
-let selectedDayOffset = 0;
-const TOKEN_STORAGE_KEY = 'horizon_g_token';
-
-function saveToken(resp){
-  const expiry = Date.now() + (resp.expires_in ? resp.expires_in*1000 : 3500*1000);
-  try{ localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify({token: resp.access_token, expiry})); }catch(e){}
-}
-function loadStoredToken(){
-  try{
-    const raw = localStorage.getItem(TOKEN_STORAGE_KEY);
-    if(!raw) return null;
-    const data = JSON.parse(raw);
-    if(data.expiry && data.expiry > Date.now()+60000) return data.token;
-  }catch(e){}
-  return null;
-}
+// ═══════════════════════════════════════
+// GOOGLE CALENDAR
+// ═══════════════════════════════════════
+const CLIENT_ID=''; // ← paste your OAuth client ID
+const API_KEY='';   // ← paste your API key
+const SCOPES='https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks.readonly';
+const EVT_COLORS=['#FF3B30','#F5A623','#39D353','#0A84FF','#AF52DE','#FF9500'];
 
 function initGoogleAuth(){
-  if(typeof google === 'undefined' || !google.accounts){ setTimeout(initGoogleAuth, 400); return; }
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: GOOGLE_SCOPES,
-    callback: (resp) => {
-      if(resp && resp.access_token){
-        gAccessToken = resp.access_token;
-        saveToken(resp);
-        document.getElementById('signin-block').style.display='none';
-        document.getElementById('agenda-block').style.display='block';
-        loadAgenda();
-      }
-    }
+  if(!CLIENT_ID){ document.getElementById('cal-signin').innerHTML='<span style="color:var(--muted);font-size:11px">Set CLIENT_ID in script to enable Calendar.</span>'; return; }
+  if(typeof gapi==='undefined'){
+    const s=document.createElement('script'); s.src='https://apis.google.com/js/api.js';
+    s.onload=()=>gapi.load('client:auth2',startAuth);
+    document.head.appendChild(s);
+  } else startAuth();
+}
+function startAuth(){
+  gapi.client.init({apiKey:API_KEY,clientId:CLIENT_ID,
+    discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest','https://www.googleapis.com/discovery/v1/apis/tasks/v1/rest'],
+    scope:SCOPES}).then(()=>{
+    const auth=gapi.auth2.getAuthInstance();
+    if(auth.isSignedIn.get()) loadCalendar();
+    else auth.signIn().then(loadCalendar).catch(()=>{});
   });
-  document.getElementById('gsi-btn').onclick = () => tokenClient.requestAccessToken({prompt:'consent'});
+}
+async function loadCalendar(){
+  document.getElementById('cal-signin').style.display='none';
+  document.getElementById('cal-content').style.display='block';
+  const now=new Date(),end=new Date(now);end.setDate(end.getDate()+7);
+  try{
+    const r=await gapi.client.calendar.events.list({calendarId:'primary',timeMin:now.toISOString(),timeMax:end.toISOString(),singleEvents:true,orderBy:'startTime',maxResults:20});
+    renderAgenda(r.result.items);
+  }catch(e){}
+  try{
+    const r=await gapi.client.tasks.tasks.list({tasklist:'@default',showCompleted:false,maxResults:10});
+    renderTasks(r.result.items||[]);
+  }catch(e){}
+}
+function renderAgenda(events){
+  if(!events?.length){ document.getElementById('agenda-list').innerHTML='<div style="color:var(--muted);font-size:11px">No upcoming events.</div>'; return; }
+  let last='',html='';
+  events.forEach((ev,i)=>{
+    const s=ev.start.dateTime?new Date(ev.start.dateTime):new Date(ev.start.date);
+    const dk=s.toDateString();
+    if(dk!==last){ html+=`<div class="agenda-day-label">${DAYS[s.getDay()]} ${s.getDate()} ${MONTHS[s.getMonth()]}</div>`; last=dk; }
+    const t=ev.start.dateTime?s.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false}):'All day';
+    html+=`<div class="agenda-event"><div class="agenda-dot" style="background:${EVT_COLORS[i%EVT_COLORS.length]}"></div><span class="agenda-time">${t}</span><span>${ev.summary||'—'}</span></div>`;
+  });
+  document.getElementById('agenda-list').innerHTML=html;
+}
+function renderTasks(tasks){
+  if(!tasks.length) return;
+  document.getElementById('tasks-list').innerHTML=
+    '<div style="font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-bottom:4px">TASKS</div>'+
+    tasks.map(t=>`<div style="display:flex;gap:6px;font-size:11px;color:var(--dim);padding:3px 0">
+      <span style="color:var(--muted)">□</span><span>${t.title||'—'}</span>
+      ${t.due?`<span style="color:var(--muted);font-size:10px;margin-left:auto">${new Date(t.due).getDate()} ${MONTHS[new Date(t.due).getMonth()]}</span>`:''}
+    </div>`).join('');
+}
 
-  // Try silent reuse of stored token, else attempt silent re-auth once.
-  const stored = loadStoredToken();
-  if(stored){
-    gAccessToken = stored;
-    document.getElementById('signin-block').style.display='none';
-    document.getElementById('agenda-block').style.display='block';
-    loadAgenda();
+// ═══════════════════════════════════════
+// WIDGET VISIBILITY
+// ═══════════════════════════════════════
+function applyWidgetVisibility(){
+  document.getElementById('row-finance').style.display = ST.showFinance ? '' : 'none';
+}
+function toggleFinance(v){ ST.showFinance=v; saveState(); applyWidgetVisibility(); }
+function toggleHolidays(v){
+  ST.showHolidays=v; saveState();
+  document.querySelector('.grid-2:last-of-type').style.display=v?'':'none';
+}
+
+// ═══════════════════════════════════════
+// SETTINGS PANEL
+// ═══════════════════════════════════════
+function openSettings(){
+  buildClockEditor();
+  buildHolidayPicker();
+  document.getElementById('tog-finance').checked=ST.showFinance;
+  document.getElementById('tog-holidays').checked=ST.showHolidays;
+  document.getElementById('settings-overlay').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settings-overlay').classList.remove('show'); }
+
+function buildClockEditor(){
+  const wrap=document.getElementById('clock-editor');
+  wrap.innerHTML=ST.clocks.map((c,i)=>{
+    const opts=TZLIST.map(t=>`<option value="${t.tz}" ${t.tz===c.tz?'selected':''}>${t.label}</option>`).join('');
+    return `<div class="clock-edit-row">
+      <input type="text" placeholder="Label" value="${c.label||''}" id="clk-lbl-${i}" maxlength="10"/>
+      <select id="clk-tz-${i}">${opts}</select>
+      ${ST.clocks.length>1?`<button class="rm-btn" onclick="removeClock(${i})">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+function addClockSlot(){
+  if(ST.clocks.length>=4) return;
+  ST.clocks.push({label:'NEW',tz:'UTC',lat:null,lon:null});
+  buildClockEditor();
+}
+function removeClock(i){
+  ST.clocks.splice(i,1);
+  buildClockEditor();
+}
+
+function buildHolidayPicker(){
+  const wrap=document.getElementById('holiday-country-picker');
+  wrap.innerHTML=Object.entries(COUNTRY_META).map(([code,m])=>`
+    <label class="settings-row" style="cursor:pointer">
+      <input type="checkbox" id="hc-${code}" ${ST.holidayCountries.includes(code)?'checked':''} onchange="toggleHolidayCountry('${code}',this.checked)"/>
+      ${m.flag} ${m.name}
+    </label>`).join('');
+}
+
+function toggleHolidayCountry(code,checked){
+  if(checked){
+    if(ST.holidayCountries.length<3) ST.holidayCountries.push(code);
+    else{ document.getElementById('hc-'+code).checked=false; return; }
   } else {
-    // Attempt a silent (no-popup) auth in case the user already granted consent in this browser.
-    try{ tokenClient.requestAccessToken({prompt:''}); }catch(e){}
+    ST.holidayCountries=ST.holidayCountries.filter(c=>c!==code);
   }
 }
 
-async function loadAgenda(){
-  const now = new Date();
-  const overdueFloor = new Date(now); overdueFloor.setDate(overdueFloor.getDate()-60); // catch overdue tasks up to 60 days back
-  const endWeek = new Date(now); endWeek.setDate(endWeek.getDate()+7); endWeek.setHours(23,59,59,999);
-  const startToday = new Date(now); startToday.setHours(0,0,0,0);
-
-  const headers = { 'Authorization': 'Bearer ' + gAccessToken };
-  let events = [], tasks = [];
-
-  try{
-    const evRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startToday.toISOString()}&timeMax=${endWeek.toISOString()}&singleEvents=true&orderBy=startTime`, {headers});
-    if(!evRes.ok) throw new Error('cal fetch failed');
-    const evData = await evRes.json();
-    events = evData.items || [];
-  }catch(e){ console.error(e); }
-
-  try{
-    const listRes = await fetch('https://tasks.googleapis.com/tasks/v1/users/@me/lists', {headers});
-    if(listRes.ok){
-      const listData = await listRes.json();
-      for(const list of (listData.items||[])){
-        const tRes = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${list.id}/tasks?showCompleted=false&dueMin=${overdueFloor.toISOString()}&dueMax=${endWeek.toISOString()}&maxResults=100`, {headers});
-        if(tRes.ok){ const tData = await tRes.json(); tasks = tasks.concat(tData.items||[]); }
-      }
-    }
-  }catch(e){ console.error(e); }
-
-  allEvents = events; allTasks = tasks;
-  renderOverdue(now);
-  renderDayAgenda(selectedDayOffset, now);
-  renderWeekStrip(now);
-  document.getElementById('stamp-cal').innerText = 'Updated '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-}
-
-function isSameDay(d1,d2){ return d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth() && d1.getDate()===d2.getDate(); }
-
-function renderOverdue(now){
-  const block = document.getElementById('overdue-block');
-  const todayStart = new Date(now); todayStart.setHours(0,0,0,0);
-  const overdue = allTasks.filter(t=> t.due && new Date(t.due) < todayStart);
-  if(overdue.length===0){ block.innerHTML=''; return; }
-  overdue.sort((a,b)=> new Date(a.due)-new Date(b.due));
-  let html = '<h2 style="color:var(--danger);">Overdue</h2><div class="agenda-list">';
-  overdue.forEach(t=>{
-    const d = new Date(t.due);
-    html += `<div class="agenda-item"><span class="agenda-time">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span><span class="agenda-title">${escapeHtml(t.title||'(untitled)')}</span><span class="agenda-tag overdue">overdue</span></div>`;
-  });
-  html += '</div>';
-  block.innerHTML = html;
-}
-
-function renderDayAgenda(offset, now){
-  const day = new Date(now); day.setDate(now.getDate()+offset);
-  const label = document.getElementById('agenda-day-label');
-  label.innerText = offset===0 ? 'Today' : day.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
-
-  const list = document.getElementById('today-list');
-  list.innerHTML = '';
-  const items = [];
-  allEvents.forEach(ev=>{
-    const start = ev.start.dateTime ? new Date(ev.start.dateTime) : new Date(ev.start.date+'T00:00:00');
-    if(isSameDay(start, day)){
-      items.push({time: ev.start.dateTime ? start.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : 'All day', sortKey: start.getTime(), title: ev.summary||'(untitled)', type:'event'});
-    }
-  });
-  allTasks.forEach(t=>{
-    if(t.due){
-      const due = new Date(t.due);
-      if(isSameDay(due, day)){
-        items.push({time: 'Due', sortKey: due.getTime(), title: t.title||'(untitled)', type:'task'});
-      }
-    }
-  });
-  items.sort((a,b)=>a.sortKey-b.sortKey);
-  if(items.length===0){ list.innerHTML = '<div class="agenda-empty">Nothing scheduled.</div>'; return; }
-  items.forEach(it=>{
-    const row = document.createElement('div'); row.className='agenda-item';
-    row.innerHTML = `<span class="agenda-time">${it.time}</span><span class="agenda-title">${escapeHtml(it.title)}</span><span class="agenda-tag ${it.type}">${it.type}</span>`;
-    list.appendChild(row);
-  });
-}
-
-function renderWeekStrip(now){
-  const strip = document.getElementById('week-strip');
-  strip.innerHTML='';
-  for(let i=0;i<7;i++){
-    const day = new Date(now); day.setDate(now.getDate()+i);
-    const dayEvents = allEvents.filter(ev=>{
-      const start = ev.start.dateTime ? new Date(ev.start.dateTime) : new Date(ev.start.date+'T00:00:00');
-      return isSameDay(start, day);
-    });
-    const dayTasks = allTasks.filter(t=> t.due && isSameDay(new Date(t.due), day));
-    const count = dayEvents.length + dayTasks.length;
-    const first = (dayEvents[0] && dayEvents[0].summary) || (dayTasks[0] && dayTasks[0].title) || '';
-    const cell = document.createElement('div'); cell.className='week-day'+(i===selectedDayOffset?' selected':'');
-    cell.innerHTML = `<div class="wd-name">${day.toLocaleDateString('en-US',{weekday:'short'})}</div><div class="wd-count">${count}</div><div class="wd-first">${escapeHtml(first.slice(0,14))}</div>`;
-    cell.onclick = () => { selectedDayOffset = i; renderDayAgenda(i, new Date()); renderWeekStrip(new Date()); };
-    strip.appendChild(cell);
-  }
-}
-
-function escapeHtml(str){
-  const d = document.createElement('div'); d.innerText = str; return d.innerHTML;
-}
-
-/* ---------- OFFLINE AUDIO STORE (IndexedDB) ---------- */
-const audioDB = (function(){
-  let dbp = null;
-  function open(){
-    if(dbp) return dbp;
-    dbp = new Promise((res,rej)=>{
-      if(!window.indexedDB){ rej(new Error('no idb')); return; }
-      const r = indexedDB.open('horizon-audio', 1);
-      r.onupgradeneeded = ()=>{ r.result.createObjectStore('files'); };
-      r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error);
-    });
-    return dbp;
-  }
-  function tx(mode, fn){ return open().then(db=>new Promise((res,rej)=>{ const t=db.transaction('files',mode); const st=t.objectStore('files'); const out=fn(st); t.oncomplete=()=>res(out&&out.result); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); })); }
-  return {
-    keys: ()=>open().then(db=>new Promise((res)=>{ const ks=[]; const c=db.transaction('files').objectStore('files').openCursor(); c.onsuccess=()=>{ const cur=c.result; if(cur){ ks.push(cur.key); cur.continue(); } else res(ks); }; c.onerror=()=>res(ks); })),
-    put: (k,buf)=>tx('readwrite', st=>st.put(buf,k)),
-    getUrl: (k)=>tx('readonly', st=>st.get(k)).then(buf=>buf ? URL.createObjectURL(new Blob([buf],{type:'audio/mpeg'})) : null).catch(()=>null)
+function saveSettings(){
+  // Save clock edits
+  ST.clocks=ST.clocks.map((c,i)=>({
+    ...c,
+    label:(document.getElementById('clk-lbl-'+i)?.value||c.label).toUpperCase(),
+    tz:  document.getElementById('clk-tz-'+i)?.value||c.tz,
+  }));
+  // Reset lat/lon for non-local clocks based on tz
+  const TZ_COORDS={
+    'Europe/Istanbul':{lat:41.01,lon:28.98},
+    'Africa/Cairo':{lat:30.06,lon:31.25},
+    'Europe/London':{lat:51.51,lon:-0.13},
+    'America/New_York':{lat:40.71,lon:-74.00},
+    'America/Los_Angeles':{lat:34.05,lon:-118.24},
+    'Asia/Dubai':{lat:25.20,lon:55.27},
+    'Asia/Riyadh':{lat:24.69,lon:46.72},
+    'Asia/Singapore':{lat:1.35,lon:103.82},
+    'Asia/Tokyo':{lat:35.68,lon:139.69},
+    'Europe/Paris':{lat:48.85,lon:2.35},
+    'Europe/Berlin':{lat:52.52,lon:13.40},
+    'Asia/Kolkata':{lat:28.61,lon:77.20},
+    'Asia/Shanghai':{lat:31.23,lon:121.47},
+    'Australia/Sydney':{lat:-33.87,lon:151.21},
   };
-})();
-const offlineStatusEl = document.createElement('div');
-offlineStatusEl.className = 'radio-status'; offlineStatusEl.style.marginTop = '6px';
-document.getElementById('q-status').insertAdjacentElement('afterend', offlineStatusEl);
-function offlineCount(){ return OFFLINE_SURAHS.filter(n=>savedAudio['q'+n]).length; }
-function showOfflineStatus(extra){ offlineStatusEl.innerText = 'Offline: ' + offlineCount() + '/' + OFFLINE_SURAHS.length + ' surahs saved' + (savedAudio.athan?' · Athan saved':'') + (extra?(' · '+extra):''); }
-function fetchBuf(url){ return fetch(url).then(r=>{ if(!r.ok) throw new Error(r.status); return r.arrayBuffer(); }); }
-async function saveOfflineAudio(){
-  try{ (await audioDB.keys()).forEach(k=>savedAudio[k]=true); }catch(e){ offlineStatusEl.innerText='Offline saving not supported on this browser'; return; }
-  renderSurahList(document.getElementById('q-search').value); showOfflineStatus();
-  if(savedAudio.athan){ audioDB.getUrl('athan').then(u=>{ if(u) athanAudio.src = u; }); }
-  if(!navigator.onLine) return;
-  const queue = [['athan','audio/athan.mp3']].concat(OFFLINE_SURAHS.slice().reverse().map(n=>['q'+n,'audio/quran/'+qPad(n)+'.mp3'])); // short surahs first
-  for(const [k,url] of queue){
-    if(savedAudio[k]) continue;
-    if(!navigator.onLine){ showOfflineStatus('paused (offline)'); return; }
-    showOfflineStatus('saving…');
-    try{
-      const buf = await fetchBuf(url);
-      await audioDB.put(k, buf);
-      savedAudio[k] = true;
-      if(k==='athan' && athanAudio.paused){ audioDB.getUrl('athan').then(u=>{ if(u) athanAudio.src = u; }); }
-      renderSurahList(document.getElementById('q-search').value);
-    }catch(e){ showOfflineStatus('storage full or error — stopped'); return; }
-  }
-  showOfflineStatus();
-}
-setTimeout(saveOfflineAudio, 4000);
-
-/* ---------- PAGE OFFLINE CACHE (AppCache, works on iOS 10) ---------- */
-if(window.applicationCache){
-  applicationCache.addEventListener('updateready', function(){
-    try{ applicationCache.swapCache(); }catch(e){}
-    const tryReload = ()=>{ if(qAudio.paused && athanAudio.paused) location.reload(); else setTimeout(tryReload, 60000); };
-    tryReload();
+  ST.clocks.forEach((c,i)=>{
+    if(c.tz!=='LOCAL'){
+      const coords=TZ_COORDS[c.tz];
+      if(coords){ ST.clocks[i].lat=coords.lat; ST.clocks[i].lon=coords.lon; }
+    }
   });
+  saveState();
+  renderClocksGrid();
+  renderHolidays();
+  applyWidgetVisibility();
+  closeSettings();
 }
 
-/* ---------- INIT ---------- */
-updateClocks(); initLocation(); fetchFX(); refreshGold(); updatePrayerTimes(); initGoogleAuth();
-setInterval(updateClocks, 1000);
-setInterval(checkAthan, 5000);
-setInterval(updatePrayerTimes, 60000);
-setInterval(fetchWeather, 900000);
-setInterval(fetchFX, 3600000);
-setInterval(refreshGold, 3600000);
-setInterval(()=>{ if(gAccessToken) loadAgenda(); }, 900000);
-
-/* ---------- KIOSK (iPad) ---------- */
-// Safari only allows sound after a tap. One tap anywhere unlocks both players for the whole session.
-let soundUnlocked = false;
-const soundBanner = document.getElementById('sound-banner');
-function athanEnabledAny(){ return PR.some(p=>athanOn[p]) || (window.hzAlarmsOn && window.hzAlarmsOn()); }
-function updateSoundBanner(){ soundBanner.style.display = (!soundUnlocked && athanEnabledAny()) ? 'block' : 'none'; }
-function unlockAllSound(){
-  if(soundUnlocked) return;
-  soundUnlocked = true;
-  unlockAthan();
-  const aa=document.getElementById('alarm-audio'); if(aa){ aa.src='audio/beep.wav'; aa.muted=true; aa.play().then(()=>{ aa.pause(); aa.muted=false; }).catch(()=>{ aa.muted=false; }); }
-  [qA,qB].forEach(el=>{ if(!el.paused) return; if(!el.src) el.src='audio/beep.wav'; el.muted=true; el.play().then(()=>{ el.pause(); el.muted=false; }).catch(()=>{ el.muted=false; }); });
-  updateSoundBanner();
-}
-['touchend','click'].forEach(ev=>document.addEventListener(ev, unlockAllSound, true));
-document.querySelectorAll('.p-bell').forEach(b=>b.addEventListener('click', updateSoundBanner));
-updateSoundBanner();
-
-// Nightly refresh (instead of every 30 min, which would re-lock sound): around 03:00 Cairo, only if nothing is playing.
-let reloadDue = false; const pageLoadedAt = Date.now();
-setInterval(function(){
-  const hm = cairoHM(new Date());
-  if(hm === '03:00' && Date.now()-pageLoadedAt > 5*60*1000) reloadDue = true;
-  if(reloadDue && qAudio.paused && athanAudio.paused) location.reload();
-}, 30000);
-document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
-
-/* ---------- ALARMS (several; beep or Athan sound; saved on the iPad) ---------- */
-const alarmAudio = document.getElementById('alarm-audio');
-const DAY_LET = ['S','M','T','W','T','F','S'];
-let alarms = []; try{ alarms = JSON.parse(localStorage.getItem('horizon_alarms')||'[]'); }catch(e){}
-let alarmRinging = null, alarmStopTimer = null; const alarmFired = {};
-window.hzAlarmsOn = ()=>alarms.some(a=>a.on);
-function saveAlarms(){ try{ localStorage.setItem('horizon_alarms', JSON.stringify(alarms)); }catch(e){} if(typeof updateSoundBanner==='function') updateSoundBanner(); }
-let newDays = [];
-function renderAlarmDays(){
-  document.getElementById('al-days').innerHTML = DAY_LET.map((d,i)=>'<span class="al-day'+(newDays.indexOf(i)>=0?' on':'')+'" data-d="'+i+'">'+d+'</span>').join('');
-}
-function daysText(a){ if(!a.days.length) return 'Once'; if(a.days.length===7) return 'Every day'; return a.days.map(i=>['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i]).join(' '); }
-function renderAlarms(){
-  const box = document.getElementById('alarm-list');
-  if(!alarms.length){ box.innerHTML = '<div class="agenda-empty">No alarms yet.</div>'; return; }
-  box.innerHTML = alarms.slice().sort((a,b)=>a.time<b.time?-1:1).map(a=>'<div class="al-row'+(a.on?'':' off')+'"><span class="al-t">'+a.time+'</span><span class="al-meta">'+(a.label?escapeHtml(a.label)+' · ':'')+daysText(a)+' · '+(a.sound==='athan'?'🕌 Athan':'🔔 Beep')+'</span><button class="mini-btn al-tog'+(a.on?' on':'')+'" data-id="'+a.id+'">'+(a.on?'On':'Off')+'</button><button class="mini-btn al-del" data-id="'+a.id+'">✕</button></div>').join('');
-}
-document.getElementById('al-days').addEventListener('click', e=>{ const d=e.target.closest('.al-day'); if(!d) return; const i=+d.dataset.d; const k=newDays.indexOf(i); if(k>=0) newDays.splice(k,1); else newDays.push(i); newDays.sort(); renderAlarmDays(); });
-document.getElementById('al-add').addEventListener('click', ()=>{
-  const t = document.getElementById('al-time').value; if(!/^\d\d:\d\d$/.test(t)) return;
-  alarms.push({id:Date.now(), time:t, sound:document.getElementById('al-sound').value, label:document.getElementById('al-label').value.trim(), days:newDays.slice(), on:true});
-  newDays=[]; document.getElementById('al-label').value=''; renderAlarmDays(); saveAlarms(); renderAlarms();
+// ═══════════════════════════════════════
+// OFFLINE / PWA
+// ═══════════════════════════════════════
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredInstallPrompt=e;
+  document.getElementById('install-banner').classList.add('show');
 });
-document.getElementById('alarm-list').addEventListener('click', e=>{
-  const b=e.target.closest('button'); if(!b) return; const id=+b.dataset.id; const a=alarms.find(x=>x.id===id); if(!a) return;
-  if(b.classList.contains('al-del')) alarms = alarms.filter(x=>x.id!==id); else a.on=!a.on;
-  saveAlarms(); renderAlarms();
+document.getElementById('install-btn').addEventListener('click',()=>{
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(()=>{
+      deferredInstallPrompt=null;
+      document.getElementById('install-banner').classList.remove('show');
+    });
+  }
 });
-function alarmSoundUrl(a){ return a.sound==='athan' ? (athanAudio.src && athanAudio.src.indexOf('blob:')===0 ? athanAudio.src : 'audio/athan.mp3') : 'audio/beep.wav'; }
-function ringAlarm(a){
-  alarmRinging = a;
-  if(!athanAudio.paused) athanAudio.pause();
-  if(!qAudio.paused){ qWantPlay = false; qAudio.pause(); qPlay.innerText='▶'; }
-  alarmAudio.src = alarmSoundUrl(a); alarmAudio.loop = true; alarmAudio.currentTime = 0;
-  alarmAudio.play().catch(()=>{});
-  clearTimeout(alarmStopTimer); alarmStopTimer = setTimeout(stopAlarm, 10*60*1000);
-  if(typeof updateSaver==='function') updateSaver();
-}
-function stopAlarm(){ alarmAudio.pause(); alarmRinging = null; clearTimeout(alarmStopTimer); lastTouch = Date.now(); }
-function snoozeAlarm(){
-  const a = alarmRinging; stopAlarm(); if(!a) return;
-  const t = new Date(Date.now()+5*60000), hm = cairoHM(t);
-  alarms.push({id:Date.now(), time:hm, sound:a.sound, label:(a.label||'Alarm')+' (snooze)', days:[], on:true, snooze:true}); saveAlarms(); renderAlarms();
-}
-function checkAlarms(){
-  const now=new Date(), hm=cairoHM(now), day=now.toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
-  const dow = new Date(day+'T12:00:00').getDay();
-  let changed=false;
-  alarms.forEach(a=>{
-    if(!a.on || a.time!==hm) return;
-    if(a.days.length && a.days.indexOf(dow)<0) return;
-    const key=day+a.id; if(alarmFired[key]) return; alarmFired[key]=true;
-    ringAlarm(a);
-    if(!a.days.length){ a.on=false; changed=true; }
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    document.getElementById('offline-status').textContent='STATUS: CACHED ✓';
+  }).catch(()=>{
+    document.getElementById('offline-status').textContent='STATUS: SW UNAVAILABLE';
   });
-  const before=alarms.length; alarms = alarms.filter(a=>!(a.snooze && !a.on)); if(alarms.length!==before) changed=true;
-  if(changed){ saveAlarms(); renderAlarms(); }
+  navigator.serviceWorker.ready.then(()=>{
+    document.getElementById('offline-status').textContent='STATUS: CACHED ✓';
+  });
+} else {
+  document.getElementById('offline-status').textContent='STATUS: NOT SUPPORTED';
 }
-renderAlarmDays(); renderAlarms();
-setInterval(checkAlarms, 5000);
 
-/* ---------- SAVER: always-on clock; tap shows dashboard for 60s; Athan scene; mini Quran player ---------- */
-const SAVER_IDLE_MS = 60*1000;
-const saverEl = document.getElementById('saver');
-let lastTouch = 0, athanScene = false;
-(function makeStars(){ let h=''; for(let i=0;i<28;i++){ h+='<div class="sv-star" style="left:'+(Math.random()*100).toFixed(1)+'%;top:'+(Math.random()*55).toFixed(1)+'%;-webkit-animation-delay:'+(Math.random()*6).toFixed(1)+'s;animation-delay:'+(Math.random()*6).toFixed(1)+'s"></div>'; } document.getElementById('sv-stars').innerHTML=h; })();
-function toMin(hm){ const a=hm.split(':').map(Number); return a[0]*60+a[1]; }
-function isNightNow(){ // dim look from 21:00 until 30 min after Fajr
-  const cur = toMin(cairoHM(new Date()));
-  const fajr = prayerTimes && prayerTimes.Fajr ? toMin(prayerTimes.Fajr) : 6*60;
-  return cur >= 21*60 || cur < fajr + 30;
-}
-function nextPrayerInfo(){
-  if(!prayerTimes) return null;
-  const cur = toMin(cairoHM(new Date()));
-  let best=null;
-  for(const n of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){ const t=toMin(prayerTimes[n]); if(t>cur && (!best || t<best.t)) best={n:n,t:t}; }
-  if(!best) best={n:'Fajr', t:toMin(prayerTimes.Fajr)+1440};
-  const d=best.t-cur; return {name:best.n, time:prayerTimes[best.n==='Fajr'&&best.t>=1440?'Fajr':best.n], h:Math.floor(d/60), m:d%60};
-}
-const AR_PRAYER = {Fajr:'الفجر',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'};
-let athanPrayerName = '';
-function updateSaver(){
-  const now = new Date();
-  const idle = Date.now() - lastTouch > SAVER_IDLE_MS;
-  const athanPlaying = !athanAudio.paused;
-  if(!athanPlaying) athanScene = false;
-  const show = idle || athanScene || alarmRinging;
-  saverEl.classList.toggle('on', show);
-  if(!show) return;
-  const mode = alarmRinging ? 'alarm' : athanScene ? 'athan' : (isNightNow() ? 'night' : 'day');
-  if(alarmRinging) document.getElementById('sv-alarm-title').innerText = '⏰ ' + (alarmRinging.label || 'Alarm');
-  saverEl.className = 'on ' + mode;
-  document.getElementById('sv-time').innerText = cairoHM(now);
-  document.getElementById('sv-date').innerText = now.toLocaleDateString('en-GB',{timeZone:'Africa/Cairo',weekday:'long',day:'numeric',month:'long'});
-  const wxEl = document.querySelector('#tz-'+(typeof selectedCity!=='undefined'?selectedCity:'cairo')+' .clock-wx') || document.querySelector('#tz-cairo .clock-wx');
-  const cityEl = document.querySelector('#tz-'+(typeof selectedCity!=='undefined'?selectedCity:'cairo')+' .clock-name');
-  const wx = wxEl ? wxEl.innerText.split('·')[0].trim() : '';
-  document.getElementById('sv-wx').innerText = (wx && wx!=='offline' && wx.indexOf('Loading')<0) ? wx + (cityEl?'  '+cityEl.innerText.replace('📍 ',''):'') : '';
-  const np = nextPrayerInfo();
-  document.getElementById('sv-next-name').innerText = np ? np.name + '  ' + np.time : '';
-  document.getElementById('sv-next-in').innerText = np ? 'in ' + (np.h? np.h+'h ':'') + np.m + 'm' : '';
-  document.getElementById('sv-athan-sub').innerText = athanPrayerName ? ('صلاة ' + AR_PRAYER[athanPrayerName] + ' · ' + athanPrayerName + ' prayer') : 'Time for prayer';
-  const hint = document.getElementById('sv-hint');
-  const locked = (typeof soundUnlocked!=='undefined') && !soundUnlocked && athanEnabledAny();
-  hint.innerText = locked ? '🔇 Tap once to enable Athan sound' : 'Tap to open dashboard';
-  hint.style.color = locked ? '#2E7D72' : '';
-  // mini player: visible while a surah is loaded and was started
-  const pl = document.getElementById('sv-player');
-  const hasP = !athanScene && qAudio.src && qAudio.src.indexOf('beep.wav')<0 && qAudio.currentTime > 0 && !qAudio.ended;
-  pl.classList.toggle('on', !!hasP); saverEl.classList.toggle('has-player', !!hasP);
-  if(hasP){
-    const x = SURAHS[qCur-1] || ['',''];
-    document.getElementById('sv-p-name').innerText = 'سورة ' + x[1] + '  ·  ' + x[0];
-    document.getElementById('sv-p-play').innerText = qAudio.paused ? '▶' : '⏸';
-    document.getElementById('sv-p-fill').style.width = qAudio.duration ? (qAudio.currentTime/qAudio.duration*100).toFixed(1)+'%' : '0';
+function cacheOffline(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration().then(reg=>{
+      if(reg) reg.update();
+    });
+    alert('Dashboard cached! You can now use it offline. On iPad: Safari → Share → Add to Home Screen.');
+  } else {
+    alert('Service workers not supported on this browser.');
   }
-  // slow drift so nothing sits on exactly the same pixels all day
-  const k = Math.floor(Date.now()/60000)%8, dx=[0,6,10,6,0,-6,-10,-6][k], dy=[0,4,0,-4,0,4,0,-4][k];
-  document.getElementById('sv-inner').style.webkitTransform = document.getElementById('sv-inner').style.transform = 'translate('+dx+'px,'+dy+'px)';
 }
-// Athan opens the saver in the Athan scene
-const _startAthan = startAthan;
-startAthan = function(){
-  athanPrayerName = '';
-  if(prayerTimes){ // the prayer whose time was reached most recently (within 30 min)
-    const cur=toMin(cairoHM(new Date())); let best=31;
-    for(const n of ['Fajr','Dhuhr','Asr','Maghrib','Isha']){ const d=cur-toMin(prayerTimes[n]); if(d>=0 && d<best){ best=d; athanPrayerName=n; } }
-  }
-  athanScene = true; _startAthan(); updateSaver(); };
-document.getElementById('athan-test').onclick = startAthan;
-// controls inside the saver
-function svAct(id, fn){ document.getElementById(id).addEventListener('click', function(e){ e.stopPropagation(); fn(); updateSaver(); }); }
-svAct('sv-p-play', ()=>qPlay.onclick());
-svAct('sv-p-prev', ()=>playSurah((qCur||1)-1, true, true));
-svAct('sv-p-next', ()=>playSurah((qCur||0)+1, true, true));
-svAct('sv-alarm-stop', stopAlarm);
-svAct('sv-alarm-snooze', snoozeAlarm);
-svAct('sv-athan-stop', ()=>{ athanAudio.pause(); athanAudio.dispatchEvent(new Event('ended')); athanScene=false; });
-let swallowUntil = 0;
-function noteTouch(e){
-  if(e && e.target && e.target.closest && e.target.closest('.sv-keep')) return; // saver buttons keep the saver open
-  if(saverEl.classList.contains('on')) swallowUntil = Date.now() + 600; // the waking tap shouldn't press anything underneath
-  if(alarmRinging) return; // a ringing alarm stays up until Stop or Snooze
-  lastTouch = Date.now(); athanScene = false; saverEl.classList.remove('on');
-}
-document.addEventListener('click', function(e){ if(Date.now() < swallowUntil){ e.preventDefault(); e.stopPropagation(); } }, true);
-['touchstart','mousedown'].forEach(ev=>document.addEventListener(ev, noteTouch, true));
-updateSaver();
-setInterval(updateSaver, 1000);
 </script>
 </body>
 </html>
